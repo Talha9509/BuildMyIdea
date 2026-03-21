@@ -11,23 +11,32 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role{
+  OWNER
+  DEV
+}
 
-model Owner{
+model User {
   id            Int         @id @default(autoincrement())
   email         String      @unique
-  name          String?      
+  name          String?
+        //name should be removed maybe 
   password      String
+  ownerId       Owner?
+  devId         Dev?
   phone         Int?        @unique
-  // rooms         Room[]
-  // chats         Chat[]
+  createdAt     DateTime    @default(now())
+}
+
+
+model Owner{
+  id         Int      @id
+  userId     User     @relation(fields: [id], references: [id])
+  role       Role
 }
 
 model Dev{
-  id            Int         @id @default(autoincrement())
-  email         String      @unique
-  name          String?      
-  password      String
-  phone         Int?        @unique
-  // rooms         Room[]
-  // chats         Chat[]
+  id        Int     @id
+  userId    User    @relation(fields: [id], references: [id])
+  role      Role
 }
