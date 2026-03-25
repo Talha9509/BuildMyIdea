@@ -5,12 +5,16 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { middleware } from './middleware.js'
 import cors from 'cors'
+import 'dotenv/config'
 
 const app=express()
 
 app.use(express.json())
 app.use(cors())
-const secret=process.env.JWT_SECRET || "1234567890"
+const secret = process.env.JWT_SECRET!;
+if (!secret) {
+  throw new Error('JWT_SECRET is not defined in environment variables');
+}
 const PORT=process.env.PORT || 3001
 
 app.post("/api/v1/signup", async (req:Request,res:Response)=>{
