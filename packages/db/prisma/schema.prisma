@@ -12,31 +12,48 @@ datasource db {
 }
 
 enum Role{
-  OWNER
   DEV
+  OWNER
 }
 
 model User {
   id            Int         @id @default(autoincrement())
   email         String      @unique
   name          String?
-        //name should be removed maybe 
   password      String
-  ownerId       Owner?
-  devId         Dev?
-  phone         Int?        @unique
+  job           String?
+  role          Role?
+  // role is like hr or teacher
+  owner         Owner?
+  dev           Dev?
+  phone         BigInt?     @unique
   createdAt     DateTime    @default(now())
 }
 
 
 model Owner{
-  id         Int      @id
-  userId     User     @relation(fields: [id], references: [id])
-  role       Role
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id])
+  project        Project[]  
 }
 
 model Dev{
-  id        Int     @id
-  userId    User    @relation(fields: [id], references: [id])
-  role      Role
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  user          User      @relation(fields: [userId], references: [id])
+  project       Project[] 
 }
+
+model Project{
+  id            Int          @id @default(autoincrement())
+  name          String       @unique
+  Description   String
+  Skillsreq     String?
+  devId         Int?         @unique
+  dev           Dev?         @relation(fields: [devId],references: [id])
+  ownerId       Int          @unique
+  owner         Owner        @relation(fields: [ownerId],references: [id])
+}
+
+// in future, create one more model Application, devs can apply

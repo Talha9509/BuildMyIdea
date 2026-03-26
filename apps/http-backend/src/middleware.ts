@@ -1,5 +1,5 @@
 import {Request,Response,NextFunction} from 'express'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 const secret=process.env.JWT_SECRET || "1234567890"
 
 export const middleware=(req:Request,res:Response,next:NextFunction)=>{
@@ -12,7 +12,6 @@ export const middleware=(req:Request,res:Response,next:NextFunction)=>{
     if(!decoded){
         return res.status(400).json({ message:"Unauthorized" })
     }
-    // @ts-ignore
-    req.userId=decoded.userId 
+    req.userId=(decoded as JwtPayload).userId 
     next()
 }

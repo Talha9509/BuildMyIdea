@@ -7,10 +7,16 @@ export const UserSchema=z.object({
     name:z.string().optional()
 })
 
-export const OwnerSchema=z.object({
-    role:z.enum(["OWNER","DEV"])
+export const ProjectSchema=z.object({
+    name:z.string().min(3,"Give a Proper Name to the Project"),
+    description:z.string().min(10,"Give a Proper Description for the Project"),
+    skillsreq:z.string().optional()
 })
 
-export const DevSchema=z.object({
-    role:z.enum(["OWNER","DEV"])
+export const updateUserSchema=z.object({
+    name:z.string().optional(),
+    job:z.string().optional(),
+    role:z.enum(["DEV","OWNER"]).optional(),
+    phone:z.optional(z.number().min(10,"Phone number should contain 10 charcters"))
+    // reminder do pnpm run build
 })
