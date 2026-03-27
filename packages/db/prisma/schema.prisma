@@ -43,6 +43,7 @@ model Dev{
   userId        Int       @unique
   user          User      @relation(fields: [userId], references: [id])
   projects      Project[] 
+  submissions   Submit[]
 }
 
 model Project{
@@ -54,16 +55,17 @@ model Project{
   dev           Dev?         @relation(fields: [devId],references: [id])
   ownerId       Int          
   owner         Owner        @relation(fields: [ownerId],references: [id])
-  // submits      Submit[]
+  submits      Submit[]
 }
 
-// model Submit{
-//   id            Int            @id @default(autoincrement())
-//   projectId     Int
-//   project       Project        @relation(fields: [projectId],references: [id])
-//   devId         Int
-//   dev           dev            @relation(fields: [devId],references: [id])
-
-// }
+model Submit{
+  id            Int            @id @default(autoincrement())
+  projectId     Int
+  project       Project        @relation(fields: [projectId],references: [id])
+  devId         Int
+  dev           Dev            @relation(fields: [devId],references: [id])
+  liveLink      String         
+  repoLink      String         @unique
+}
 
 // in future, create one more model Application, devs can apply
