@@ -35,25 +35,35 @@ model Owner{
   id             Int      @id @default(autoincrement())
   userId         Int      @unique
   user           User     @relation(fields: [userId], references: [id])
-  project        Project[]  
+  projects       Project[]  
 }
 
 model Dev{
   id            Int       @id @default(autoincrement())
   userId        Int       @unique
   user          User      @relation(fields: [userId], references: [id])
-  project       Project[] 
+  projects      Project[] 
 }
 
 model Project{
   id            Int          @id @default(autoincrement())
   name          String       @unique
-  Description   String
-  Skillsreq     String?
-  devId         Int?         @unique
+  description   String
+  skillsreq     String?
+  devId         Int?         
   dev           Dev?         @relation(fields: [devId],references: [id])
-  ownerId       Int          @unique
+  ownerId       Int          
   owner         Owner        @relation(fields: [ownerId],references: [id])
+  // submits      Submit[]
 }
+
+// model Submit{
+//   id            Int            @id @default(autoincrement())
+//   projectId     Int
+//   project       Project        @relation(fields: [projectId],references: [id])
+//   devId         Int
+//   dev           dev            @relation(fields: [devId],references: [id])
+
+// }
 
 // in future, create one more model Application, devs can apply

@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { UserSchema, ProjectSchema, updateUserSchema } from '@repo/common/types'
+import { UserSchema, ProjectSchema, updateUserSchema, updateProjectSchema } from '@repo/common/types'
 import { prismaClient } from '@repo/db/client'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -93,10 +93,7 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
     if (typeof userId != 'number') {
         return res.status(401).json({ message: "Unauthourized" })
     }
-
-    const body = req.body
-
-    const validated = updateUserSchema.safeParse(body)
+    const validated = updateUserSchema.safeParse(req.body)
     if (!validated.success) {
         return res.status(411).json({ message: "Invalid Inputs" })
     }
@@ -115,6 +112,7 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
 
         let currentRole: "DEV" | "OWNER" | null = null
         console.log(user.owner, user.dev)
+        // if you want to keep role in user table, then make use of it
         if (user.owner) currentRole = "OWNER"
         if (user.dev) currentRole = "DEV"
 
@@ -125,7 +123,6 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
                     data: otherFields,
                 });
             }
-
             return res.json({ message: "Profile Updated", role: currentRole });
         }
         if (currentRole === "DEV" && user.dev) {
@@ -146,14 +143,10 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
         }
         const result = await prismaClient.$transaction(async (txn) => {
             if (currentRole === "DEV") {
-                await txn.dev.delete({
-                    where: { userId }
-                })
+                await txn.dev.delete({ where: { userId } })
             }
             if (currentRole === "OWNER") {
-                await txn.owner.delete({
-                    where: { userId }
-                })
+                await txn.owner.delete({ where: { userId } })
             }
             if (role === "DEV") {
                 await txn.dev.create({ data: { userId } });
@@ -178,7 +171,37 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
 })
 
 app.get("/api/v1/profile/:id", middleware, async (req, res) => {
-
+    const userId = req.userId
+    const id = parseInt((req.params.id) as string)
+    // same profile will be shown to user and others. only difference is, user can edit his profile
+    // for checking others profile, email and phone will only be visible when both are connected
+    const user = await prismaClient.user.findUnique({
+        where: { id: id },
+        select: {
+            email: true, name: true, job: true, phone: true,
+            owner: {
+                select: {
+                    projects: {
+                        select: {
+                            name: true, description: true, skillsreq: true
+                        }
+                    }
+                }
+            },
+            dev: {
+                select: {
+                    projects: {
+                        select: {
+                            name: true, description: true, skillsreq: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+    // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
+    console.log(user)
+    return res.json({ user })
 })
 
 app.post("/api/v1/projects", middleware, async (req, res) => {
@@ -192,23 +215,21 @@ app.post("/api/v1/projects", middleware, async (req, res) => {
     const validated = ProjectSchema.safeParse(body)
     console.log(validated)
     if (!validated.success) {
-        return res.status(411).json({ message: "Invalid Inputs" })
+        return res.status(400).json({ message: "Invalid Inputs" })
     }
 
     try {
-        const owner = await prismaClient.owner.findFirst({
+        const owner = await prismaClient.owner.findUnique({
             where: { userId: userId }
         })
         if (!owner) {
-            return res.status(401).json({ message: "Owner not Found" })
+            return res.status(403).json({ message: "Owner not Found" })
         }
-        const project = await prismaClient.project.upsert({
-            where: { name: validated.data.name },
-            update: {},
-            create: {
-                name: validated.data?.name,
-                Description: validated.data?.description,
-                ownerId: owner?.id
+        const project = await prismaClient.project.create({
+            data: {
+                name: validated.data.name,
+                description: validated.data.description,
+                ownerId: owner.id
             }
         })
         console.log("project: " + project)
@@ -216,24 +237,136 @@ app.post("/api/v1/projects", middleware, async (req, res) => {
     }
     catch (err: any) {
         console.log(err)
-        return res.status(409).json({ message: "Unable to create Project" })
+        return res.status(409).json({ message: "Projext already exists" })
     }
 })
 
 app.patch("/api/v1/project/:id", middleware, async (req, res) => {
-    // to edit a project
+    // to edit a project by owner
+    const userId = req.userId;
+    const body = req.body
+    const id = parseInt(req.params.id as string)
+    if (typeof userId != 'number') {
+        return res.status(401).json({ message: "Unauthoized" })
+    }
+    console.log(userId)
+
+    const validated = updateProjectSchema.safeParse(body)
+    console.log(validated)
+    if (!validated.success) {
+        return res.status(400).json({ message: "Invalid Inputs" })
+    }
+
+    if (Object.keys(validated.data).length === 0) {
+        return res.status(400).json({ message: "Nothing to be changed" })
+    }
+
+    try {
+        const owner = await prismaClient.owner.findFirst({
+            where: {
+                userId: userId, projects: {
+                    some: { id: id }
+                }
+            },
+            select: {
+                projects: {
+                    where: { id: id },
+                    select: { id: true }
+                }
+            }
+        })
+        console.log(owner?.projects)
+        if (!owner) {
+            return res.status(403).json({ message: "NOT allowed to edit this project" })
+        }
+        const project = await prismaClient.project.update({
+            where: { id: id },
+            data: validated.data,
+        })
+        console.log("project: ", project)
+        return res.json({ message: "Done", project: project })
+    }
+    catch (err: any) {
+        if (err.code === "P2002") {
+            console.log(err)
+            return res.status(409).json({ message: "Name already Exists" })
+        }
+        if (err.code === "P2025") {
+            console.log(err)
+            return res.status(404).json({ message: "Project Not Found" })
+        }
+        console.log(err)
+        return res.status(500).json({ message: "DB/Internal Server Error" })
+    }
 })
 
 app.delete("/api/v1/project/:id", middleware, async (req, res) => {
-    // delte a project
+    // delte a project if owner wants to delete it
+    const userId = req.userId
+    const id = parseInt(req.params.id as string)
+
+    const owner = await prismaClient.owner.findFirst({
+        where: {
+            userId: userId, projects: {
+                some: { id: id }
+            }
+        },
+        select: {
+            projects: {
+                where: { id: id },
+                select: { id: true }
+            }
+        }
+    })
+    console.log(owner)
+    console.log(owner?.projects)
+    if (!owner) {
+        return res.status(403).json({ message: "Not Authorized to Delete Project" })
+    }
+    const deleted = await prismaClient.project.delete({
+        where: { id: id }
+    })
+    if (!deleted) {
+        return res.status(404).json({ message: "Project Not Found" })
+    }
+    return res.json({message:"Done",deleted})
+})
+
+// not complted
+app.post("api/v1/project/submit/:id", middleware, async (req, res) => {
+    // the dev will post the code repo link of github
+})
+
+// not complted
+app.patch("api/v1/project/submit/:id", middleware, async (req, res) => {
+    // the dev wants to make some changes in the submission of  code repo link of github
+})
+
+// not complted
+app.delete("api/v1/project/submit/:id", middleware, async (req, res) => {
+    // the dev wants to delete the posted code repo link of github
 })
 
 app.get("/api/v1/projects", middleware, async (req, res) => {
-
+    const projects=await prismaClient.project.findMany()
+    res.json({ message:"Done", projects })
 })
 
 app.get("/api/v1/project/:id", middleware, async (req, res) => {
+    const id=parseInt(req.params.id as string)
+    const userId=req.userId
+    console.log(id)
 
+    const project=await prismaClient.project.findUnique({
+        where:{ id:id }
+    })
+    return res.json({message:"Done",project})
+})
+
+// not complted
+app.post("api/v1/stars", middleware, async (req, res) => {
+    // one more endpoint of owner giving stars to the projects which he like from whatt devs made for the wish of owner
+    // if owner gives stars here, then give star to the repo in github(it would only work when owner is signed up using github and dev also)
 })
 
 app.listen(PORT, () => {
