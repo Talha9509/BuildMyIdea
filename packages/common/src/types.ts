@@ -3,7 +3,7 @@ import {z} from 'zod'
 
 export const UserSchema=z.object({
     email:z.string().regex(/@/,"Invalid Email"),
-    password:z.string().min(6,"Password must be atleast 6 characters long"),
+    password:z.string().min(6,"Password must be atleast 6 characters"),
     name:z.string().optional()
 })
 
