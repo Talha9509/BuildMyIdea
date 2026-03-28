@@ -20,9 +20,10 @@ model User {
   id            Int         @id @default(autoincrement())
   email         String      @unique
   name          String?
-  password      String
+  password      String?
   job           String?
   role          Role?
+  photo         String?
   // role is like hr or teacher
   owner         Owner?
   dev           Dev?

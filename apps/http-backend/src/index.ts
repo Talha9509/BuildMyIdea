@@ -3,14 +3,23 @@ import { UserSchema, ProjectSchema, updateUserSchema, updateProjectSchema, submi
 import { prismaClient } from '@repo/db/client'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { middleware } from './middleware.js'
+import { middleware } from './middleware/middleware.js'
 import cors from 'cors'
 import 'dotenv/config'
+import cookieParser from 'cookie-parser'
+import passport from 'passport'
+import authRoutes from './routes/auth.Routes.js'
 
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true
+}))
+app.use(cookieParser())
+app.use(passport.initialize())
+app.use("/auth", authRoutes);
 
 declare global {
     namespace Express {
@@ -49,7 +58,11 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
         const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
         console.log(token)
 
-        return res.json({ message: "Account created", token })
+        return res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+        }).json({ message: "Account created" })
     } catch (error) {
         return res.status(409).json({ message: "User already exists" })
     }
@@ -71,18 +84,32 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).json({ message: "User not Found" })
         }
+        if (!user.password) {
+            const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
+            console.log(token)
+
+            return res.cookie('jwt', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+            }).json({ message: "Signed in" })
+        }
         const pass = validatedInput.data.password
         console.log(pass)
         const corr = await bcrypt.compare(pass, user.password)
         console.log(corr)
         if (!corr) {
-            return res.status(409).json({ message: "Password is Wrong" })
+            return res.status(409).json({ message: "Password is Wrong or You didn't provide password before" })
         }
 
         const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
         console.log(token)
 
-        return res.json({ message: "Signed in", token })
+        return res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+        }).json({ message: "Signed in" })
     } catch (error) {
         return res.status(409).json({ message: "User already exists" })
     }
@@ -372,14 +399,14 @@ app.post("/api/v1/project/submit/:id", middleware, async (req, res) => {
         //                 }
         //             }]
         //         }
-            // },
-            // select: {
-            //     projects: {
-            //         select:{
-            //             id:true
-            //         }
-            //     }
-            // }
+        // },
+        // select: {
+        //     projects: {
+        //         select:{
+        //             id:true
+        //         }
+        //     }
+        // }
         // })
         const dev = await prismaClient.dev.findUnique({
             where: { userId: userId }
@@ -390,7 +417,7 @@ app.post("/api/v1/project/submit/:id", middleware, async (req, res) => {
         }
         const project = await prismaClient.project.update({
             where: { id: projectId },
-            data: { devId:dev.id }
+            data: { devId: dev.id }
         })
         if (!project) {
             return res.status(403).json({ message: "No Project Exists" })
@@ -398,10 +425,10 @@ app.post("/api/v1/project/submit/:id", middleware, async (req, res) => {
 
         const submit = await prismaClient.submit.create({
             data: {
-                repoLink:validated.data.repoLink,
-                liveLink:validated.data.liveLink,
-                devId:dev.id,
-                projectId:projectId
+                repoLink: validated.data.repoLink,
+                liveLink: validated.data.liveLink,
+                devId: dev.id,
+                projectId: projectId
             }
         })
         if (!submit) {
@@ -477,12 +504,12 @@ app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
             return res.status(403).json({ message: "Not Authorized to Delete" })
         }
         const submit = await prismaClient.submit.delete({
-            where: { id:submitId }
+            where: { id: submitId }
         })
-        return res.json({ message:"Done",submit})
+        return res.json({ message: "Done", submit })
     } catch (error) {
         console.log(error)
-        return res.status(500).json({message:"Internal Server Error"})
+        return res.status(500).json({ message: "Internal Server Error" })
     }
 })
 
@@ -502,6 +529,11 @@ app.get("/api/v1/project/:id", middleware, async (req, res) => {
     return res.json({ message: "Done", project })
 })
 
+app.post("/api/v1/logout",async(req , res)=>{
+    res.clearCookie('jwt')
+    return  res.status(200).json({ message: 'Done' });
+})
+
 // next: not complted
 app.post("api/v1/stars", middleware, async (req, res) => {
     // one more endpoint of owner giving stars to the projects which he like from whatt devs made for the wish of owner
@@ -509,7 +541,7 @@ app.post("api/v1/stars", middleware, async (req, res) => {
 })
 
 // next: not complted
-app.post("/api/v1/connect", async(req ,res)=>{
+app.post("/api/v1/connect", async (req, res) => {
     // connection between owner and dev
 })
 

@@ -5,6 +5,7 @@ import { UserSchema } from '@repo/common/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import { cookies } from 'next/headers';
 
 const Form = (props: any) => {
     const router = useRouter()
@@ -21,6 +22,14 @@ const Form = (props: any) => {
             if (response.status === 200) {
                 localStorage.setItem("token", response.data.token)
                 router.push("/")
+                // const res = await fetch('http://localhost:5000/api/profile', {
+                //     headers: {
+                //         Cookie: `jwt=${cookies().get('jwt')?.value}`
+                //     }
+                // });
+                // / fetch('http://localhost:3001/api/v1/profile/1', {
+                //     credentials: 'include'  // ← sends the cookie
+                // })
             }
         } catch (error) {
             console.log(error)
@@ -35,23 +44,23 @@ const Form = (props: any) => {
                         <input {...register("name")} placeholder='Name' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
                     </div>}
                     <div className='flex flex-col'>
-                    <div>
-                        <input  {...register("email")} placeholder='Email' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
-                    </div>
-                    {errors.email && <div className='text-sm px-4 pb-1'>
-                        {errors.email?.message}
-                    </div>}
+                        <div>
+                            <input  {...register("email")} placeholder='Email' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
+                        </div>
+                        {errors.email && <div className='text-sm px-4 pb-1'>
+                            {errors.email?.message}
+                        </div>}
                     </div>
                     <div className='flex flex-col'>
-                    <div>
-                        <input  {...register("password")} type='password' placeholder='Password' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
+                        <div>
+                            <input  {...register("password")} type='password' placeholder='Password' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
+                        </div>
+                        {errors.email && <div className='text-sm pb-1 px-2'>
+                            {errors.password?.message}
+                        </div>}
                     </div>
-                    {errors.email && <div className='text-sm pb-1 px-2'>
-                        {errors.password?.message}
-                    </div>}
-                    </div>
                     <div>
-                        <input type='submit' className='border-black border-2 rounded-4xl px-2 my-2 min-w-[15vw] cursor-pointer bg-blue-700 hover:bg-blue-800 text-white text-lg transition duration-300 ease-in-out' /> 
+                        <input type='submit' className='border-black border-2 rounded-4xl px-2 my-2 min-w-[15vw] cursor-pointer bg-blue-700 hover:bg-blue-800 text-white text-lg transition duration-300 ease-in-out' />
                     </div>
 
                 </div>
