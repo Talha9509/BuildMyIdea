@@ -1,9 +1,7 @@
 
 import passport from "passport";
 
-import "./strategies/google";
-import "./strategies/github";
-import "./strategies/twitter";
-import "./strategies/linkedin";
+import "./strategies/google.js";
+import "./strategies/github.js";
 
 export default passport;

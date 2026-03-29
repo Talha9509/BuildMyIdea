@@ -14,7 +14,7 @@ const app = express()
 
 app.use(express.json())
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: `${process.env.FRONTEND}`,
     credentials: true
 }))
 app.use(cookieParser())
@@ -39,7 +39,7 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
     const input = req.body;
     const validatedInput = UserSchema.safeParse(input)
     if (!validatedInput.success) {
-        return res.status(411).json({ message: "Incorrect inputs" })
+        return res.status(411).json({ message: "Invalid inputs" })
     }
 
     try {
@@ -60,8 +60,8 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
 
         return res.cookie('jwt', token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: false,
+            sameSite: 'lax',
         }).json({ message: "Account created" })
     } catch (error) {
         return res.status(409).json({ message: "User already exists" })
@@ -96,10 +96,10 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
         }
         const pass = validatedInput.data.password
         console.log(pass)
-        const corr = await bcrypt.compare(pass, user.password)
-        console.log(corr)
-        if (!corr) {
-            return res.status(409).json({ message: "Password is Wrong or You didn't provide password before" })
+        const correct = await bcrypt.compare(pass, user.password)
+        console.log(correct)
+        if (!correct) {
+            return res.status(401).json({ message: "Password is Wrong or You didn't provide password before" })
         }
 
         const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
@@ -529,9 +529,14 @@ app.get("/api/v1/project/:id", middleware, async (req, res) => {
     return res.json({ message: "Done", project })
 })
 
-app.post("/api/v1/logout",async(req , res)=>{
-    res.clearCookie('jwt')
-    return  res.status(200).json({ message: 'Done' });
+app.post("/api/v1/logout", async (req, res) => {
+    console.log(req.headers)
+    res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    });
+    return res.status(200).json({ message: 'Done 2' });
 })
 
 // next: not complted

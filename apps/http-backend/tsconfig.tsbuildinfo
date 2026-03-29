@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/middleware.ts"],"version":"5.9.2"}
+{"root":["./src/index.ts","./src/auth/passport.ts","./src/auth/strategies/github.ts","./src/auth/strategies/google.ts","./src/middleware/middleware.ts","./src/routes/auth.routes.ts"],"version":"5.9.2"}
