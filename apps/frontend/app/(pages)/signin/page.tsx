@@ -1,5 +1,5 @@
 import React from 'react'
-import Form from '../../components/Form'
+import Form from '../../../components/Form'
 import Link from 'next/link'
 import Image from 'next/image'
 import Google from '../../../public/google-50.svg'
@@ -40,3 +40,82 @@ export default page
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// components.json
+// {
+// "$schema": "https://ui.shadcn.com/schema.json",
+//   "style": "radix-nova",
+//   "rsc": false,
+//   "tsx": true,
+//   "tailwind": {
+//     "config": "",
+//     "css": "src/styles/globals.css",
+//     "baseColor": "neutral",
+//     "cssVariables": true,
+//     "prefix": ""
+//   },
+//   "aliases": {
+//     "components": "@/components",
+//     "utils": "@/lib/utils",
+//     "ui": "@/components/ui",
+//     "lib": "@/lib",
+//     "hooks": "@/hooks"
+//   },
+//   "iconLibrary": "lucide"
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// {
+//   "$schema": "https://ui.shadcn.com/schema.json",
+//   "style": "base-nova",
+//   "rsc": true,
+//   "tsx": true,
+//   "tailwind": {
+//     "config": "",
+//     "css": "app/globals.css",
+//     "baseColor": "neutral",
+//     "cssVariables": true,
+//     "prefix": ""
+//   },
+//   "iconLibrary": "lucide",
+//   "rtl": false,
+//   "aliases": {
+//     "components": "@/components",
+//     "utils": "@/lib/utils",
+//     "ui": "@/components/ui",
+//     "lib": "@/lib",
+//     "hooks": "@/hooks"
+//   },
+//   "menuColor": "default",
+//   "menuAccent": "subtle",
+//   "registries": {}
+
+// }

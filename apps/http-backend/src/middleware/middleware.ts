@@ -5,12 +5,12 @@ const secret=process.env.JWT_SECRET || "1234567890"
 export const middleware=(req:Request,res:Response,next:NextFunction)=>{
     const token=req.cookies['jwt']
     if(!token){
-        return res.status(400).json({ message:"Unauthorized" })
+        return res.status(401).json({ message:"Unauthorized" })
     }
     const decoded=jwt.verify(token,secret)
     console.log(decoded)
     if(!decoded){
-        return res.status(400).json({ message:"Unauthorized" })
+        return res.status(401).json({ message:"Unauthorized" })
     }
     req.userId=(decoded as JwtPayload).userId 
     next()

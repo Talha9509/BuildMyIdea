@@ -14,7 +14,7 @@ const Form = (props: any) => {
     async function onSubmit(data: any) {
         try {
             console.log(`${url}/api/v1/${props.method}`)
-            const response = await axios.post(`${url}/api/v1/${props.method}`,data,                   { withCredentials:true })
+            const response = await axios.post(`${url}/api/v1/${props.method}`,data, { withCredentials:true })
             console.log(response)
             console.log(response.data, response.data.message, response.data.token)
             // const data1=JSON.parse(response)

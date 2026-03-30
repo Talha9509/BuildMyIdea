@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -43,7 +44,6 @@ model Dev{
   id            Int       @id @default(autoincrement())
   userId        Int       @unique
   user          User      @relation(fields: [userId], references: [id])
-  projects      Project[] 
   submissions   Submit[]
 }
 
@@ -52,8 +52,6 @@ model Project{
   name          String       @unique
   description   String
   skillsreq     String?
-  devId         Int?         
-  dev           Dev?         @relation(fields: [devId],references: [id])
   ownerId       Int          
   owner         Owner        @relation(fields: [ownerId],references: [id])
   submits      Submit[]
@@ -67,6 +65,8 @@ model Submit{
   dev           Dev            @relation(fields: [devId],references: [id])
   liveLink      String         
   repoLink      String         @unique
+  // maybe
+  // @@unique([projectId, devId])
 }
 
 // in future, create one more model Application, devs can apply

@@ -1,5 +1,5 @@
 
-import Form from '../../components/Form'
+import Form from '../../../components/Form'
 import Link from 'next/link'
 import Image from 'next/image'
 import Google from '../../../public/google-50.svg'
@@ -38,6 +38,3 @@ const page = () => {
 
 export default page
 
-
-
-  // </div> bg-linear-to-br from-black via-gray-300 to-gray-700

@@ -155,10 +155,11 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
             return res.json({ message: "Profile Updated", role: currentRole });
         }
         if (currentRole === "DEV" && user.dev) {
-            const hasProjects = await prismaClient.project.count({
+            // check if he has submits. as submit.count
+            const hasSubmits = await prismaClient.submit.count({
                 where: { devId: user.dev?.id }
             })
-            if (hasProjects > 0) {
+            if (hasSubmits > 0) {
                 return res.status(409).json({ message: "Cannot change roles with Active Projects" })
             }
         }
@@ -219,11 +220,7 @@ app.get("/api/v1/profile/:id", middleware, async (req, res) => {
             },
             dev: {
                 select: {
-                    projects: {
-                        select: {
-                            name: true, description: true, skillsreq: true
-                        }
-                    }, submissions: {
+                    submissions: {
                         select: {
                             repoLink: true, liveLink: true
                         }
@@ -415,9 +412,9 @@ app.post("/api/v1/project/submit/:id", middleware, async (req, res) => {
         if (!dev) {
             return res.status(403).json({ message: "Not Allowed to Submit" })
         }
-        const project = await prismaClient.project.update({
+        const project = await prismaClient.project.findUnique({
+            // findunique instead of update and remove data
             where: { id: projectId },
-            data: { devId: dev.id }
         })
         if (!project) {
             return res.status(403).json({ message: "No Project Exists" })
@@ -468,17 +465,15 @@ app.patch("/api/v1/project/submit/:id", middleware, async (req, res) => {
         if (!dev) {
             return res.status(403).json({ message: "Not Allowed to Edit" })
         }
-        const project = await prismaClient.project.findFirst({
-            where: { devId: dev.id }
-        })
-        if (!project) {
-            return res.status(403).json({ message: "No Project Exists" })
-        }
 
         const submit = await prismaClient.submit.update({
-            where: { id: submitId },
+            where: { id: submitId, devId:dev.id },
             data: validated.data
         })
+        if(!submit){
+            res.status(403).json({ message:"This submission belongs to another Developer."})
+        }
+        // either submission dont exist or you are not the owner of submission
         return res.json({ message: "Done", submit })
     } catch (error) {
         console.log(error)
@@ -493,7 +488,7 @@ app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
     const submitId = parseInt(req.params.id as string)
 
     if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthoized" })
+        return res.status(401).json({ message: "Unauthorized" })
     }
     console.log(userId)
     try {
@@ -504,8 +499,11 @@ app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
             return res.status(403).json({ message: "Not Authorized to Delete" })
         }
         const submit = await prismaClient.submit.delete({
-            where: { id: submitId }
+            where: { id: submitId, devId:dev.id }
         })
+        if(!submit){
+            res.status(404).json({ message:"Can't Delete" })
+        }
         return res.json({ message: "Done", submit })
     } catch (error) {
         console.log(error)
@@ -514,7 +512,29 @@ app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
 })
 
 app.get("/api/v1/projects", middleware, async (req, res) => {
-    const projects = await prismaClient.project.findMany()
+    const projects = await prismaClient.project.findMany({
+        relationLoadStrategy: 'join', 
+        select:{ name:true, description:true,
+            owner:{
+                select:{
+                    user:{
+                        select:{ name:true }
+                    }
+                }
+            },
+            submits:{
+                select:{
+                    dev:{
+                        select:{
+                            user:{ 
+                                select:{name:true} 
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    })
     res.json({ message: "Done", projects })
 })
 
@@ -536,7 +556,7 @@ app.post("/api/v1/logout", async (req, res) => {
         secure: false,
         sameSite: "lax"
     });
-    return res.status(200).json({ message: 'Done 2' });
+    return res.status(200).json({ message: 'Done ' });
 })
 
 // next: not complted
