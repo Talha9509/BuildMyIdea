@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Navbar from '../../../components/Navbar2'
 import { DataTable } from "../../../components/data-table"
-import { columns, Project } from "../../../components/columns"
+import Table from "../../../components/Table"
+import { ProjectColumns, Project } from "../../../components/columns"
 
 async function getData(): Promise<Project[]> {
   const cookieStore = cookies()
@@ -36,8 +37,10 @@ export default async function page() {
     <div className='bg-gray-950 min-h-screen p-2 px-4'>
       <Navbar />
       <div className='text-white'>
-        <div className=" mx-auto py-10 text-lg  w-[90vw] ">
-          <DataTable columns={columns} data={data} />
+        <div className=" mx-auto py-10 text-lg table-fixed  w-[90vw] ">
+          {/* <Table data={data} /> */}
+          <DataTable columns={ProjectColumns} data={data}/>
+          {/* add one more column top priority(one most imp prioirty of owner), other priorities in project page */}
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Project = {
-    id: string
+    id: number
     name: string
     description: string
     owner: {
@@ -22,10 +22,26 @@ export type Project = {
     }]
 }
 
-export const columns: ColumnDef<Project>[] = [
+export type Submission = {
+    liveLink:string
+    repoLink: string
+    dev:{
+        user:{
+            id:number
+            name:string
+        }
+    }
+}
+
+export const SubmissionColumn: ColumnDef<Submission>[]=[
+
+]
+
+export const ProjectColumns: ColumnDef<Project>[] = [
     {
         accessorKey: "name",
         header: "Name",
+        // header: () => <div className="w-[15%] text-center text-white text-2xl">Name</div>,
         cell: ({ row }) => (
             <div className="line-clamp-2 text-base">
                 {row.original.name}
@@ -35,6 +51,7 @@ export const columns: ColumnDef<Project>[] = [
     {
         accessorKey: "description",
         header: "Description",
+        // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
         cell: ({ row }) => (
             <div className="line-clamp-2 text-base">
                 {row.original.description}
@@ -44,6 +61,7 @@ export const columns: ColumnDef<Project>[] = [
     {
         accessorKey: "owner.user.name",
         header: "Owner",
+        // header: () => <div className="size-10 text-center text-white text-2xl">Owner</div>,
         cell: ({ row }) => (
             <div className="line-clamp-2 text-base">
                 {row.original.owner.user.name}
@@ -54,6 +72,7 @@ export const columns: ColumnDef<Project>[] = [
         accessorFn: (row) =>
             row.submits.map((s) => s.dev.user.name),
         header: "Submissions",
+        // header: () => <div className="w-[15%] text-center text-white text-2xl">Name</div>,
         cell: ({ row }) => {
             const names = row.original.submits.map((s) => s.dev.user.name)
             return (

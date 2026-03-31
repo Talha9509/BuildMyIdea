@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-const ButtonRotatingBackgroundGradient = () => {
+export const ButtonRotatingBackgroundGradient = () => {
   return (
     <Link href={"/signin"}>
     <button className='relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-50'>
@@ -13,4 +13,10 @@ const ButtonRotatingBackgroundGradient = () => {
   );
 };
 
-export default ButtonRotatingBackgroundGradient;
+export const Button = (props:any) => {
+  return (
+    <div>
+      <button>{props.name}</button>
+    </div>
+  )
+}

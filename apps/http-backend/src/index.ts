@@ -514,7 +514,7 @@ app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
 app.get("/api/v1/projects", middleware, async (req, res) => {
     const projects = await prismaClient.project.findMany({
         relationLoadStrategy: 'join', 
-        select:{ name:true, description:true,
+        select:{ name:true, description:true, id:true,
             owner:{
                 select:{
                     user:{
@@ -544,7 +544,33 @@ app.get("/api/v1/project/:id", middleware, async (req, res) => {
     console.log(id)
 
     const project = await prismaClient.project.findUnique({
-        where: { id: id }
+        relationLoadStrategy:'join',
+        where: { id: id },
+        select:{
+            id: true, name:true, description:true, skillsreq:true, 
+            owner:{
+                select:{
+                    user:{
+                        select:{
+                            name:true, id: true
+                        }
+                    }
+                }
+            }, submits:{
+                select:{
+                    liveLink:true, repoLink:true,
+                    dev:{
+                        select:{
+                            user:{
+                                select:{
+                                    name:true, id:true
+                                }
+                            }
+                        }
+                    }
+                 }
+            }
+        }
     })
     return res.json({ message: "Done", project })
 })

@@ -1,12 +1,11 @@
 import React from 'react'
 
-const pages = () => {
-    const id=""
+export default async function profile ({params}:{params:{id:number}}) {
+    const id=await params.id
   return (
     <div>
       Profile
+      <div>{id}</div>
     </div>
   )
 }
-
-export default pages
