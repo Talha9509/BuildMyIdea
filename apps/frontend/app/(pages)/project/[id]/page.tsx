@@ -1,11 +1,11 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
 import { cookies, headers } from 'next/headers'
-import { Button } from '@/components/Button'
 import { DataTable } from "../../../../components/data-table"
 import { SubmissionColumn } from "../../../../components/columns"
 import Navbar from '../../../../components/Navbar2'
 import Card from '../../../../components/Card'
+import AddEditsubmit from '../../../../components/AddProjSubmitForm'
 
 export default async function page({ params }: { params: { id: number } }) {
   const param = await params
@@ -44,7 +44,7 @@ export default async function page({ params }: { params: { id: number } }) {
           <div>Description: {data.project.description}</div>
        
           <div>Submissions</div>
-          <div><Button name={"Add Submission"} /></div>
+          <div><AddEditsubmit title={"Add Submission"} project={false} to={'submit'} id={id} /></div>
           {/* <DataTable columns={SubmissionColumn} data={submissions} /> */}
           {submissions.map((s:any, id:any)=>{
             return(

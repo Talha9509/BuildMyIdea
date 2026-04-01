@@ -14,588 +14,630 @@ const app = express()
 
 app.use(express.json())
 app.use(cors({
-    origin: `${process.env.FRONTEND}`,
-    credentials: true
+  origin: `${process.env.FRONTEND}`,
+  credentials: true
 }))
 app.use(cookieParser())
 app.use(passport.initialize())
 app.use("/auth", authRoutes);
 
 declare global {
-    namespace Express {
-        export interface Request {
-            userId?: number;
-        }
+  namespace Express {
+    export interface Request {
+      userId?: number;
     }
+  }
 }
 
 const secret = process.env.JWT_SECRET!;
 if (!secret) {
-    throw new Error('JWT_SECRET is not defined in environment variables');
+  throw new Error('JWT_SECRET is not defined in environment variables');
 }
 const PORT = process.env.PORT || 3001
 
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
-    const input = req.body;
-    const validatedInput = UserSchema.safeParse(input)
-    if (!validatedInput.success) {
-        return res.status(411).json({ message: "Invalid inputs" })
-    }
+  const input = req.body;
+  const validatedInput = UserSchema.safeParse(input)
+  if (!validatedInput.success) {
+    return res.status(411).json({ message: "Invalid inputs" })
+  }
 
-    try {
-        const pass = validatedInput.data.password
-        console.log(pass)
-        const hashedPass = await bcrypt.hash(pass, 10)
-        console.log(hashedPass)
-        const user = await prismaClient.user.create({
-            data: {
-                email: validatedInput.data.email,
-                password: hashedPass,
-                name: validatedInput.data.name
-            }
-        })
+  try {
+    const pass = validatedInput.data.password
+    console.log(pass)
+    const hashedPass = await bcrypt.hash(pass, 10)
+    console.log(hashedPass)
+    const user = await prismaClient.user.create({
+      data: {
+        email: validatedInput.data.email,
+        password: hashedPass,
+        name: validatedInput.data.name
+      }
+    })
 
-        const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-        console.log(token)
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
+    console.log(token)
 
-        return res.cookie('jwt', token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-        }).json({ message: "Account created" })
-    } catch (error) {
-        return res.status(409).json({ message: "User already exists" })
-    }
+    return res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    }).json({ message: "Account created" })
+  } catch (error) {
+    return res.status(409).json({ message: "User already exists" })
+  }
 })
 
 app.post("/api/v1/signin", async (req: Request, res: Response) => {
-    const input = req.body;
-    const validatedInput = UserSchema.safeParse(input)
-    if (!validatedInput.success) {
-        return res.json({ message: "Incorrect inputs" })
+  const input = req.body;
+  const validatedInput = UserSchema.safeParse(input)
+  if (!validatedInput.success) {
+    return res.json({ message: "Incorrect inputs" })
+  }
+
+  try {
+    const user = await prismaClient.user.findFirst({
+      where: {
+        email: validatedInput.data.email,
+      }
+    })
+    if (!user) {
+      return res.status(404).json({ message: "User not Found" })
+    }
+    if (!user.password) {
+      const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
+      console.log(token)
+
+      return res.cookie('jwt', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+      }).json({ message: "Signed in" })
+    }
+    const pass = validatedInput.data.password
+    console.log(pass)
+    const correct = await bcrypt.compare(pass, user.password)
+    console.log(correct)
+    if (!correct) {
+      return res.status(401).json({ message: "Password is Wrong or You didn't provide password before" })
     }
 
-    try {
-        const user = await prismaClient.user.findFirst({
-            where: {
-                email: validatedInput.data.email,
-            }
-        })
-        if (!user) {
-            return res.status(404).json({ message: "User not Found" })
-        }
-        if (!user.password) {
-            const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-            console.log(token)
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
+    console.log(token)
 
-            return res.cookie('jwt', token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-            }).json({ message: "Signed in" })
-        }
-        const pass = validatedInput.data.password
-        console.log(pass)
-        const correct = await bcrypt.compare(pass, user.password)
-        console.log(correct)
-        if (!correct) {
-            return res.status(401).json({ message: "Password is Wrong or You didn't provide password before" })
-        }
-
-        const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-        console.log(token)
-
-        return res.cookie('jwt', token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-        }).json({ message: "Signed in" })
-    } catch (error) {
-        return res.status(409).json({ message: "User already exists" })
-    }
+    return res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    }).json({ message: "Signed in" })
+  } catch (error) {
+    return res.status(409).json({ message: "User already exists" })
+  }
 })
 
 // need to change sth as dev now has submissions. so before changing dev to owner, he cant have submissions
 // no need to do that. because if a dev has project, then he has submits and vice versa
 app.patch("/api/v1/profile", middleware, async (req, res) => {
-    const userId = req.userId
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthourized" })
-    }
-    const validated = updateUserSchema.safeParse(req.body)
-    if (!validated.success) {
-        return res.status(411).json({ message: "Invalid Inputs" })
-    }
-    console.log(validated.data)
+  const userId = req.userId
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthourized" })
+  }
+  const validated = updateUserSchema.safeParse(req.body)
+  if (!validated.success) {
+    return res.status(411).json({ message: "Invalid Inputs" })
+  }
+  console.log(validated.data)
 
-    const { role, ...otherFields } = validated.data
+  const { role, ...otherFields } = validated.data
 
-    try {
-        const user = await prismaClient.user.findUnique({
-            where: { id: userId },
-            include: { owner: true, dev: true }
+  try {
+    const user = await prismaClient.user.findUnique({
+      where: { id: userId },
+      include: { owner: true, dev: true }
+    })
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" })
+    }
+
+    let currentRole: "DEV" | "OWNER" | null = null
+    console.log(user.owner, user.dev)
+    // if you want to keep role in user table, then make use of it
+    if (user.owner) currentRole = "OWNER"
+    if (user.dev) currentRole = "DEV"
+
+    if (role && role == currentRole) {
+      if (Object.keys(otherFields).length > 0) {
+        await prismaClient.user.update({
+          where: { id: userId },
+          data: validated.data,
+        });
+      }
+      return res.json({ message: "Profile Updated", role: currentRole });
+    }
+    if (currentRole === "DEV" && user.dev) {
+      // check if he has submits. as submit.count
+      const hasSubmits = await prismaClient.submit.count({
+        where: { devId: user.dev?.id }
+      })
+      if (hasSubmits > 0) {
+        return res.status(409).json({ message: "Cannot change roles with Active Projects" })
+      }
+    }
+    if (currentRole === "OWNER" && user.owner) {
+      const hasProjects = await prismaClient.project.count({
+        where: { ownerId: user.owner?.id }
+      })
+      if (hasProjects > 0) {
+        return res.status(409).json({ message: "Cannot change roles with Active Projects" })
+      }
+    }
+    const result = await prismaClient.$transaction(async (txn) => {
+      if (currentRole === "DEV") {
+        await txn.dev.delete({ where: { userId } })
+      }
+      if (currentRole === "OWNER") {
+        await txn.owner.delete({ where: { userId } })
+      }
+      if (role === "DEV") {
+        await txn.dev.create({ data: { userId } });
+      }
+
+      if (role === "OWNER") {
+        await txn.owner.create({ data: { userId } });
+      }
+      if (Object.keys(otherFields).length > 0) {
+        await txn.user.update({
+          where: { id: userId },
+          data: validated.data
         })
-        if (!user) {
-            return res.status(404).json({ message: "User Not Found" })
-        }
-
-        let currentRole: "DEV" | "OWNER" | null = null
-        console.log(user.owner, user.dev)
-        // if you want to keep role in user table, then make use of it
-        if (user.owner) currentRole = "OWNER"
-        if (user.dev) currentRole = "DEV"
-
-        if (role && role == currentRole) {
-            if (Object.keys(otherFields).length > 0) {
-                await prismaClient.user.update({
-                    where: { id: userId },
-                    data: validated.data,
-                });
-            }
-            return res.json({ message: "Profile Updated", role: currentRole });
-        }
-        if (currentRole === "DEV" && user.dev) {
-            // check if he has submits. as submit.count
-            const hasSubmits = await prismaClient.submit.count({
-                where: { devId: user.dev?.id }
-            })
-            if (hasSubmits > 0) {
-                return res.status(409).json({ message: "Cannot change roles with Active Projects" })
-            }
-        }
-        if (currentRole === "OWNER" && user.owner) {
-            const hasProjects = await prismaClient.project.count({
-                where: { ownerId: user.owner?.id }
-            })
-            if (hasProjects > 0) {
-                return res.status(409).json({ message: "Cannot change roles with Active Projects" })
-            }
-        }
-        const result = await prismaClient.$transaction(async (txn) => {
-            if (currentRole === "DEV") {
-                await txn.dev.delete({ where: { userId } })
-            }
-            if (currentRole === "OWNER") {
-                await txn.owner.delete({ where: { userId } })
-            }
-            if (role === "DEV") {
-                await txn.dev.create({ data: { userId } });
-            }
-
-            if (role === "OWNER") {
-                await txn.owner.create({ data: { userId } });
-            }
-            if (Object.keys(otherFields).length > 0) {
-                await txn.user.update({
-                    where: { id: userId },
-                    data: validated.data
-                })
-            }
-            return { role: role }
-        })
-        return res.json({ message: "Profile Updated", role: result?.role })
-    } catch (error: any) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal Server Error" })
-    }
+      }
+      return { role: role }
+    })
+    return res.json({ message: "Profile Updated", role: result?.role })
+  } catch (error: any) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
 })
 
-app.get("/api/v1/profile/:id", middleware, async (req, res) => {
-    const userId = req.userId
-    const id = parseInt((req.params.id) as string)
-    // same profile will be shown to user and others. only difference is, user can edit his profile
-    // for checking others profile, email and phone will only be visible when both are connected
+app.get("/api/v1/profile/me", middleware, async (req, res) => {
+  const userId = req.userId
+  // same profile will be shown to user and others. only difference is, user can edit his profile
+  // for checking others profile, email and phone will only be visible when both are connected
+  try {
     const user = await prismaClient.user.findUnique({
-        where: { id: id },
-        select: {
-            email: true, name: true, job: true, phone: true,
-            owner: {
-                select: {
-                    projects: {
-                        select: {
-                            name: true, description: true, skillsreq: true
-                        }
-                    }
-                }
-            },
-            dev: {
-                select: {
-                    submissions: {
-                        select: {
-                            repoLink: true, liveLink: true
-                        }
-                    }
-                }
+      relationLoadStrategy: 'join',
+      where: { id: userId },
+      select: {
+        email: true, name: true, job: true, phone: true,
+        owner: {
+          select: {
+            projects: {
+              select: {
+                name: true, description: true, skillsreq: true, id:true
+              }
             }
+          }
+        },
+        dev: {
+          select: {
+            submissions: {
+              select: {
+                repoLink: true, liveLink: true, id:true
+              }
+            }
+          }
         }
+      }
     })
     // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
     console.log(user)
-    return res.json({ user })
+    return res.json({ message: "Done", user })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Server Error" })
+  }
+
+})
+
+app.get("/api/v1/profile/:id", middleware, async (req, res) => {
+  const userId = req.userId
+  const id = parseInt((req.params.id) as string)
+  // same profile will be shown to user and others. only difference is, user can edit his profile
+  // for checking others profile, email and phone will only be visible when both are connected
+  const user = await prismaClient.user.findUnique({
+    relationLoadStrategy: 'join',
+    where: { id: id },
+    select: {
+      name: true, job: true,
+      owner: {
+        select: {
+          projects: {
+            select: {
+              name: true, description: true, skillsreq: true
+            }
+          }
+        }
+      },
+      dev: {
+        select: {
+          submissions: {
+            select: {
+              repoLink: true, liveLink: true
+            }
+          }
+        }
+      }
+    }
+  })
+  // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
+  console.log(user)
+  return res.json({ message: "Done", user })
 })
 
 app.post("/api/v1/projects", middleware, async (req, res) => {
-    const userId = req.userId;
-    const body = req.body
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthoized" })
-    }
-    console.log(userId)
+  const userId = req.userId;
+  const body = req.body
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthoized" })
+  }
+  console.log(userId)
 
-    const validated = ProjectSchema.safeParse(body)
-    console.log(validated)
-    if (!validated.success) {
-        return res.status(400).json({ message: "Invalid Inputs" })
-    }
+  const validated = ProjectSchema.safeParse(body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
 
-    try {
-        const owner = await prismaClient.owner.findUnique({
-            where: { userId: userId }
-        })
-        if (!owner) {
-            return res.status(403).json({ message: "Owner not Found" })
-        }
-        const project = await prismaClient.project.create({
-            data: {
-                name: validated.data.name,
-                description: validated.data.description,
-                ownerId: owner.id
-            }
-        })
-        if (!project) {
-            return res.status(409).json({ message: "Project already exists" })
-        }
-        console.log("project: " + project)
-        return res.json({ project: project })
+  try {
+    const owner = await prismaClient.owner.findUnique({
+      where: { userId: userId }
+    })
+    if (!owner) {
+      return res.status(403).json({ message: "Owner not Found" })
     }
-    catch (err: any) {
-        console.log(err)
-        return res.status(500).json({ message: "Internal Server Error" })
+    const project = await prismaClient.project.create({
+      data: {
+        name: validated.data.name,
+        description: validated.data.description,
+        ownerId: owner.id
+      }
+    })
+    if (!project) {
+      return res.status(409).json({ message: "Project already exists" })
     }
+    console.log("project: " + project)
+    return res.json({ message: "Done", project: project })
+  }
+  catch (err: any) {
+    console.log(err)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
 })
 
 app.patch("/api/v1/project/:id", middleware, async (req, res) => {
-    // to edit a project by owner
-    const userId = req.userId;
-    const body = req.body
-    const id = parseInt(req.params.id as string)
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthoized" })
-    }
-    console.log(userId)
+  // to edit a project by owner
+  const userId = req.userId;
+  const body = req.body
+  const id = parseInt(req.params.id as string)
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthoized" })
+  }
+  console.log(userId)
 
-    const validated = updateProjectSchema.safeParse(body)
-    console.log(validated)
-    if (!validated.success) {
-        return res.status(400).json({ message: "Invalid Inputs" })
-    }
+  const validated = updateProjectSchema.safeParse(body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
 
-    if (Object.keys(validated.data).length === 0) {
-        return res.status(400).json({ message: "Nothing to be changed" })
-    }
+  if (Object.keys(validated.data).length === 0) {
+    return res.status(400).json({ message: "Nothing to be changed" })
+  }
 
-    try {
-        const owner = await prismaClient.owner.findFirst({
-            where: {
-                userId: userId, projects: {
-                    some: { id: id }
-                }
-            },
-            select: {
-                projects: {
-                    where: { id: id },
-                    select: { id: true }
-                }
-            }
-        })
-        console.log(owner?.projects)
-        if (!owner) {
-            return res.status(403).json({ message: "NOT allowed to edit this project" })
+  try {
+    const owner = await prismaClient.owner.findFirst({
+      where: {
+        userId: userId, projects: {
+          some: { id: id }
         }
-        const project = await prismaClient.project.update({
-            where: { id: id },
-            data: validated.data,
-        })
-        console.log("project: ", project)
-        return res.json({ message: "Done", project: project })
+      },
+      select: {
+        projects: {
+          where: { id: id },
+          select: { id: true }
+        }
+      }
+    })
+    console.log(owner?.projects)
+    if (!owner) {
+      return res.status(403).json({ message: "NOT allowed to edit this project" })
     }
-    catch (err: any) {
-        if (err.code === "P2002") {
-            console.log(err)
-            return res.status(409).json({ message: "Name already Exists" })
-        }
-        if (err.code === "P2025") {
-            console.log(err)
-            return res.status(404).json({ message: "Project Not Found" })
-        }
-        console.log(err)
-        return res.status(500).json({ message: "DB/Internal Server Error" })
+    const project = await prismaClient.project.update({
+      where: { id: id },
+      data: validated.data,
+    })
+    console.log("project: ", project)
+    return res.json({ message: "Done", project: project })
+  }
+  catch (err: any) {
+    if (err.code === "P2002") {
+      console.log(err)
+      return res.status(409).json({ message: "Name already Exists" })
     }
+    if (err.code === "P2025") {
+      console.log(err)
+      return res.status(404).json({ message: "Project Not Found" })
+    }
+    console.log(err)
+    return res.status(500).json({ message: "DB/Internal Server Error" })
+  }
 })
 
 app.delete("/api/v1/project/:id", middleware, async (req, res) => {
-    // delte a project if owner wants to delete it
-    const userId = req.userId
-    const id = parseInt(req.params.id as string)
+  // delte a project if owner wants to delete it
+  const userId = req.userId
+  const id = parseInt(req.params.id as string)
 
-    const owner = await prismaClient.owner.findFirst({
-        where: {
-            userId: userId, projects: {
-                some: { id: id }
-            }
-        },
-        select: {
-            projects: {
-                where: { id: id },
-                select: { id: true }
-            }
-        }
+  const owner = await prismaClient.owner.findFirst({
+    where: {
+      userId: userId, projects: {
+        some: { id: id }
+      }
+    },
+    select: {
+      projects: {
+        where: { id: id },
+        select: { id: true }
+      }
+    }
+  })
+  console.log(owner)
+  console.log(owner?.projects)
+  if (!owner) {
+    return res.status(403).json({ message: "Not Authorized to Delete Project" })
+  }
+  const deleted = await prismaClient.project.delete({
+    where: { id: id }
+  })
+  if (!deleted) {
+    return res.status(404).json({ message: "Project Not Found" })
+  }
+  return res.json({ message: "Done", deleted })
+})
+
+app.post("/api/v1/submit/:id", middleware, async (req, res) => {
+  // the dev will post the code repo link of github
+  const userId = req.userId
+  const projectId = parseInt(req.params.id as string)
+
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthoized" })
+  }
+  console.log(userId)
+
+  const validated = submitSchema.safeParse(req.body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
+
+  try {
+    // first check dev or not, if dev then give project to dev with id
+    // const dev2 = await prismaClient.dev.update({
+    //     where: { userId: userId },
+    //     data:{
+    //         projects:{
+    //             update:[{
+    //                 where:{
+    //                     id:projectId
+    //                 },
+    //                 data:{
+    //                     devId:userId
+    //                 }
+    //             }]
+    //         }
+    // },
+    // select: {
+    //     projects: {
+    //         select:{
+    //             id:true
+    //         }
+    //     }
+    // }
+    // })
+    const dev = await prismaClient.dev.findUnique({
+      where: { userId: userId }
     })
-    console.log(owner)
-    console.log(owner?.projects)
-    if (!owner) {
-        return res.status(403).json({ message: "Not Authorized to Delete Project" })
+    console.log(dev)
+    if (!dev) {
+      return res.status(403).json({ message: "Not Allowed to Submit" })
     }
-    const deleted = await prismaClient.project.delete({
-        where: { id: id }
+    const project = await prismaClient.project.findUnique({
+      // findunique instead of update and remove data
+      where: { id: projectId },
     })
-    if (!deleted) {
-        return res.status(404).json({ message: "Project Not Found" })
+    if (!project) {
+      return res.status(403).json({ message: "No Project Exists" })
     }
-    return res.json({ message: "Done", deleted })
+
+    const submit = await prismaClient.submit.create({
+      data: {
+        repoLink: validated.data.repoLink,
+        liveLink: validated.data.liveLink,
+        devId: dev.id,
+        projectId: projectId
+      }
+    })
+    if (!submit) {
+      return res.status(409).json({ mesage: "Submission already exists" })
+    }
+    return res.json({ message: "Done", submit })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal server Error" })
+  }
 })
 
-app.post("/api/v1/project/submit/:id", middleware, async (req, res) => {
-    // the dev will post the code repo link of github
-    const userId = req.userId
-    const projectId = parseInt(req.params.id as string)
+app.patch("/api/v1/submit/:id", middleware, async (req, res) => {
+  // the dev wants to make some changes in the submission of  code repo link of github
+  const userId = req.userId
+  const submitId = parseInt(req.params.id as string)
 
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthoized" })
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthoized" })
+  }
+  console.log(userId)
+
+  const validated = updateSubmitSchema.safeParse(req.body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
+
+  if (Object.keys(validated.data).length === 0) {
+    return res.status(400).json({ message: "Nothing to be changed" })
+  }
+
+  try {
+    const dev = await prismaClient.dev.findUnique({
+      where: { userId: userId }
+    })
+    if (!dev) {
+      return res.status(403).json({ message: "Not Allowed to Edit" })
     }
-    console.log(userId)
 
-    const validated = submitSchema.safeParse(req.body)
-    console.log(validated)
-    if (!validated.success) {
-        return res.status(400).json({ message: "Invalid Inputs" })
+    const submit = await prismaClient.submit.update({
+      where: { id: submitId, devId: dev.id },
+      data: validated.data
+    })
+    if (!submit) {
+      res.status(403).json({ message: "This submission belongs to another Developer." })
     }
-
-    try {
-        // first check dev or not, if dev then give project to dev with id
-        // const dev2 = await prismaClient.dev.update({
-        //     where: { userId: userId },
-        //     data:{
-        //         projects:{
-        //             update:[{
-        //                 where:{
-        //                     id:projectId
-        //                 },
-        //                 data:{
-        //                     devId:userId
-        //                 }
-        //             }]
-        //         }
-        // },
-        // select: {
-        //     projects: {
-        //         select:{
-        //             id:true
-        //         }
-        //     }
-        // }
-        // })
-        const dev = await prismaClient.dev.findUnique({
-            where: { userId: userId }
-        })
-        console.log(dev)
-        if (!dev) {
-            return res.status(403).json({ message: "Not Allowed to Submit" })
-        }
-        const project = await prismaClient.project.findUnique({
-            // findunique instead of update and remove data
-            where: { id: projectId },
-        })
-        if (!project) {
-            return res.status(403).json({ message: "No Project Exists" })
-        }
-
-        const submit = await prismaClient.submit.create({
-            data: {
-                repoLink: validated.data.repoLink,
-                liveLink: validated.data.liveLink,
-                devId: dev.id,
-                projectId: projectId
-            }
-        })
-        if (!submit) {
-            return res.status(409).json({ mesage: "Submission already exists" })
-        }
-        return res.json({ message: "Done", submit })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal server Error" })
-    }
+    // either submission dont exist or you are not the owner of submission
+    return res.json({ message: "Done", submit })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal server Error" })
+  }
 })
 
-app.patch("/api/v1/project/submit/:id", middleware, async (req, res) => {
-    // the dev wants to make some changes in the submission of  code repo link of github
-    const userId = req.userId
-    const submitId = parseInt(req.params.id as string)
+app.delete("/api/v1/submit/:id", middleware, async (req, res) => {
+  // the dev wants to delete the posted code repo link of github
+  // check if user is dev. then delete submit from submit. then delete submit from projects
+  const userId = req.userId
+  const submitId = parseInt(req.params.id as string)
 
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthoized" })
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  console.log(userId)
+  try {
+    const dev = await prismaClient.dev.findUnique({
+      where: { userId: userId }
+    })
+    if (!dev) {
+      return res.status(403).json({ message: "Not Authorized to Delete" })
     }
-    console.log(userId)
-
-    const validated = updateSubmitSchema.safeParse(req.body)
-    console.log(validated)
-    if (!validated.success) {
-        return res.status(400).json({ message: "Invalid Inputs" })
+    const submit = await prismaClient.submit.delete({
+      where: { id: submitId, devId: dev.id }
+    })
+    if (!submit) {
+      res.status(404).json({ message: "Can't Delete" })
     }
-
-    if (Object.keys(validated.data).length === 0) {
-        return res.status(400).json({ message: "Nothing to be changed" })
-    }
-
-    try {
-        const dev = await prismaClient.dev.findUnique({
-            where: { userId: userId }
-        })
-        if (!dev) {
-            return res.status(403).json({ message: "Not Allowed to Edit" })
-        }
-
-        const submit = await prismaClient.submit.update({
-            where: { id: submitId, devId:dev.id },
-            data: validated.data
-        })
-        if(!submit){
-            res.status(403).json({ message:"This submission belongs to another Developer."})
-        }
-        // either submission dont exist or you are not the owner of submission
-        return res.json({ message: "Done", submit })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal server Error" })
-    }
-})
-
-app.delete("/api/v1/project/submit/:id", middleware, async (req, res) => {
-    // the dev wants to delete the posted code repo link of github
-    // check if user is dev. then delete submit from submit. then delete submit from projects
-    const userId = req.userId
-    const submitId = parseInt(req.params.id as string)
-
-    if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthorized" })
-    }
-    console.log(userId)
-    try {
-        const dev = await prismaClient.dev.findUnique({
-            where: { userId: userId }
-        })
-        if (!dev) {
-            return res.status(403).json({ message: "Not Authorized to Delete" })
-        }
-        const submit = await prismaClient.submit.delete({
-            where: { id: submitId, devId:dev.id }
-        })
-        if(!submit){
-            res.status(404).json({ message:"Can't Delete" })
-        }
-        return res.json({ message: "Done", submit })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ message: "Internal Server Error" })
-    }
+    return res.json({ message: "Done", submit })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
 })
 
 app.get("/api/v1/projects", middleware, async (req, res) => {
-    const projects = await prismaClient.project.findMany({
-        relationLoadStrategy: 'join', 
-        select:{ name:true, description:true, id:true,
-            owner:{
-                select:{
-                    user:{
-                        select:{ name:true }
-                    }
-                }
-            },
-            submits:{
-                select:{
-                    dev:{
-                        select:{
-                            user:{ 
-                                select:{name:true} 
-                            }
-                        }
-                    }
-                }
+  const projects = await prismaClient.project.findMany({
+    relationLoadStrategy: 'join',
+    select: {
+      name: true, description: true, id: true,
+      owner: {
+        select: {
+          user: {
+            select: { name: true }
+          }
+        }
+      },
+      submits: {
+        select: {
+          dev: {
+            select: {
+              user: {
+                select: { name: true }
+              }
             }
-        },
-    })
-    res.json({ message: "Done", projects })
+          }
+        }
+      }
+    },
+  })
+  res.json({ message: "Done", projects })
 })
 
 app.get("/api/v1/project/:id", middleware, async (req, res) => {
-    const id = parseInt(req.params.id as string)
-    const userId = req.userId
-    console.log(id)
+  const id = parseInt(req.params.id as string)
+  const userId = req.userId
+  console.log(id)
 
-    const project = await prismaClient.project.findUnique({
-        relationLoadStrategy:'join',
-        where: { id: id },
-        select:{
-            id: true, name:true, description:true, skillsreq:true, 
-            owner:{
-                select:{
-                    user:{
-                        select:{
-                            name:true, id: true
-                        }
-                    }
-                }
-            }, submits:{
-                select:{
-                    liveLink:true, repoLink:true,
-                    dev:{
-                        select:{
-                            user:{
-                                select:{
-                                    name:true, id:true
-                                }
-                            }
-                        }
-                    }
-                 }
+  const project = await prismaClient.project.findUnique({
+    relationLoadStrategy: 'join',
+    where: { id: id },
+    select: {
+      id: true, name: true, description: true, skillsreq: true,
+      owner: {
+        select: {
+          user: {
+            select: {
+              name: true, id: true
             }
+          }
         }
-    })
-    return res.json({ message: "Done", project })
+      }, submits: {
+        select: {
+          liveLink: true, repoLink: true,
+          dev: {
+            select: {
+              user: {
+                select: {
+                  name: true, id: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  return res.json({ message: "Done", project })
 })
 
 app.post("/api/v1/logout", async (req, res) => {
-    console.log(req.headers)
-    res.clearCookie("jwt", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax"
-    });
-    return res.status(200).json({ message: 'Done ' });
+  console.log(req.headers)
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax"
+  });
+  return res.status(200).json({ message: 'Done ' });
 })
 
 // next: not complted
 app.post("api/v1/stars", middleware, async (req, res) => {
-    // one more endpoint of owner giving stars to the projects which he like from whatt devs made for the wish of owner
-    // if owner gives stars here, then give star to the repo in github(it would only work when owner is signed up using github and dev also)
+  // one more endpoint of owner giving stars to the projects which he like from whatt devs made for the wish of owner
+  // if owner gives stars here, then give star to the repo in github(it would only work when owner is signed up using github and dev also)
 })
 
 // next: not complted
 app.post("/api/v1/connect", async (req, res) => {
-    // connection between owner and dev
+  // connection between owner and dev
 })
 
 app.listen(PORT, () => {
-    console.log("Listening on port: " + PORT)
+  console.log("Listening on port: " + PORT)
 })

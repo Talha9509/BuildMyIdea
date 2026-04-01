@@ -12,11 +12,3 @@ export const ButtonRotatingBackgroundGradient = () => {
     </Link>
   );
 };
-
-export const Button = (props:any) => {
-  return (
-    <div>
-      <button>{props.name}</button>
-    </div>
-  )
-}
