@@ -29,9 +29,9 @@ export function DataTable<TData extends Project, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               <TableHead className="w-[15%] text-white text-xl">Name</TableHead>
-              <TableHead className="w-[55%] text-white text-xl">Description</TableHead>
-              <TableHead className="w-[15%] text-white text-xl">Owner</TableHead>
-              <TableHead className="w-[15%] text-white text-xl">Submissions</TableHead>
+              <TableHead className="w-[53%] text-white text-xl">Description</TableHead>
+              <TableHead className="w-[12%] text-white text-xl">Owner</TableHead>
+              <TableHead className="w-[20%] text-white text-xl">Submissions</TableHead>
             </TableRow>
           ))}
         </TableHeader>

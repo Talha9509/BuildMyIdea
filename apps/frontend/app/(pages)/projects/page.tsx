@@ -34,16 +34,16 @@ export default async function page() {
   const data = await getData()
 
   return (<>
-    <div className='bg-gray-950 min-h-screen p-2'>
+    <div className='bg-gray-950 min-h-screen'>
       <Navbar />
       <div className='text-white'>
-        <div className='flex justify-between'>
-          <div>Projects</div>
+        <div className='flex gap-[60vw] items-center mx-[8vw]'>
+          <div className='text-4xl font-semibold'>Projects</div>
           <div><AddProject title={"Add Project"} to={"projects"} project={true} /></div>
         </div>
-        <div className=" mx-auto py-10 text-lg table-fixed  w-[90vw] ">
+        <div className=" mx-auto py-2 text-lg table-fixed  w-[90vw] ">
           {/* <Table data={data} /> */}
-          <DataTable columns={ProjectColumns} data={data}/>
+          <DataTable columns={ProjectColumns} data={data} />
           {/* add one more column top priority(one most imp prioirty of owner), other priorities in project page */}
         </div>
       </div>

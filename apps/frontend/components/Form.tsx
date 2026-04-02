@@ -17,10 +17,11 @@ const Form = (props: any) => {
       })
       const res=await response.json()
       console.log(res)
-      console.log(res.data, res.data.message, res.data.token)
+      console.log( res.message)
       if (response.status === 200) {
-        router.push("/")
+        router.push("/projects")
       }
+      console.log(errors)
       // todo: use react toastify
       if (response.status === 409) {
         console.log("User Already Exists")
@@ -55,7 +56,7 @@ const Form = (props: any) => {
             <div>
               <input  {...register("password")} type='password' placeholder='Password' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
             </div>
-            {errors.email && <div className='text-sm pb-1 px-2'>
+            {errors.password && <div className='text-sm pb-1 px-2'>
               {errors.password?.message}
             </div>}
           </div>

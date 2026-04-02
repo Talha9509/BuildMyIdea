@@ -4,6 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ProjectSchema, submitSchema } from '@repo/common/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import Plus from '../public/plus.svg'
+import Cross from '../public/cross.svg'
 
 const AddEditForm = (props: any) => {
   const schema = props.project ? ProjectSchema : submitSchema
@@ -68,13 +71,13 @@ const AddEditForm = (props: any) => {
   return (<div>
     {onLoading && <div className='w-screen h-screen flex items-center justify-center text-5xl backdrop-blur-sm fixed top-0 left-0 z-40 bg-gray-50/10 text-black'>Loading...</div>}
 
-    <div className='border p-2'><button onClick={Add}>{props.title}</button></div>
+    <div className='border px-4 py-1 cursor-pointer rounded-xl font-medium bg-gray-100 hover:bg-gray-300 text-black'><button onClick={Add} className='flex gap-1'><Image src={Plus} alt='Plus'></Image>{props.title}</button></div>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
         <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
           <div className='flex flex-col p-8 bg-white'>
-            <button onClick={() => setOnblur(false)}>close</button>
+            <button className='p-1 border' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
             <div className='text-2xl'>{props.title}</div>
 
             {props.project && <div>

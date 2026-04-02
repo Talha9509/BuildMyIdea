@@ -20,20 +20,20 @@ export const updateProjectSchema=z.object({
 })
 
 export const updateUserSchema=z.object({
-    name:z.string().optional(),
+    name:z.string().min(2,"Name Required"),
     job:z.string().optional(),
-    role:z.optional(z.enum(["DEV","OWNER"])),
+    role:z.enum(["DEV","OWNER"]).optional(),
     phone:z.string().optional().refine((val) => !val || /^\d{10}$/.test(val), "Phone number should be 10 digits"),
     // phone:z.optional(z.number().min(10,"Phone number should contain 10 charcters")),
     email:z.optional(z.string().regex(/@/,"Invalid Email"))
 })
 
 export const submitSchema=z.object({
-    repoLink:z.string().min(6),
-    liveLink:z.string().min(6)
+    repoLink:z.string().min(6,"Give a Proper Link"),
+    liveLink:z.string().min(6,"Give a Proper Link")
 })
 
 export const updateSubmitSchema=z.object({
-    repoLink:z.optional(z.string().min(6)),
-    liveLink:z.optional(z.string().min(6))
+    repoLink:z.optional(z.string().min(6,"Give a Proper Link")),
+    liveLink:z.optional(z.string().min(6,"Give a Proper Link"))
 })

@@ -150,6 +150,7 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
       if (Object.keys(otherFields).length > 0) {
         await prismaClient.user.update({
           where: { id: userId },
+          
           data: validated.data,
         });
       }
@@ -189,6 +190,7 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
       if (Object.keys(otherFields).length > 0) {
         await txn.user.update({
           where: { id: userId },
+          
           data: validated.data
         })
       }
