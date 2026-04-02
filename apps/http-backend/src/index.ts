@@ -62,6 +62,7 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
+      maxAge: 72 * 60 * 60 * 1000
     }).json({ message: "Account created" })
   } catch (error) {
     return res.status(409).json({ message: "User already exists" })
@@ -209,7 +210,7 @@ app.get("/api/v1/profile/me", middleware, async (req, res) => {
       relationLoadStrategy: 'join',
       where: { id: userId },
       select: {
-        email: true, name: true, job: true, phone: true,
+        email: true, name: true, job: true, phone: true, role:true,
         owner: {
           select: {
             projects: {

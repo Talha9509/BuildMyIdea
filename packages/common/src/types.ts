@@ -22,8 +22,10 @@ export const updateProjectSchema=z.object({
 export const updateUserSchema=z.object({
     name:z.string().optional(),
     job:z.string().optional(),
-    role:z.enum(["DEV","OWNER"]).optional(),
-    phone:z.optional(z.number().min(10,"Phone number should contain 10 charcters"))
+    role:z.optional(z.enum(["DEV","OWNER"])),
+    phone:z.string().optional().refine((val) => !val || /^\d{10}$/.test(val), "Phone number should be 10 digits"),
+    // phone:z.optional(z.number().min(10,"Phone number should contain 10 charcters")),
+    email:z.optional(z.string().regex(/@/,"Invalid Email"))
 })
 
 export const submitSchema=z.object({

@@ -57,6 +57,7 @@ const AddEditForm = (props: any) => {
     })
     const res = await response.json()
     console.log(res)
+
     if (response.status === 200) {
       setOnblur(false)
       router.refresh()
@@ -76,14 +77,14 @@ const AddEditForm = (props: any) => {
             <button onClick={() => setOnblur(false)}>close</button>
             <div className='text-2xl'>{props.title}</div>
 
-            {props.proj && <div>
+            {props.project && <div>
               <div>Name: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("name")} /></div>
               <div>Description <div><textarea className='border-black border-2 rounded-xl  px-2 py-1 focus:outline-none min-w-[20vw]' {...register("description")} rows={3} /></div></div>
               <div>Skills required <div><textarea className='border-black border-2 rounded-xl  px-2 py-1 focus:outline-none min-w-[20vw]' {...register("skillsreq")} rows={2} /></div></div>
               <div>Note: Write Skills with comma in between</div>
             </div>}
 
-            {!props.proj && <div>
+            {!props.project && <div>
               <div>Live Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("liveLink")} /></div>
               <div>Repo Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("repoLink")} /></div>
             </div>}

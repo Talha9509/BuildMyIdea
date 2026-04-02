@@ -28,7 +28,7 @@ model User {
   // role is like hr or teacher
   owner         Owner?
   dev           Dev?
-  phone         BigInt?     @unique
+  phone         String?     
   createdAt     DateTime    @default(now())
 }
 

@@ -11,6 +11,7 @@ const signTokenAndRedirect = (req: any, res: any) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    maxAge: 72 * 60 * 60 * 1000
   }).redirect(`${process.env.FRONTEND}/projects`);
 };
 

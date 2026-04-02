@@ -2,6 +2,7 @@
 import {cookies} from 'next/headers'
 import { redirect } from 'next/navigation'
 import {EditProjSubmit} from '../../../components/EditDelete'
+import {EditProfile} from '../../../components/EditProfile'
 
 export default async function profile() {
     const url=`${process.env.BACKEND_URL}/api/v1/profile/me`
@@ -19,11 +20,15 @@ export default async function profile() {
     console.log(user)
     if(user.owner!=null) console.log("owner")
     if(user.dev!=null) console.log("dev")
+
     return (<>
+    <div><EditProfile title={"Edit Profile"} to={"profile"} method={'PATCH'}  user={user}  /></div>
+    
     <div>Name: {user.name}</div>
     <div>Job: {user.job}</div>
     <div>Phone: {user.phone}</div>
     <div>Email: {user.email}</div>
+    <div>Role: {user.role}</div>
     <div>{user.owner!=null ? <div>
         <div>Projects</div>
         {user.owner.projects.map((project:any)=>{

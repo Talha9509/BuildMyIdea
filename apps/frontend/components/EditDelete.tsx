@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 export const EditProjSubmit = (props: any) => {
   const schema = props.project ? ProjectSchema : submitSchema
   const router=useRouter()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(schema), defaultValues: props.project ? { name: "", description: "", skillsreq: "" } : { liveLink: "", repoLink: "" } })
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(schema as any), defaultValues: props.project ? { name: "", description: "", skillsreq: "" } : { liveLink: "", repoLink: "" } })
   const [onblur, setOnblur] = useState(false)
   const [onLoading, setOnLoading] = useState(false)
   const url = process.env.BACKEND_URL || "http://localhost:3001"
