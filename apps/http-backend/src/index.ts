@@ -252,7 +252,7 @@ app.get("/api/v1/profile/:id", middleware, async (req, res) => {
     relationLoadStrategy: 'join',
     where: { id: id },
     select: {
-      name: true, job: true,
+      name: true, job: true, role:true,
       owner: {
         select: {
           projects: {
@@ -476,7 +476,10 @@ app.post("/api/v1/submit/:id", middleware, async (req, res) => {
       return res.status(409).json({ mesage: "Submission already exists" })
     }
     return res.json({ message: "Done", submit })
-  } catch (error) {
+  } catch (error:any) {
+    if(error.code==='P2002'){
+      return res.status(403).json({ message: "Repo Link already exists" })
+    }
     console.log(error)
     return res.status(500).json({ message: "Internal server Error" })
   }

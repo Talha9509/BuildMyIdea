@@ -41,7 +41,7 @@ export default async function page() {
           <div className='text-4xl font-semibold'>Projects</div>
           <div><AddProject title={"Add Project"} to={"projects"} project={true} /></div>
         </div>
-        <div className=" mx-auto py-2 text-lg table-fixed  w-[90vw] ">
+        <div className=" mx-auto py-2 pb-20 text-lg table-fixed  w-[90vw] ">
           {/* <Table data={data} /> */}
           <DataTable columns={ProjectColumns} data={data} />
           {/* add one more column top priority(one most imp prioirty of owner), other priorities in project page */}

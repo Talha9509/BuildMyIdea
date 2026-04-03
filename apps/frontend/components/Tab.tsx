@@ -1,0 +1,46 @@
+"use client"
+import { EditDeleteProj } from './EditDeleteProj'
+import Link from 'next/link'
+
+export const Tab = (props: any) => {
+  return (
+    <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl'>
+      <div className='border border-white flex max-w-[30vw]  gap-4 justify-between p-4 rounded-2xl'>
+        <Link key={props.project.id} href={`/project/${props.project.id}`}>
+          <div>
+            <div className='flex flex-col gap-1 '>
+              <div>Name: {props.project.name}</div>
+              <div className='line-clamp-2'>Description: {props.project.description}</div>
+              <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
+            </div>
+          </div>
+        </Link>
+         <div className='flex gap-1 flex-col'>
+          <div><EditDeleteProj title={"Edit Project"} method={'PATCH'} id={props.project.id} EditProject={props.project} /></div>
+          <div><EditDeleteProj title={"Delete Project"} method={'DELETE'} id={props.project.id} /></div>
+        </div>
+        
+      </div>
+    </div>
+  )
+}
+
+export const Tab2 = (props: any) => {
+  return (
+    <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl border border-white'>
+      <div className=' flex max-w-[30vw] min-w-[25vw]  gap-4 justify-between p-4 rounded-2xl'>
+        <Link key={props.project.id} href={`/project/${props.project.id}`}>
+          <div>
+            <div className='flex flex-col gap-1 '>
+              <div>Name: {props.project.name}</div>
+              <div className='line-clamp-2'>Description: {props.project.description}</div>
+              <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
+            </div>
+          </div>
+        </Link>
+        
+      </div>
+    </div>
+  )
+}
+

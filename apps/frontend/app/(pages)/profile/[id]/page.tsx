@@ -1,44 +1,67 @@
-import {cookies} from 'next/headers'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { Tab2 } from '../../../../components/Tab'
+import {Card} from '../../../../components/Card'
 
-export default async function profile ({params}:{params:{id:number}}) {
-    const param=await params
-    const id=param.id
-    const url=`${process.env.BACKEND_URL}/api/v1/profile/${id}`
-    const cookieStore=cookies()
-    const response=await fetch(url,{ credentials:'include', headers:{
-        cookie: (await cookieStore).toString()
-    }})
-    console.log(response)
-    if(response.status===401){
-        redirect("/signup")
+export default async function profile({ params }: { params: { id: number } }) {
+  const param = await params
+  const id = param.id
+  const url = `${process.env.BACKEND_URL}/api/v1/profile/${id}`
+  const cookieStore = cookies()
+  const response = await fetch(url, {
+    credentials: 'include', headers: {
+      cookie: (await cookieStore).toString()
     }
-    const data=await response.json()
-    const user=data.user
-    console.log(user)
-    return (<>
-    <div>Name: {user.name}</div>
-    <div>Job: {user.job}</div>
-    <div>{user.owner!=null ? <div>
-        <div>Projects</div>
-        {user.owner.projects.map((project:any)=>{
-            return(<div>
-                <div>Name: {project.name}</div>
-                <div>Description: {project.description}</div>
-                <div>Skills Required: {project.skillsReq}</div>
+  })
+  console.log(response)
+  if (response.status === 401) {
+    redirect("/signup")
+  }
+  const data = await response.json()
+  const user = data.user
+  console.log(user)
+  console.log(user.owner.projects)
+  console.log(user.owner.projects.length)
+  return (<div className='px-6'>
+    <div className='flex justify-center items-center gap-6'>
+      <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
+    </div>
+    <div className='flex justify-center items-center gap-6 text-xl'>
+      <div>Name: {user.name}</div>
+      {user.job && user.job.trim() != "" ? <div>Job: {user.job}</div> : ""}
+      <div>Role: {user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
+    </div>
+
+      {user.role === "OWNER" ? (
+        user.owner?.projects?.length ? (
+          <div className='py-10'>
+            <div className='text-3xl py-4'>Projects</div>
+            <div className='flex flex-wrap gap-4'>
+              {user.owner.projects.map((project: any) => (
+                <Tab2 key={project.name} project={project}  />
+              ))}
             </div>
-            )
-        })}
-    </div> : <div>No Projects</div>}</div>
-    <div>{user.dev!=null ? <div>
-        <div>Submissions</div>
-        {user.dev.submissions.map((submit:any)=>{
-            return(<div>
-                <div>Live Link: {submit.liveLink}</div>
-                <div>Repo Link: {submit.repoLink}</div>
-            </div>)
-        })}
-    </div> : <div>No Submissions</div>}</div>
-  </>
+          </div>
+        ) : (
+          <div>No Projects</div>
+        )
+      ) : null}
+
+      {user.role === "DEV" ? (
+        user.dev?.submissions?.length ? (
+          <div className='py-10'>
+            <div className='text-3xl py-4'>Submissions</div>
+            <div className='flex flex-wrap gap-4'>
+              {user.dev.submissions.map((submit: any) => (
+                <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>No Submissions</div>
+        )
+      ) : null}
+
+  </div>
   )
 }
