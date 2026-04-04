@@ -57,7 +57,7 @@ export default async function profile() {
                 <Tab key={project.id} project={project} />
               ))}
             </div>
-          </div>) : ( <div>No Projects</div> )
+          </div>) : ( <div className='px-10 py-20 text-2xl'>No Projects</div> )
       ) : null}
     {/* </div> */}
 
@@ -68,10 +68,10 @@ export default async function profile() {
             <div className='text-2xl py-4'>Your Submissions</div>
             <div className='flex flex-wrap gap-4'>
               {user.dev.submissions.map((submit: any) => (
-                <Card2 key={submit.id} repo={submit.repoLink} live={submit.liveLink} submit={submit} profile={true} />
+                <Card2 key={submit.id} repo={submit.repoLink} live={submit.liveLink} submit={submit} profile={true} id={submit.id} />
               ))}
             </div>
-          </div>) : ( <div>No Submissions</div> )
+          </div>) : ( <div className='px-10 py-20 text-2xl'>No Submissions</div> )
       ) : null}
     {/* </div> */}
 

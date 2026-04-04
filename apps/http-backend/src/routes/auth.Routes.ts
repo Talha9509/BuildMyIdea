@@ -7,7 +7,7 @@ const router:Router = express.Router();
 const signTokenAndRedirect = (req: any, res: any) => {
   const user = req.user as any;
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "72h" });
-  res.cookie("jwt", token, {
+  res.status(201).cookie("jwt", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

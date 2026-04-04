@@ -73,7 +73,7 @@ const DemoTable = () => {
                 <TableRow className="hover:bg-transparent text-xl">
                   <TableHead className="text-white">Name of Project</TableHead>
                   <TableHead className="text-white">Description</TableHead>
-                  <TableHead className="text-white">Owner</TableHead>
+                  <TableHead className="text-white">Idea Creator</TableHead>
                   <TableHead className="text-white">Submissions</TableHead>
                 </TableRow>
               </TableHeader>

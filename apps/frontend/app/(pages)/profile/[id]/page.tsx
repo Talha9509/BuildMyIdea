@@ -43,7 +43,7 @@ export default async function profile({ params }: { params: { id: number } }) {
             </div>
           </div>
         ) : (
-          <div>No Projects</div>
+          <div className='px-10 py-20 text-2xl'>No Projects</div>
         )
       ) : null}
 
@@ -58,7 +58,7 @@ export default async function profile({ params }: { params: { id: number } }) {
             </div>
           </div>
         ) : (
-          <div>No Submissions</div>
+          <div className='px-10 py-20 text-2xl'>No Submissions</div>
         )
       ) : null}
 

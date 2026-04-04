@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Google from '../../../public/google-50.svg'
 import GitHub from '../../../public/github.svg'
-import Twitter from '../../../public/twitter.svg'
 
 const page = () => {
   return (
@@ -26,7 +25,6 @@ const page = () => {
             <div className='flex gap-2'>
             <Link href={`${process.env.BACKEND_URL}/auth/google`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={Google} alt='Google'></Image></button></Link>
             <Link href={`${process.env.BACKEND_URL}/auth/github`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={GitHub} alt='GitHub'></Image></button></Link>
-            <Link href={`${process.env.BACKEND_URL}/auth/twitter`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={Twitter} alt='X'></Image></button></Link>
           </div>
           </div>
 

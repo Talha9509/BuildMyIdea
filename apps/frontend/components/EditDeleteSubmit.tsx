@@ -8,6 +8,8 @@ import Image from 'next/image'
 import edit from '../public/edit.svg'
 import Delete from '../public/delete.svg'
 import Cross from '../public/cross.svg'
+import { toast } from 'sonner'
+import { apiFetch } from '@/utils/Apifetch'
 
 export const EditDeleteSubmit = (props: any) => {
   const router = useRouter()
@@ -42,25 +44,24 @@ export const EditDeleteSubmit = (props: any) => {
   }
   async function onsubmit(data: any) {
     setOnLoading(true)
-    const response = await fetch(`${url}/api/v1/submit/${props.id}`, {
+    const response = await apiFetch(`${url}/api/v1/submit/${props.id}`, {
       method: `${props.method}`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, ...(props.method == 'PATCH' ? { body: JSON.stringify(data) } : null)
     })
-    const res = await response.json()
-    console.log(res)
-    if (response.status === 200) {
+
+     setOnLoading(false)
+    if (response) {
       setOnblur(false)
       router.refresh()
-      setOnLoading(false)
+      if(props.method==='PATCH'){
+        toast.success("Submission Edited", { duration: 5000 });
+      } else{
+        toast.success("Submission Deleted", { duration: 5000 });      
+      }
     }
-    console.log(res.project)
 
   }
   return (<div>
-    {/* {onLoading && <div className='w-screen h-screen flex items-center justify-center text-5xl backdrop-blur-sm fixed top-0 left-0 z-40 bg-gray-50/10 text-black'>Loading...</div>} */}
-
-    {/* <div className='border p-2'><button onClick={props.method === 'DELETE' ? onsubmit : Edit}>{props.title}</button></div> */}
-
     <button onClick={props.method === 'DELETE' ? onsubmit : Edit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-white items-center'><div className=' text-black'>
       {props.method=='DELETE' ? <Image src={Delete} width={15} alt='Delete'></Image> : <Image src={edit} width={15} alt='Edit'></Image>}
       </div></button>

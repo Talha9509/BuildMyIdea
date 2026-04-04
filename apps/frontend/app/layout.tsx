@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Poppins } from 'next/font/google';
 import { Inter } from 'next/font/google';
+import { Toaster } from "@/components/ui/sonner"
 
 // Configure the font loader
 const inter = Inter({
@@ -43,7 +44,17 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">{children}
+        <Toaster duration={3000} position="bottom-right"
+      //    toastOptions={{
+      //   classNames: {
+      //     toast: "border-2 text-black",
+      //      title: " text-lg font-bold",
+      //      description:"font-semibold text-black" 
+      //   },
+      // }}
+       />
+      </body>
     </html>
   );
 }
