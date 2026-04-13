@@ -217,7 +217,7 @@ app.get("/api/v1/profile/me", middleware, async (req, res) => {
           select: {
             projects: {
               select: {
-                name: true, description: true, skillsreq: true, id:true
+                name: true, description: true, mainFeature: true, id:true, skillsreq:true, refrenceLink:true
               }
             }
           }
@@ -257,7 +257,7 @@ app.get("/api/v1/profile/:id", middleware, async (req, res) => {
         select: {
           projects: {
             select: {
-              name: true, description: true, skillsreq: true
+              name: true, description: true, skillsreq: true, id:true, mainFeature:true
             }
           }
         }
@@ -303,7 +303,10 @@ app.post("/api/v1/projects", middleware, async (req, res) => {
       data: {
         name: validated.data.name,
         description: validated.data.description,
-        ownerId: owner.id
+        ownerId: owner.id,
+        skillsreq:validated.data.skillsreq,
+        refrenceLink:validated.data.refrenceLink,
+        mainFeature:validated.data.mainFeature
       }
     })
     if (!project) {
@@ -581,7 +584,7 @@ app.get("/api/v1/projects", middleware, async (req, res) => {
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
     select: {
-      name: true, description: true, id: true,
+      name: true, description: true, id: true, mainFeature:true, 
       owner: {
         select: {
           user: {
@@ -614,7 +617,7 @@ app.get("/api/v1/project/:id", middleware, async (req, res) => {
     relationLoadStrategy: 'join',
     where: { id: id },
     select: {
-      id: true, name: true, description: true, skillsreq: true,
+      id: true, name: true, description: true, skillsreq: true, refrenceLink:true, mainFeature:true,
       owner: {
         select: {
           user: {

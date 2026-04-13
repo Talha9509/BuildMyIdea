@@ -20,8 +20,8 @@ export default async function profile({ params }: { params: { id: number } }) {
   const data = await response.json()
   const user = data.user
   console.log(user)
-  console.log(user.owner.projects)
-  console.log(user.owner.projects.length)
+  // console.log(user.owner.projects)
+  // console.log(user.owner.projects.length)
   return (<div className='px-6'>
     <div className='flex justify-center items-center gap-6'>
       <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
@@ -38,7 +38,7 @@ export default async function profile({ params }: { params: { id: number } }) {
             <div className='text-3xl py-4'>Projects</div>
             <div className='flex flex-wrap gap-4'>
               {user.owner.projects.map((project: any) => (
-                <Tab2 key={project.name} project={project}  />
+                <Tab2 key={project.name} project={project} id={project.id} />
               ))}
             </div>
           </div>

@@ -18,7 +18,7 @@ type FormType = ProjectFormType | SubmitFormType
 const AddEditForm = (props: any) => {
   const schema = props.project ? ProjectSchema : submitSchema
   const router = useRouter()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormType>({ resolver: zodResolver(schema), defaultValues: props.project ? { name: "", description: "" } : { liveLink: "", repoLink: "" } })
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormType>({ resolver: zodResolver(schema), defaultValues: props.project ? { name: "", description: "", mainFeature:"" } : { liveLink: "", repoLink: "" } })
 
   const [onLoading, setOnLoading] = useState(false)
   const [onblur, setOnblur] = useState(false)
@@ -43,6 +43,8 @@ const AddEditForm = (props: any) => {
         name: "",
         description: "",
         skillsreq: undefined,
+        mainFeature:"",
+        refrenceLink:undefined
       })
     } else {
       console.log(props.EditSubmit)
@@ -54,6 +56,7 @@ const AddEditForm = (props: any) => {
   }
 
   const projectErrors = props.project ? (errors as FieldErrors<ProjectFormType>) : null
+  console.log(projectErrors)
   const submitErrors = !props.project ? (errors as FieldErrors<SubmitFormType>) : null
 
   async function onsubmit(data: any) {
@@ -89,16 +92,26 @@ const AddEditForm = (props: any) => {
             <div className='text-3xl p-1 text-center'>{props.title}</div>
 
             {props.project && <div className='flex flex-col gap-1'>
-              <div><div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[10vw]' {...register("name")} /></div>
+              <div><div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[20vw]' {...register("name")} placeholder='Name of Project' /></div>
                 {projectErrors?.name && <div className='text-sm px-2'>{projectErrors.name.message}</div>}
               </div>
 
-              <div><div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[20vw]' {...register("description")} rows={3} /></div></div>
+              <div><div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("description")} rows={3} placeholder='Describe the Project Procedure and Key Functionality' /></div></div>
                 {projectErrors?.description && <div className='text-sm px-2'>{projectErrors.description.message}</div>}
               </div>
 
-              <div><div>Skills required <div><textarea className='border-black border-2 rounded-lg  px-2 py-1  focus:outline-none min-w-[20vw]' {...register("skillsreq")} rows={2} /></div></div>
-                <div className='text-sm'>Write Skills with comma in between</div></div>
+              <div><div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
+                {projectErrors?.mainFeature && <div className='text-sm px-2'>{projectErrors.mainFeature.message}</div>}
+              </div>
+
+              <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
+                {/* {projectErrors?.description && <div className='text-sm px-2'>{projectErrors.description.message}</div>} */}
+              </div>
+
+              <div><div>Skills required <span className='text-xs text-gray-500'>(optional)</span><div><textarea className='border-black border-2 rounded-lg  px-2 py-1  focus:outline-none min-w-[25vw]' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
+                {/* <div className='text-sm'>Write Skills with comma in between</div> */}
+                </div>
+
             </div>}
 
             {!props.project && <div className='flex flex-col gap-1 pb-2'>

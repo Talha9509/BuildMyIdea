@@ -5,12 +5,14 @@ import Link from 'next/link'
 export const Tab = (props: any) => {
   return (
     <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl'>
-      <div className='border border-white flex max-w-[30vw]  gap-4 justify-between p-4 rounded-2xl'>
+      <div className='border border-white flex max-w-[40vw]  gap-4 justify-between p-4 rounded-2xl'>
         <Link key={props.project.id} href={`/project/${props.project.id}`}>
           <div>
-            <div className='flex flex-col gap-1 '>
+            <div className='flex flex-col gap-1 max-w-[30vw]'>
               <div>Name: {props.project.name}</div>
               <div className='line-clamp-2'>Description: {props.project.description}</div>
+              <div className='line-clamp-2'>Main Features: {props.project.mainFeature}</div>
+              <div className='line-clamp-1'>Refrence Link: {props.project.refrenceLink}</div>
               <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
             </div>
           </div>
@@ -34,6 +36,8 @@ export const Tab2 = (props: any) => {
             <div className='flex flex-col gap-1 '>
               <div>Name: {props.project.name}</div>
               <div className='line-clamp-2'>Description: {props.project.description}</div>
+              <div className='line-clamp-1'>Main Features: {props.project.mainFeature}</div>
+              <div className='line-clamp-1'>Refrence Link: {props.project.refrenceLink}</div>
               <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
             </div>
           </div>

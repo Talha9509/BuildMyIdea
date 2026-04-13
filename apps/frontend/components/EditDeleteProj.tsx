@@ -1,7 +1,7 @@
 "use client"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ProjectSchema } from '@repo/common/types'
+import { ProjectSchema, updateProjectSchema } from '@repo/common/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -13,7 +13,7 @@ import { apiFetch } from '@/utils/Apifetch'
 
 export const EditDeleteProj = (props: any) => {
   const router = useRouter()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(ProjectSchema), defaultValues: { name: "", description: "", skillsreq: "" } })
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateProjectSchema), defaultValues: { name: "", description: "", skillsreq: "",mainFeature:"", refrenceLink:"" } })
   const [onblur, setOnblur] = useState(false)
   const [onLoading, setOnLoading] = useState(false)
   const url = process.env.BACKEND_URL || "http://localhost:3001"
@@ -32,6 +32,7 @@ export const EditDeleteProj = (props: any) => {
 
   async function Edit() {
     console.log("clicked")
+    console.log(errors)
     setOnblur(true)
 
     if (props.EditProject) {
@@ -40,6 +41,8 @@ export const EditDeleteProj = (props: any) => {
         name: props.EditProject.name,
         description: props.EditProject.description,
         skillsreq: props.EditProject.skillsreq,
+        mainFeature: props.EditProject.mainFeature,
+        refrenceLink: props.EditProject.refrenceLink,
       })
     }
   }
@@ -83,18 +86,27 @@ export const EditDeleteProj = (props: any) => {
             <div className='flex flex-col gap-1'>
               
               <div>
-                <div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[10vw]' {...register("name")} /></div>
+                <div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[20vw]' {...register("name")} /></div>
               {errors.name && <div  className='text-sm px-2'>{errors.name.message}</div>}
               </div>
 
               <div>
-              <div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[20vw]' {...register("description")} rows={3} /></div></div>
+              <div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("description")} rows={3} /></div></div>
               {errors.description && <div className='text-sm px-2'>{errors.description.message}</div>}
               </div>
 
               <div>
-              <div>Skills required <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[20vw]' {...register("skillsreq")} rows={2} /></div></div>
-              <div className='text-sm'>Write Skills with comma in between</div>
+                <div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
+                {errors?.mainFeature && <div className='text-sm px-2'>{errors.mainFeature.message}</div>}
+              </div>
+
+              <div>
+                <div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
+              </div>
+
+              <div>
+              <div>Skills required <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
+              {/* <div className='text-sm'>Write Skills with comma in between</div> */}
               </div>
             </div>
 

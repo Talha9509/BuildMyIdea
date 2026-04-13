@@ -7,7 +7,8 @@ import { ColumnDef } from "@tanstack/react-table"
 export type Project = {
     id: number
     name: string
-    description: string
+    description: string,
+    mainFeature: string,
     owner: {
         user: {
             name: string
@@ -55,6 +56,16 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         cell: ({ row }) => (
             <div className="line-clamp-2 text-base">
                 {row.original.description}
+            </div>
+        ),
+    },
+    {
+        accessorKey: "mainFeature",
+        header: "Imp",
+        // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
+        cell: ({ row }) => (
+            <div className="line-clamp-2 text-base">
+                {row.original.mainFeature}
             </div>
         ),
     },

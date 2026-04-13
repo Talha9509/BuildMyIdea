@@ -52,6 +52,8 @@ model Project{
   name          String       @unique
   description   String
   skillsreq     String?
+  mainFeature   String
+  refrenceLink  String?
   ownerId       Int          
   owner         Owner        @relation(fields: [ownerId],references: [id])
   submits      Submit[]

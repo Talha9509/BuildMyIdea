@@ -10,13 +10,17 @@ export const UserSchema=z.object({
 export const ProjectSchema=z.object({
     name:z.string().min(3,"Give a Proper Name to the Project"),
     description:z.string().min(10,"Give a Proper Description for the Project"),
-    skillsreq:z.string().optional()
+    skillsreq:z.string().optional(),
+    refrenceLink:z.string().optional(),
+    mainFeature:z.string().min(3,"Give a Vaild Main Feature for the Project")
 })
 
 export const updateProjectSchema=z.object({
     name:z.optional(z.string().min(3,"Give a Proper Name to the Project")),
     description:z.optional(z.string().min(10,"Give a Proper Description for the Project")),
-    skillsreq:z.string().optional()
+    skillsreq:z.string().optional(),
+    refrenceLink:z.string().optional(),
+    mainFeature:z.optional(z.string().min(3,"Give a Vaild Main Feature for the Project"))
 })
 
 export const updateUserSchema=z.object({

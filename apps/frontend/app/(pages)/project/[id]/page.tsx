@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { cookies, headers } from 'next/headers'
 import Navbar from '../../../../components/Navbar2'
 import {Card} from '../../../../components/Card'
-import AddEditsubmit from '../../../../components/AddProjSubmitForm'
+import AddSubmit from '../../../../components/AddProjSubmitForm'
 import Link from 'next/link'
 
 export default async function page({ params }: { params: { id: number } }) {
@@ -27,6 +27,7 @@ export default async function page({ params }: { params: { id: number } }) {
   }
 
   const data = await response.json()
+  console.log(data)
   // console.log(data.project)
   // const dev=data.project.dev.user
   const submissions = await data.project.submits
@@ -41,11 +42,20 @@ export default async function page({ params }: { params: { id: number } }) {
             {/* <div className='text-3xl'>Project</div> */}
             <div className='text-4xl font-semibold'> {data.project.name}</div>
           </div>
-          <div className='text-lg flex flex-col gap-4 py-6'>
+          <div className='text-lg flex flex-col gap-6 py-6'>
             <div className='text-2xl'>Description
               <div className='text-lg'>{data.project.description}</div>
             </div>
-            <div className='text-xl'>Idea Creator:&nbsp;
+            <div className='text-2xl'>Main Features
+              <div className='text-lg'>{data.project.mainFeature}</div>
+            </div>
+            {data.project.skillsreq && <div className='text-2xl'>Skills Required
+              <div className='text-lg'>{data.project.skillsreq}</div>
+            </div>}
+            {data.project.refrenceLink &&  <div className='text-2xl'>Refrence Links
+              <div className='text-lg'><Link href={data.project.refrenceLink}>{data.project.refrenceLink}</Link></div>
+            </div>}
+            <div className='text-2xl'>Idea Creator :&nbsp;&nbsp;
               <Link className='bg-gray-800 hover:bg-gray-600 p-1 rounded-md text-lg' href={`/profile/${data.project.owner.user.id}`}> {data.project.owner.user.name}</Link>
             </div>
           </div>
@@ -53,7 +63,7 @@ export default async function page({ params }: { params: { id: number } }) {
           <div className='py-6'>
             <div className='flex gap-[70vw] items-center'>
               <div className='text-2xl'>Submissions</div>
-              <div><AddEditsubmit title={"Add Submission"} project={false} to={'submit'} id={id} /></div>
+              <div><AddSubmit title={"Add Submission"} project={false} to={'submit'} id={id} /></div>
             </div>
 
             <div className='flex flex-wrap py-4 gap-2'>
