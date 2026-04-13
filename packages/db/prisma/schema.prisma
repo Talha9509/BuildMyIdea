@@ -68,7 +68,7 @@ model Submit{
   liveLink      String         
   repoLink      String         @unique
   // maybe
-  // @@unique([projectId, devId])
+  @@unique([projectId, devId])
 }
 
 // in future, create one more model Application, devs can apply

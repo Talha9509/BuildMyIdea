@@ -496,7 +496,17 @@ app.post("/api/v1/submit/:id", middleware, async (req, res) => {
     return res.status(201).json({ message: "Done", submit })
   } catch (error:any) {
     if(error.code==='P2002'){
-      return res.status(403).json({ message: "Repo Link can't be same" })
+      console.log("meta "+JSON.stringify(error.meta))
+
+      const cause=error.meta.driverAdapterError.cause
+      console.log(cause)
+
+      if(cause.originalMessage.includes('projectId') && cause.originalMessage.includes('devId')){
+        return res.status(409).json({ message: "You already submitted to this project" })
+      }
+      if(cause.originalMessage.includes('repoLink')){
+        return res.status(403).json({ message: "Repo Link can't be same" })
+      }
     }
     console.log(error)
     return res.status(500).json({ message: "Internal server Error" })
