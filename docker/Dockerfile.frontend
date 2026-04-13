@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN npm i -g pnpm
 
-
+ARG DATABASE_URL
 COPY ./package.json ./package.json
 COPY ./pnpm-lock.yaml ./pnpm-lock.yaml
 COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
@@ -15,7 +15,7 @@ COPY ./apps/frontend ./apps/frontend
 
 RUN pnpm install --filter frontend...
 RUN pnpm run db:generate
-RUN DATABASE_URL={DATABASE_URL} pnpm run build
+RUN DATABASE_URL=$DATABASE_URL pnpm run build
 
 EXPOSE 3000
 
