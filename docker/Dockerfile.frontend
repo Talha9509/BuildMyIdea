@@ -15,6 +15,7 @@ COPY ./apps/frontend ./apps/frontend
 
 RUN pnpm install --filter frontend...
 RUN pnpm run db:generate
+RUN DATABASE_URL={DATABASE_URL} pnpm run build
 
 EXPOSE 3000
 
