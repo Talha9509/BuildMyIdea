@@ -15,7 +15,7 @@ COPY ./apps/http-backend ./apps/http-backend
 
 RUN pnpm install --filter http-backend...
 RUN pnpm run db:generate
-RUN pnpm run --filter http-backend build
+RUN pnpm run build --filter http-backend... 
 
 EXPOSE 3001
 

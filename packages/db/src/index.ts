@@ -1,7 +1,4 @@
 
-// export const prismaClient = new PrismaClient()
-
-// import {PrismaClient} from "../generated/prisma/client"
 import {PrismaClient} from "@prisma/client"
 import "dotenv/config";
 import { PrismaNeon } from "@prisma/adapter-neon";
@@ -12,5 +9,4 @@ const adapter = new PrismaNeon({
 
 console.log(adapter)
 
-export const prismaClient= new PrismaClient({adapter});
-
+export const prismaClient:PrismaClient= new PrismaClient({adapter});

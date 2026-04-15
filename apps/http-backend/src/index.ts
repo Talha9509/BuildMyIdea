@@ -1,20 +1,21 @@
 import express, { Request, Response } from 'express'
 import { UserSchema, ProjectSchema, updateUserSchema, updateProjectSchema, submitSchema, updateSubmitSchema } from '@repo/common/types'
+import 'dotenv/config'
 import { prismaClient } from '@repo/db/client'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { middleware } from './middleware/middleware.js'
 import cors from 'cors'
-import 'dotenv/config'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import authRoutes from './routes/auth.Routes.js'
 
 const app = express()
+const frontend=["http://localhost:3000","http://frontend:3000"]
 
 app.use(express.json())
 app.use(cors({
-  origin: `${process.env.FRONTEND}`,
+  origin: frontend,
   credentials: true
 }))
 app.use(cookieParser())
@@ -36,6 +37,7 @@ if (!secret) {
 const PORT = process.env.PORT || 3001
 
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
+  console.log(`database url: ${process.env.DATABASE_URL}`)
   const input = req.body;
   const validatedInput = UserSchema.safeParse(input)
   if (!validatedInput.success) {
@@ -64,8 +66,12 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
       sameSite: 'lax',
       maxAge: 72 * 60 * 60 * 1000
     }).json({ message: "Account created" })
-  } catch (error) {
-    return res.status(409).json({ message: "User Already Exists" })
+  } catch (error:any) {
+    if(error.code=='P2002'){
+      return res.status(409).json({ message: "User Already Exists" })
+    }
+    console.log(error)
+    return res.status(500).json({ message:"Internal Server Error" })
   }
 })
 
@@ -204,6 +210,7 @@ app.patch("/api/v1/profile", middleware, async (req, res) => {
 })
 
 app.get("/api/v1/profile/me", middleware, async (req, res) => {
+  console.log(process.env.DATABASE_URL)
   const userId = req.userId
   // same profile will be shown to user and others. only difference is, user can edit his profile
   // for checking others profile, email and phone will only be visible when both are connected
@@ -591,6 +598,7 @@ app.delete("/api/v1/submit/:id", middleware, async (req, res) => {
 
 
 app.get("/api/v1/projects", middleware, async (req, res) => {
+  console.log(process.env.DATABASE_URL)
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
     select: {
@@ -680,5 +688,6 @@ app.post("/api/v1/connect", async (req, res) => {
 })
 
 app.listen(PORT, () => {
+  console.log(process.env.DATABASE_URL)
   console.log("Listening on port: " + PORT)
 })

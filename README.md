@@ -1,159 +1,207 @@
-# Turborepo starter
 
-This Turborepo starter is maintained by the Turborepo core team.
+# BuildMyIdea
+BuildMyIdea is a platform where users can post software/app ideas and developers can browse, submit solutions, and collaborate to build them.
 
-## Using this example
+---
 
-Run the following command:
+## Tech Stack
 
-```sh
-npx create-turbo@latest
+### Frontend
+
+* Next.js
+* ShadCN UI
+* TanStack Table
+* React Hook Form
+* Sonner
+
+### Backend
+
+* Express.js
+* TypeScript
+* Prisma ORM
+* PostgreSQL
+* Passport.js OAuth
+* JWT Authentication
+* Docker
+
+---
+
+## Monorepo Structure
+
+```bash
+BuildMyIdea/
+│
+├── apps/
+│   ├── frontend/        # Next.js frontend
+│   └── backend/         # Express backend
+│
+├── packages/
+│   ├── db/              # Prisma schema + Prisma Client
+│   └── common/          # Shared Zod schemas / Types
+│
+└── docker-compose.yml
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## Features
 
-### Apps and Packages
+### Authentication
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+* Email / Password Login
+* Google OAuth
+* GitHub OAuth
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### User Roles
 
-### Utilities
+* Idea Creator
+* Developer
 
-This Turborepo has some additional tools already setup for you:
+### Projects
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+* Post New Project Ideas
+* Edit / Delete Projects
+* Browse All Projects
+* View Project Details
 
-### Build
+### Submissions
 
-To build all apps and packages, run the following command:
+* Developers Submit Project Solutions
+* GitHub / Live Demo Links
+* Prevent Duplicate Submissions
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+### Profile
 
-```sh
-cd my-turborepo
-turbo build
+* Public Profile Pages
+* Role Switching with Validation
+* View Posted Projects / Submitted Projects
+
+---
+
+## Setup
+
+### Using Docker
+
+```bash
+docker-compose up
+```
+---
+
+### Manual Setup
+
+### 1. Clone Repository
+
+```bash
+git clone <repo-url>
+cd BuildMyIdea
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+### 2. Install Dependencies
+
+```bash
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### 3. Setup Environment Variables
 
-```sh
-turbo build --filter=docs
+Create `.env` files in required apps/packages.
+
+Example:
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+### 4. Run Database (Docker)
+
+```bash
+docker compose up -d postgres
 ```
 
-### Develop
+---
 
-To develop all apps and packages, run the following command:
+### 5. Run Prisma Migrations
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+cd packages/db
+npx prisma migrate dev
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+### 6. Build Shared Packages
+
+```bash
+pnpm --filter db build
+pnpm --filter common build
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+### 7. Start Development Servers
 
-```sh
-turbo dev --filter=web
+```bash
+pnpm dev
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+## Environment Variables
+
+### Backend
+
+```env
+DATABASE_URL=
+JWT_SECRET=
+FRONTEND_URL=
+NODE_ENV=production
 ```
 
-### Remote Caching
+### OAuth
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+TWITTER_CLIENT_ID=
+TWITTER_CLIENT_SECRET=
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+## Future Improvements
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+* Chat / Messaging between Creator and Developer
+* Project Status Tracking
+* Reviews / Ratings
+* Team Collaboration
+* Payment / Escrow Support
+* AI Project Description Enhancement
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Author
 
-```sh
-turbo link
-```
+**Mohd Talha**
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+## License
 
-## Useful Links
+MIT
 
-Learn more about the power of Turborepo:
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
