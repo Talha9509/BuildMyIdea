@@ -7,16 +7,16 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "start:backend":"cd apps/http-backend && pnpm run start",
-    "start:frontend":"cd apps/frontend && pnpm run start",
-    "db:generate":"cd packages/db && npx prisma generate && cd ../.."
+    "start:backend": "cd apps/http-backend && pnpm run start",
+    "start:frontend": "cd apps/frontend && pnpm run start",
+    "db:generate": "cd packages/db && npx prisma generate && cd ../.."
   },
   "devDependencies": {
     "prettier": "^3.7.4",
     "turbo": "^2.8.17",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=18"
   }
