@@ -9,7 +9,8 @@ import AddProject from '../../../components/AddProjSubmitForm'
 async function getData(): Promise<Project[]> {
   const cookieStore = cookies()
   // Fetch data from your API here.
-  const url = process.env.BACKEND_URL || "http://localhost:3001"
+  // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001" 
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL 
   const response = await fetch(`${url}/api/v1/projects`, {
     credentials: 'include', headers: {
       cookie: (await cookieStore).toString()

@@ -24,8 +24,8 @@ const page = () => {
           {/* <div className='text-gray-600'>------ or-------</div> */}
           <div className='text-lg p-2'>Sign In with</div>
           <div className='flex gap-2'>
-            <Link href={`${process.env.BACKEND_URL}/auth/google`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={Google} alt='Google'></Image></button></Link>
-            <Link href={`${process.env.BACKEND_URL}/auth/github`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={GitHub} alt='Google'></Image></button></Link>
+            <Link href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={Google} alt='Google'></Image></button></Link>
+            <Link href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/github`} ><button className='border p-2 px-4 cursor-pointer rounded-2xl min-w-[2rem]'><Image src={GitHub} alt='Google'></Image></button></Link>
           </div>
         </div>
       </div>

@@ -16,7 +16,8 @@ export const EditDeleteProj = (props: any) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateProjectSchema), defaultValues: { name: "", description: "", skillsreq: "",mainFeature:"", refrenceLink:"" } })
   const [onblur, setOnblur] = useState(false)
   const [onLoading, setOnLoading] = useState(false)
-  const url = process.env.BACKEND_URL || "http://localhost:3001"
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL 
+  // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
   useEffect(() => {
     if (onblur) {
       document.body.style.overflow = 'hidden'

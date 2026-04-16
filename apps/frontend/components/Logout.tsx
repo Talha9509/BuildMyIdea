@@ -6,7 +6,7 @@ const Logout = () => {
   const router=useRouter()
   async function logout() {
     try {
-      const url = process.env.BACKEND_URL || "http://localhost:3001"
+      const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
       // post
       const res = await fetch(`${url}/api/v1/logout`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' } })
       console.log(res)

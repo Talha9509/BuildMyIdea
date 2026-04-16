@@ -22,7 +22,8 @@ const AddEditForm = (props: any) => {
 
   const [onLoading, setOnLoading] = useState(false)
   const [onblur, setOnblur] = useState(false)
-  const url = process.env.BACKEND_URL || "http://localhost:3001"
+  // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL 
 
   useEffect(() => {
     if (onblur) {

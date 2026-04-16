@@ -18,7 +18,7 @@ export const EditProfile = (props: any) => {
   const [onLoading, setOnLoading] = useState(false)
   const role = watch("role")
 
-  const url = process.env.BACKEND_URL || "http://localhost:3001"
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
   useEffect(() => {
     if (onblur) {
       document.body.style.overflow = 'hidden'
