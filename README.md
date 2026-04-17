@@ -83,7 +83,7 @@ BuildMyIdea/
 ### Using Docker
 
 ```bash
-docker-compose up
+docker-compose --env-file .env up
 ```
 ---
 
@@ -113,6 +113,9 @@ Create `.env` files in required apps/packages.
 Example:
 
 ```env
+FRONTEND="http://localhost:3000"
+NEXT_PUBLIC_BACKEND_URL="http://localhost:3001"   
+BACKEND_URL="http://localhost:3001"    (For calling backend in docker, use: http://backend:3001)
 DATABASE_URL=
 JWT_SECRET=
 GOOGLE_CLIENT_ID=
@@ -123,15 +126,7 @@ GITHUB_CLIENT_SECRET=
 
 ---
 
-### 4. Run Database (Docker)
-
-```bash
-docker compose up -d postgres
-```
-
----
-
-### 5. Run Prisma Migrations
+### 4. Run Prisma Migrations
 
 ```bash
 cd packages/db
@@ -140,7 +135,7 @@ npx prisma migrate dev
 
 ---
 
-### 6. Build Shared Packages
+### 5. Build Shared Packages
 
 ```bash
 pnpm --filter db build
@@ -149,10 +144,10 @@ pnpm --filter common build
 
 ---
 
-### 7. Start Development Servers
+### 6. Start Development Servers
 
 ```bash
-pnpm dev
+pnpm run dev
 ```
 
 ---
@@ -175,10 +170,6 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-TWITTER_CLIENT_ID=
-TWITTER_CLIENT_SECRET=
-LINKEDIN_CLIENT_ID=
-LINKEDIN_CLIENT_SECRET=
 ```
 
 ---

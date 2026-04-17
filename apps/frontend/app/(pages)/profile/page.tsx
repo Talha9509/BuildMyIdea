@@ -6,7 +6,7 @@ import { Tab } from '../../../components/Tab'
 import {Card2} from '../../../components/Card'
 
 export default async function profile() {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/profile/me`
+  const url = `${process.env.BACKEND_URL}/api/v1/profile/me`
   console.log(url)
   const cookieStore = cookies()
   const response = await fetch(url, {

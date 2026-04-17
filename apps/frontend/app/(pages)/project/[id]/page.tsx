@@ -13,7 +13,7 @@ export default async function page({ params }: { params: { id: number } }) {
   const cookieStore = cookies()
 
   // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
-  const url = process.env.NEXT_PUBLIC_BACKEND_URL 
+  const url = process.env.BACKEND_URL 
   const response = await fetch(`${url}/api/v1/project/${id}`, {
     credentials: 'include', headers: {
       cookie: (await cookieStore).toString()

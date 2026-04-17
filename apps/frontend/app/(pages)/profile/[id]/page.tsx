@@ -6,7 +6,7 @@ import {Card} from '../../../../components/Card'
 export default async function profile({ params }: { params: { id: number } }) {
   const param = await params
   const id = param.id
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/profile/${id}`
+  const url = `${process.env.BACKEND_URL}/api/v1/profile/${id}`
   const cookieStore = cookies()
   const response = await fetch(url, {
     credentials: 'include', headers: {
