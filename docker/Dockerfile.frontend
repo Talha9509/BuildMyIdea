@@ -14,6 +14,10 @@ COPY ./packages ./packages
 COPY ./apps/frontend ./apps/frontend
 
 RUN pnpm install --filter frontend...
+
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+
 # RUN pnpm run db:generate
 # RUN DATABASE_URL=$DATABASE_URL pnpm run build --filter frontend... 
 RUN  pnpm run build --filter frontend... 
