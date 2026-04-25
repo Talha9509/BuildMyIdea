@@ -90,7 +90,7 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
       }
     })
     if (!user) {
-      return res.status(404).json({ message: "User Not Found" })
+      return res.status(404).json({ message: "Create an Account First" })
     }
     if (!user.password) {
       const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })

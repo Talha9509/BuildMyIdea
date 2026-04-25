@@ -32,17 +32,18 @@ export default async function profile() {
 
     <div className='flex flex-col items-center'>
       <div>
-        <div className='text-lg grid grid-cols-2 justify-center  gap-x-2'>
+        <div className='text-lg grid grid-cols-2 justify-center  gap-x-10'>
           <div>Name: {user.name}</div>
           <div>Job: {user.job}</div>
           <div>Phone: {user.phone}</div>
           <div>Email: {user.email}</div>
-          <div>Role: {user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
+          <div>Role: {user.role == "DEV" ? `Developer` : user.role == "OWNER" ? `Idea Creator` : 'None'}</div>
         </div>
-        <div className='text-sm'>{user.role != "OWNER" && user.role != "DEV" ? <div>
-          <div>Default is Idea Creator</div>
-          <div>Choose Idea Creator to give Ideas and get it built by Developers</div>
-          <div>Choose Developer to build the projects given by Idea Creator</div>
+        <div className='text-sm'>{user.role != "OWNER" && user.role != "DEV" ? 
+          <div className='py-4 text-lg'>
+          <div>In Role option, choose between</div>
+          <div><span className='font-bold underline'>Idea Creator</span> to give Ideas and get it built by Developers</div>
+          <div><span className='font-bold underline'>Developer</span> to build the projects given by Idea Creator</div>
         </div> : null}</div>
       </div>
     </div>

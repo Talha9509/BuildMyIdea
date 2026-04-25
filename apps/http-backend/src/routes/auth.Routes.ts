@@ -21,7 +21,4 @@ router.get("/google/callback", passport.authenticate("google", { session: false 
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
 router.get("/github/callback", passport.authenticate("github", { session: false }), signTokenAndRedirect);
 
-router.get("/twitter", passport.authenticate("twitter"));
-router.get("/twitter/callback", passport.authenticate("twitter", { session: false }), signTokenAndRedirect);
-
 export default router;
