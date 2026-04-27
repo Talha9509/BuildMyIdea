@@ -27,22 +27,6 @@ const Form = (props: any) => {
         router.push("/projects")
       }
 
-      // console.log(response)
-      // console.log(response.message)
-
-      // if (response.status === 200) {
-      // }
-      // todo: use react toastify
-      // if (response.status === 409) {
-      //   console.log("User Already Exists")
-      // }
-      // if (response.status === 401) {
-      //   console.log("Incorrect Password")
-      // }
-      // if (response.status === 404) {
-      //   console.log("User Not Found")
-      // }
-      // console.log(errors)
     } catch (error) {
       console.log(error)
     }
