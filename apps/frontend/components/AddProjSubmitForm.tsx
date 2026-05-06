@@ -15,7 +15,7 @@ type ProjectFormType = z.infer<typeof ProjectSchema>
 type SubmitFormType = z.infer<typeof submitSchema>
 type FormType = ProjectFormType | SubmitFormType
 
-const AddEditForm = (props: any) => {
+const AddProjSubmitForm = (props: any) => {
   const schema = props.project ? ProjectSchema : submitSchema
   const router = useRouter()
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormType>({ resolver: zodResolver(schema), defaultValues: props.project ? { name: "", description: "", mainFeature:"" } : { liveLink: "", repoLink: "" } })
@@ -133,4 +133,4 @@ const AddEditForm = (props: any) => {
   </div>)
 }
 
-export default AddEditForm
+export default AddProjSubmitForm

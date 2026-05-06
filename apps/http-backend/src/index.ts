@@ -123,6 +123,224 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
   }
 })
 
+app.post("/api/v1/projects", middleware, async (req, res) => {
+  const userId = req.userId;
+  const body = req.body
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthoized" })
+  }
+  console.log(userId)
+
+  const validated = ProjectSchema.safeParse(body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(422).json({ message: "Invalid Inputs" })
+  }
+
+  try {
+    const owner = await prismaClient.owner.findUnique({
+      where: { userId: userId }
+    })
+    if (!owner) {
+      return res.status(403).json({ message: "Only Idea Creator can Add Project" })
+    }
+    const project = await prismaClient.project.create({
+      data: {
+        name: validated.data.name,
+        description: validated.data.description,
+        ownerId: owner.id,
+        skillsreq:validated.data.skillsreq,
+        refrenceLink:validated.data.refrenceLink,
+        mainFeature:validated.data.mainFeature
+      }
+    })
+    if (!project) {
+      return res.status(409).json({ message: "Project Already Exists" })
+    }
+    console.log("project: " + project)
+    return res.status(201).json({ message: "Done", project:project  })
+  }
+  catch (err: any) {
+    if (err.code=='P2002') {
+      return res.status(409).json({ message: "Project Already Exists" })
+    }
+    console.log(err)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+})
+
+app.get("/api/v1/projects", middleware, async (req, res) => {
+  console.log(process.env.DATABASE_URL)
+  const projects = await prismaClient.project.findMany({
+    relationLoadStrategy: 'join',
+    select: {
+      name: true, description: true, id: true, mainFeature:true, 
+      owner: {
+        select: {
+          user: {
+            select: { name: true }
+          }
+        }
+      },
+      submits: {
+        select: {
+          dev: {
+            select: {
+              user: {
+                select: { name: true }
+              }
+            }
+          }
+        }
+      }
+    },
+  })
+  res.json({ message: "Done", projects })
+})
+
+app.patch("/api/v1/project/:id", middleware, async (req, res) => {
+  // to edit a project by owner
+  const userId = req.userId;
+  const body = req.body
+  const id = parseInt(req.params.id as string)
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  console.log(userId)
+
+  const validated = updateProjectSchema.safeParse(body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
+
+  if (Object.keys(validated.data).length === 0) {
+    return res.status(400).json({ message: "Nothing to be changed" })
+  }
+
+  try {
+    const owner = await prismaClient.owner.findFirst({
+      where: {
+        userId: userId, projects: {
+          some: { id: id }
+        }
+      },
+      select: {
+        projects: {
+          where: { id: id },
+          select: { id: true }
+        }
+      }
+    })
+    console.log(owner?.projects)
+    if (!owner) {
+      return res.status(403).json({ message: "Not Allowed to edit others project" })
+    }
+    const project = await prismaClient.project.update({
+      where: { id: id },
+      data: validated.data,
+    })
+    console.log("project: ", project)
+    return res.json({ message: "Done", project: project })
+  }
+  catch (err: any) {
+    if (err.code === "P2002") {
+      console.log(err)
+      return res.status(409).json({ message: "Project Already Exists" })
+    }
+    if (err.code === "P2025") {
+      console.log(err)
+      return res.status(404).json({ message: "Project Not Found" })
+    }
+    console.log(err)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+})
+
+app.delete("/api/v1/project/:id", middleware, async (req, res) => {
+  // delte a project if owner wants to delete it
+  const userId = req.userId
+  const id = parseInt(req.params.id as string)
+
+  try {
+    const owner = await prismaClient.owner.findFirst({
+    where: {
+      userId: userId, projects: {
+        some: { id: id }
+      }
+    },
+    select: {
+      projects: {
+        where: { id: id },
+        select: { id: true }
+      }
+    }
+  })
+  console.log(owner)
+  console.log(owner?.projects)
+  if (!owner) {
+    return res.status(403).json({ message: "Not Allowed to Delete others Project" })
+  }
+  const deleted = await prismaClient.project.delete({
+    where: { id: id, submits:{
+      none:{}
+    } }
+  })
+  if (!deleted) {
+    return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
+  }
+  return res.status(200).json({ message: "Done", deleted })
+  // return res.status(204).send()
+  } catch (error:any) {
+    if(error.code){
+      return res.status(409).json({message:"Can't Delete a Project with Active Submissions"})
+    }
+    console.log(error)
+    return res.status(500).json({ message:"Internal Server Error"})
+  }
+  
+})
+
+app.get("/api/v1/project/:id", middleware, async (req, res) => {
+  const id = parseInt(req.params.id as string)
+  const userId = req.userId
+  console.log(id)
+
+  const project = await prismaClient.project.findUnique({
+    relationLoadStrategy: 'join',
+    where: { id: id },
+    select: {
+      id: true, name: true, description: true, skillsreq: true, refrenceLink:true, mainFeature:true,
+      owner: {
+        select: {
+          user: {
+            select: {
+              name: true, id: true
+            }
+          }
+        }
+      }, submits: {
+        select: {
+          liveLink: true, repoLink: true,
+          dev: {
+            select: {
+              user: {
+                select: {
+                  name: true, id: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  if(!project){
+      return res.status(404).json({ message:"Project Not Found"})
+    }
+  return res.json({ message: "Done", project })
+})
+
 // need to change sth as dev now has submissions. so before changing dev to owner, he cant have submissions
 // no need to do that. because if a dev has project, then he has submits and vice versa
 app.patch("/api/v1/profile", middleware, async (req, res) => {
@@ -286,155 +504,6 @@ app.get("/api/v1/profile/:id", middleware, async (req, res) => {
   return res.status(200).json({ message: "Done", user })
 })
 
-app.post("/api/v1/projects", middleware, async (req, res) => {
-  const userId = req.userId;
-  const body = req.body
-  if (typeof userId != 'number') {
-    return res.status(401).json({ message: "Unauthoized" })
-  }
-  console.log(userId)
-
-  const validated = ProjectSchema.safeParse(body)
-  console.log(validated)
-  if (!validated.success) {
-    return res.status(422).json({ message: "Invalid Inputs" })
-  }
-
-  try {
-    const owner = await prismaClient.owner.findUnique({
-      where: { userId: userId }
-    })
-    if (!owner) {
-      return res.status(403).json({ message: "Only Idea Creator can Add Project" })
-    }
-    const project = await prismaClient.project.create({
-      data: {
-        name: validated.data.name,
-        description: validated.data.description,
-        ownerId: owner.id,
-        skillsreq:validated.data.skillsreq,
-        refrenceLink:validated.data.refrenceLink,
-        mainFeature:validated.data.mainFeature
-      }
-    })
-    if (!project) {
-      return res.status(409).json({ message: "Project Already Exists" })
-    }
-    console.log("project: " + project)
-    return res.status(201).json({ message: "Done", project: project })
-  }
-  catch (err: any) {
-    if (err.code=='P2002') {
-      return res.status(409).json({ message: "Project Already Exists" })
-    }
-    console.log(err)
-    return res.status(500).json({ message: "Internal Server Error" })
-  }
-})
-
-app.patch("/api/v1/project/:id", middleware, async (req, res) => {
-  // to edit a project by owner
-  const userId = req.userId;
-  const body = req.body
-  const id = parseInt(req.params.id as string)
-  if (typeof userId != 'number') {
-    return res.status(401).json({ message: "Unauthorized" })
-  }
-  console.log(userId)
-
-  const validated = updateProjectSchema.safeParse(body)
-  console.log(validated)
-  if (!validated.success) {
-    return res.status(400).json({ message: "Invalid Inputs" })
-  }
-
-  if (Object.keys(validated.data).length === 0) {
-    return res.status(400).json({ message: "Nothing to be changed" })
-  }
-
-  try {
-    const owner = await prismaClient.owner.findFirst({
-      where: {
-        userId: userId, projects: {
-          some: { id: id }
-        }
-      },
-      select: {
-        projects: {
-          where: { id: id },
-          select: { id: true }
-        }
-      }
-    })
-    console.log(owner?.projects)
-    if (!owner) {
-      return res.status(403).json({ message: "Not Allowed to edit others project" })
-    }
-    const project = await prismaClient.project.update({
-      where: { id: id },
-      data: validated.data,
-    })
-    console.log("project: ", project)
-    return res.json({ message: "Done", project: project })
-  }
-  catch (err: any) {
-    if (err.code === "P2002") {
-      console.log(err)
-      return res.status(409).json({ message: "Project Already Exists" })
-    }
-    if (err.code === "P2025") {
-      console.log(err)
-      return res.status(404).json({ message: "Project Not Found" })
-    }
-    console.log(err)
-    return res.status(500).json({ message: "Internal Server Error" })
-  }
-})
-
-app.delete("/api/v1/project/:id", middleware, async (req, res) => {
-  // delte a project if owner wants to delete it
-  const userId = req.userId
-  const id = parseInt(req.params.id as string)
-
-  try {
-    const owner = await prismaClient.owner.findFirst({
-    where: {
-      userId: userId, projects: {
-        some: { id: id }
-      }
-    },
-    select: {
-      projects: {
-        where: { id: id },
-        select: { id: true }
-      }
-    }
-  })
-  console.log(owner)
-  console.log(owner?.projects)
-  if (!owner) {
-    return res.status(403).json({ message: "Not Allowed to Delete others Project" })
-  }
-  const deleted = await prismaClient.project.delete({
-    where: { id: id, submits:{
-      none:{}
-    } }
-  })
-  if (!deleted) {
-    return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
-  }
-  return res.status(200).json({ message: "Done", deleted })
-  // return res.status(204).send()
-  } catch (error:any) {
-    if(error.code){
-      return res.status(409).json({message:"Can't Delete a Project with Active Submissions"})
-    }
-    console.log(error)
-    return res.status(500).json({ message:"Internal Server Error"})
-  }
-  
-})
-
 app.post("/api/v1/submit/:id", middleware, async (req, res) => {
   // the dev will post the code repo link of github
   const userId = req.userId
@@ -595,76 +664,6 @@ app.delete("/api/v1/submit/:id", middleware, async (req, res) => {
     console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })
   }
-})
-
-
-app.get("/api/v1/projects", middleware, async (req, res) => {
-  console.log(process.env.DATABASE_URL)
-  const projects = await prismaClient.project.findMany({
-    relationLoadStrategy: 'join',
-    select: {
-      name: true, description: true, id: true, mainFeature:true, 
-      owner: {
-        select: {
-          user: {
-            select: { name: true }
-          }
-        }
-      },
-      submits: {
-        select: {
-          dev: {
-            select: {
-              user: {
-                select: { name: true }
-              }
-            }
-          }
-        }
-      }
-    },
-  })
-  res.json({ message: "Done", projects })
-})
-
-app.get("/api/v1/project/:id", middleware, async (req, res) => {
-  const id = parseInt(req.params.id as string)
-  const userId = req.userId
-  console.log(id)
-
-  const project = await prismaClient.project.findUnique({
-    relationLoadStrategy: 'join',
-    where: { id: id },
-    select: {
-      id: true, name: true, description: true, skillsreq: true, refrenceLink:true, mainFeature:true,
-      owner: {
-        select: {
-          user: {
-            select: {
-              name: true, id: true
-            }
-          }
-        }
-      }, submits: {
-        select: {
-          liveLink: true, repoLink: true,
-          dev: {
-            select: {
-              user: {
-                select: {
-                  name: true, id: true
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  })
-  if(!project){
-      return res.status(404).json({ message:"Project Not Found"})
-    }
-  return res.json({ message: "Done", project })
 })
 
 app.post("/api/v1/logout", async (req, res) => {
