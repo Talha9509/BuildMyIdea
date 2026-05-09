@@ -36,5 +36,3 @@ export const Card2=(props:any)=>{
 
   </div>)
 }
-
-// flex-wrap gap-4 mx-auto flex gap-2

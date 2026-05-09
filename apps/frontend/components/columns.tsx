@@ -23,20 +23,6 @@ export type Project = {
     }]
 }
 
-export type Submission = {
-    liveLink:string
-    repoLink: string
-    dev:{
-        user:{
-            id:number
-            name:string
-        }
-    }
-}
-
-export const SubmissionColumn: ColumnDef<Submission>[]=[
-
-]
 
 export const ProjectColumns: ColumnDef<Project>[] = [
     {
