@@ -37,6 +37,23 @@ if (!secret) {
 }
 const PORT = process.env.PORT || 3001
 
+app.use((req, res, next) => {
+  // Record the start time
+  const start = performance.now();
+
+  // Listen for the 'finish' event on the response object
+  res.on('finish', () => {
+    // Record the end time
+    const end = performance.now();
+    const duration = end - start;
+    
+    console.log(`[${req.method}] ${req.originalUrl} took ${duration.toFixed(2)}ms`);
+  });
+
+  // Call next() to pass control to your actual routes/controllers
+  next(); 
+});
+
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
   console.log(`database url: ${process.env.DATABASE_URL}`)
   const input = req.body;
@@ -195,7 +212,7 @@ app.get("/api/v1/projects", middleware, async (req, res) => {
       }
     },
   })
-  res.json({ message: "Done", projects })
+  return res.json({ projects:projects })
 })
 
 app.patch("/api/v1/project/:id", middleware, async (req, res) => {
@@ -292,7 +309,7 @@ app.delete("/api/v1/project/:id", middleware, async (req, res) => {
   return res.status(200).json({ message: "Done", deleted })
   // return res.status(204).send()
   } catch (error:any) {
-    if(error.code){
+    if(error.code=='P2002'){
       return res.status(409).json({message:"Can't Delete a Project with Active Submissions"})
     }
     console.log(error)
@@ -657,7 +674,7 @@ app.delete("/api/v1/submit/:id", middleware, async (req, res) => {
       where: { id: submitId, devId: dev.id }
     })
     if (!submit) {
-      res.status(404).json({ message: "ot Allowed to Delete others Submission" })
+      res.status(404).json({ message: "Not Allowed to Delete others Submission" })
     }
     return res.json({ message: "Done", submit })
   } catch (error) {
