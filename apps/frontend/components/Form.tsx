@@ -18,7 +18,7 @@ const Form = (props: any) => {
     setonLoading(true)
     try {
       console.log(`${url}/api/v1/${props.method}`)
-      const response = await apiFetch(`${url}/api/v1/${props.method}`, {
+      const response = await apiFetch(`${url}/auth/v1/${props.method}`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
       })

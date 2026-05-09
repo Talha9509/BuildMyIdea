@@ -50,7 +50,7 @@ export const EditDeleteProj = (props: any) => {
 
   async function onsubmit(data: any) {
     setOnLoading(true)
-    const response = await apiFetch(`${url}/api/v1/project/${props.id}`, {
+    const response = await apiFetch(`${url}/api/v1/projects/${props.id}`, {
       method: `${props.method}`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, ...(props.method == 'PATCH' ? { body: JSON.stringify(data) } : null)
     })

@@ -1,6 +1,8 @@
 import express, { Router } from "express";
 import jwt from "jsonwebtoken";
 import passport from '../auth/passport.js'
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { signup, signin, logout } from '../controllers/auth.controller.js'
 
 const router:Router = express.Router();
 
@@ -20,5 +22,9 @@ router.get("/google/callback", passport.authenticate("google", { session: false 
 
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
 router.get("/github/callback", passport.authenticate("github", { session: false }), signTokenAndRedirect);
+
+router.post("/v1/signup", signup)
+router.post("/v1/signin", signin)
+router.post("/v1/logout", authMiddleware, logout)
 
 export default router;

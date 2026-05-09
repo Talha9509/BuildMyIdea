@@ -8,7 +8,7 @@ const Logout = () => {
     try {
       const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
       // post
-      const res = await fetch(`${url}/api/v1/logout`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' } })
+      const res = await fetch(`${url}/auth/v1/logout`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' } })
       console.log(res)
       if(res.status===200){
         router.push("/")

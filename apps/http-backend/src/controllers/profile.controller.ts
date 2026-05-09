@@ -1,0 +1,163 @@
+import { Request, Response } from "express";
+import { prismaClient } from "@repo/db/client";
+import { updateUserSchema } from "@repo/common/types";
+
+export const editProfile = async( req:Request, res: Response) => {
+     const userId = req.userId
+      if (typeof userId != 'number') {
+        return res.status(401).json({ message: "Unauthourized" })
+      }
+      const validated = updateUserSchema.safeParse(req.body)
+      if (!validated.success) {
+        return res.status(400).json({ message: "Invalid Inputs" })
+      }
+      console.log(validated.data)
+    
+      const { role, ...otherFields } = validated.data
+    
+      try {
+        const user = await prismaClient.user.findUnique({
+          where: { id: userId },
+          include: { owner: true, dev: true }
+        })
+        if (!user) {
+          return res.status(404).json({ message: "User Not Found" })
+        }
+    
+        let currentRole: "DEV" | "OWNER" | null = null
+        console.log(user.owner, user.dev)
+        // if you want to keep role in user table, then make use of it
+        if (user.owner) currentRole = "OWNER"
+        if (user.dev) currentRole = "DEV"
+    
+        if (role && role == currentRole) {
+          if (Object.keys(otherFields).length > 0) {
+            await prismaClient.user.update({
+              where: { id: userId },
+              
+              data: validated.data,
+            });
+          }
+          return res.json({ message: "Profile Updated", role: currentRole });
+        }
+        if (currentRole === "DEV" && user.dev) {
+          // check if he has submits. as submit.count
+          const hasSubmits = await prismaClient.submit.count({
+            where: { devId: user.dev?.id }
+          })
+          if (hasSubmits > 0) {
+            return res.status(409).json({ message: "Cannot Change Roles with Active Submits" })
+          }
+        }
+        if (currentRole === "OWNER" && user.owner) {
+          const hasProjects = await prismaClient.project.count({
+            where: { ownerId: user.owner?.id }
+          })
+          if (hasProjects > 0) {
+            return res.status(409).json({ message: "Cannot Change Roles with Active Projects" })
+          }
+        }
+        const result = await prismaClient.$transaction(async (txn) => {
+          if (currentRole === "DEV") {
+            await txn.dev.delete({ where: { userId } })
+          }
+          if (currentRole === "OWNER") {
+            await txn.owner.delete({ where: { userId } })
+          }
+          if (role === "DEV") {
+            await txn.dev.create({ data: { userId } });
+          }
+    
+          if (role === "OWNER") {
+            await txn.owner.create({ data: { userId } });
+          }
+          if (Object.keys(otherFields).length > 0) {
+            await txn.user.update({
+              where: { id: userId },
+              
+              data: validated.data
+            })
+          }
+          return { role: role }
+        })
+        return res.status(200).json({ message: "Profile Updated", role: result?.role })
+      } catch (error: any) {
+        console.log(error)
+        return res.status(500).json({ message: "Internal Server Error" })
+      }
+}
+
+export const getMyProfile = async( req:Request, res: Response) => {
+    console.log(process.env.DATABASE_URL)
+  const userId = req.userId
+  // same profile will be shown to user and others. only difference is, user can edit his profile
+  // for checking others profile, email and phone will only be visible when both are connected
+  try {
+    const user = await prismaClient.user.findUnique({
+      relationLoadStrategy: 'join',
+      where: { id: userId },
+      select: {
+        email: true, name: true, job: true, phone: true, role:true,
+        owner: {
+          select: {
+            projects: {
+              select: {
+                name: true, description: true, mainFeature: true, id:true, skillsreq:true, refrenceLink:true
+              }
+            }
+          }
+        },
+        dev: {
+          select: {
+            submissions: {
+              select: {
+                repoLink: true, liveLink: true, id:true
+              }
+            }
+          }
+        }
+      }
+    })
+    // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
+    console.log(user)
+    return res.json({ message: "Done", user })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
+
+export const getProfilebyId = async( req:Request, res: Response) => {
+    const userId = req.userId
+  const id = parseInt((req.params.id) as string)
+  // same profile will be shown to user and others. only difference is, user can edit his profile
+  // for checking others profile, email and phone will only be visible when both are connected
+  const user = await prismaClient.user.findUnique({
+    relationLoadStrategy: 'join',
+    where: { id: id },
+    select: {
+      name: true, job: true, role:true,
+      owner: {
+        select: {
+          projects: {
+            select: {
+              name: true, description: true, skillsreq: true, id:true, mainFeature:true
+            }
+          }
+        }
+      },
+      dev: {
+        select: {
+          submissions: {
+            select: {
+              repoLink: true, liveLink: true
+            }
+          }
+        }
+      }
+    }
+  })
+  // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
+  console.log(user)
+  return res.status(200).json({ message: "Done", user })
+}
