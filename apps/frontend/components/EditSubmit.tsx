@@ -11,7 +11,7 @@ import Cross from '../public/cross.svg'
 import { toast } from 'sonner'
 import { apiFetch } from '@/utils/Apifetch'
 
-export const EditDeleteSubmit = (props: any) => {
+export const EditSubmit = (props: any) => {
   const router = useRouter()
   const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(submitSchema), defaultValues: { liveLink: "", repoLink: "" } })
   const [onblur, setOnblur] = useState(false)
@@ -28,43 +28,35 @@ export const EditDeleteSubmit = (props: any) => {
     }
   }, [onblur])
 
-  // console.log(errors)
-
   async function Edit() {
     console.log("clicked")
     setOnblur(true)
 
-    if (props.EditSubmit) {
-      console.log(props.EditSubmit)
-      reset({
-        liveLink: props.EditSubmit.liveLink,
-        repoLink: props.EditSubmit.repoLink
-      })
-    }
+    reset({
+      liveLink: props.EditSubmit.liveLink,
+      repoLink: props.EditSubmit.repoLink
+    })
   }
   async function onsubmit(data: any) {
     setOnLoading(true)
     const response = await apiFetch(`${url}/api/v1/submit/${props.id}`, {
-      method: `${props.method}`, credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }, ...(props.method == 'PATCH' ? { body: JSON.stringify(data) } : null)
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
     })
 
-     setOnLoading(false)
+    setOnLoading(false)
     if (response) {
       setOnblur(false)
       router.refresh()
-      if(props.method==='PATCH'){
-        toast.success("Submission Edited", { duration: 5000 });
-      } else{
-        toast.success("Submission Deleted", { duration: 5000 });      
-      }
+      toast.success("Submission Edited", { duration: 5000 });
+
     }
 
   }
   return (<div>
-    <button onClick={props.method === 'DELETE' ? onsubmit : Edit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-white items-center'><div className=' text-black'>
-      {props.method=='DELETE' ? <Image src={Delete} width={15} alt='Delete'></Image> : <Image src={edit} width={15} alt='Edit'></Image>}
-      </div></button>
+    <button onClick={Edit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-white items-center'><div className=' text-black'>
+      <Image src={edit} width={15} alt='Edit'></Image>
+    </div></button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
@@ -74,19 +66,19 @@ export const EditDeleteSubmit = (props: any) => {
             {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>}
 
             <div className='relative'>
-            <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
+              <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
             </div>
-            <div className='text-3xl p-2 text-center'>{props.title}</div>
+            <div className='text-3xl p-2 text-center'>Edit Submit</div>
 
             <div className='flex flex-col gap-1'>
               <div>
-              <div>Live Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none w-80 ' {...register("liveLink")} /></div>
-              {errors.liveLink && <div  className='text-sm px-2'>{errors.liveLink.message}</div>}
+                <div>Live Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none w-80 ' {...register("liveLink")} /></div>
+                {errors.liveLink && <div className='text-sm px-2'>{errors.liveLink.message}</div>}
               </div>
 
               <div>
-              <div>Repo Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none w-80 ' {...register("repoLink")} /></div>
-              {errors.repoLink && <div  className='text-sm px-2'>{errors.repoLink.message}</div>}
+                <div>Repo Link: <input className='border-black border-2 rounded-xl px-2 focus:outline-none w-80 ' {...register("repoLink")} /></div>
+                {errors.repoLink && <div className='text-sm px-2'>{errors.repoLink.message}</div>}
               </div>
             </div>
 

@@ -1,7 +1,9 @@
 "use client"
 import Link from 'next/link'
-import {EditDeleteSubmit} from './EditDeleteSubmit'
+import {EditSubmit} from './EditSubmit'
+import {DeleteSubmit } from './DeleteSubmit'
 
+// for others profile, without edit and delete options
 export const Card = (props: any) => {
   console.log(props.repo)
   return (
@@ -17,6 +19,7 @@ export const Card = (props: any) => {
   )
 }
 
+// for personal profile, with edit and delete options
 export const Card2=(props:any)=>{
   console.log("submit "+props.submit)
   return(<div>
@@ -28,8 +31,8 @@ export const Card2=(props:any)=>{
           <div>Live Link: <a href={`${props.live}`} target="_blank" rel="noopener noreferrer" className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md truncate'>{props.live}</a></div>
         </div>
         <div className='flex gap-1 flex-col'>
-          <div><EditDeleteSubmit title={"Edit Project"} method={'PATCH'}  EditSubmit={props.submit} id={props.id} /></div>
-          <div><EditDeleteSubmit title={"Delete Project"} method={'DELETE'} id={props.id} /></div>
+          <div><EditSubmit EditSubmit={props.submit} id={props.id} /></div>
+          <div><DeleteSubmit id={props.id} /></div>
         </div>
       </div>
     </div>

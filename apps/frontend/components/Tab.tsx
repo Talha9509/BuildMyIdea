@@ -1,7 +1,9 @@
 "use client"
-import { EditDeleteProj } from './EditDeleteProj'
+import { EditProject } from './EditProject'
+import { DeleteProject } from './DeleteProject'
 import Link from 'next/link'
 
+// for personal profile, with edit and delete options
 export const Tab = (props: any) => {
   return (
     <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl'>
@@ -18,15 +20,15 @@ export const Tab = (props: any) => {
           </div>
         </Link>
          <div className='flex gap-1 flex-col'>
-          <div><EditDeleteProj title={"Edit Project"} method={'PATCH'} id={props.project.id} EditProject={props.project} /></div>
-          <div><EditDeleteProj title={"Delete Project"} method={'DELETE'} id={props.project.id} /></div>
+          <div><EditProject id={props.project.id} EditProject={props.project} /></div>
+          <div><DeleteProject id={props.project.id} /></div>
         </div>
-        
       </div>
     </div>
   )
 }
 
+// for others profile, without edit and delete options
 export const Tab2 = (props: any) => {
   return (
     <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl border border-white'>

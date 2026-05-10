@@ -1,17 +1,16 @@
 "use client"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ProjectSchema, updateProjectSchema } from '@repo/common/types'
+import { updateProjectSchema } from '@repo/common/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import edit from '../public/edit.svg'
-import Delete from '../public/delete.svg'
 import Cross from '../public/cross.svg'
 import { toast } from 'sonner'
 import { apiFetch } from '@/utils/Apifetch'
 
-export const EditDeleteProj = (props: any) => {
+export const EditProject = (props: any) => {
   const router = useRouter()
   const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateProjectSchema), defaultValues: { name: "", description: "", skillsreq: "",mainFeature:"", refrenceLink:"" } })
   const [onblur, setOnblur] = useState(false)
@@ -29,15 +28,11 @@ export const EditDeleteProj = (props: any) => {
     }
   }, [onblur])
 
-  // console.log(errors)
-
   async function Edit() {
     console.log("clicked")
     console.log(errors)
     setOnblur(true)
 
-    if (props.EditProject) {
-      console.log(props.EditProject)
       reset({
         name: props.EditProject.name,
         description: props.EditProject.description,
@@ -45,31 +40,26 @@ export const EditDeleteProj = (props: any) => {
         mainFeature: props.EditProject.mainFeature,
         refrenceLink: props.EditProject.refrenceLink,
       })
-    }
   }
 
   async function onsubmit(data: any) {
     setOnLoading(true)
     const response = await apiFetch(`${url}/api/v1/projects/${props.id}`, {
-      method: `${props.method}`, credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }, ...(props.method == 'PATCH' ? { body: JSON.stringify(data) } : null)
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },  body: JSON.stringify(data) 
     })
     
     setOnLoading(false)
     if (response) {
       setOnblur(false)
       router.refresh()
-      if(props.method==='PATCH'){
-        toast.success("Project Edited", { duration: 5000 });
-      } else{
-        toast.success("Project Deleted", { duration: 5000 });      
-      }
+      toast.success("Project Edited", { duration: 5000 });
     }
 
   }
   return (<div>
-    <button onClick={props.method === 'DELETE' ? onsubmit : Edit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
-      {props.method=='DELETE' ? <Image src={Delete} width={15} alt='Delete'></Image> : <Image src={edit} width={15} alt='Edit'></Image>}
+    <button onClick={ Edit } className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
+      <Image src={edit} width={15} alt='Edit'></Image>
       </div></button>
 
     {onblur &&
@@ -82,7 +72,7 @@ export const EditDeleteProj = (props: any) => {
             <div className='relative'>
             <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
             </div>
-            <div className='text-3xl text-center'>{props.title}</div>
+            <div className='text-3xl text-center'>Edit Project</div>
 
             <div className='flex flex-col gap-1'>
               

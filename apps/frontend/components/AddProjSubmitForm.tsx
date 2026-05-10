@@ -48,7 +48,6 @@ const AddProjSubmitForm = (props: any) => {
         refrenceLink:undefined
       })
     } else {
-      console.log(props.EditSubmit)
       reset({
         liveLink: "",
         repoLink: ""
@@ -74,7 +73,11 @@ const AddProjSubmitForm = (props: any) => {
       setOnblur(false)
       // next: use usestate to add a new project
       router.refresh()
-      toast.success("Project Added", { duration: 5000 });
+      if(props.project){
+        toast.success("Project Added", { duration: 5000 });
+      } else{
+        toast.success("Submission Added", { duration: 5000 });
+      }
     }
   }
   return (<div>
@@ -106,7 +109,6 @@ const AddProjSubmitForm = (props: any) => {
               </div>
 
               <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
-                {/* {projectErrors?.description && <div className='text-sm px-2'>{projectErrors.description.message}</div>} */}
               </div>
 
               <div><div>Skills required <span className='text-xs text-gray-500'>(optional)</span><div><textarea className='border-black border-2 rounded-lg  px-2 py-1  focus:outline-none min-w-[25vw]' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
