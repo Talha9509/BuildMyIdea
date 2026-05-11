@@ -30,6 +30,7 @@ model User {
   dev           Dev?
   phone         String?     
   createdAt     DateTime    @default(now())
+  stars         Stars[]             
 }
 
 
@@ -69,6 +70,16 @@ model Submit{
   repoLink      String         @unique
   // maybe
   @@unique([projectId, devId])
+  stars         Stars[]
+}
+
+model Stars {
+  id            Int            @id @default(autoincrement())
+  submitId      Int            
+  submit        Submit         @relation(fields: [submitId],references: [id])
+  userId        Int            
+  user          User           @relation(fields: [userId],references: [id])
+  @@unique([submitId, userId])
 }
 
 // in future, create one more model Application, devs can apply

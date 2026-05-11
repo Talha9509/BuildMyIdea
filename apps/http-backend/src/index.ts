@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.Routes.js'
 import projectRoutes from "./routes/project.Routes.js";
 import profileRoutes from "./routes/profile.Routes.js";
 import submitRoutes from "./routes/submit.Routes.js";
+import starRoutes from "./routes/star.Routes.js";
 
 declare global {
   namespace Express {
@@ -37,12 +38,7 @@ app.use("/auth", authRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/submit", submitRoutes);
-
-// next: not complted
-app.post("api/v1/stars", async (req, res) => {
-  // one more endpoint of owner giving stars to the projects which he like from whatt devs made for the wish of owner
-  // if owner gives stars here, then give star to the repo in github(it would only work when owner is signed up using github and dev also)
-})
+app.use("/api/v1/star", starRoutes);
 
 // next: not complted
 app.post("/api/v1/connect", async (req, res) => {
