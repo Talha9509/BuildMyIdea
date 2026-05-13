@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { EditProfile } from '../../../components/EditProfile'
 import { Tab } from '../../../components/Tab'
-import {Card2} from '../../../components/Card'
+import {Card} from '../../../components/Card'
 
 export default async function profile() {
   const url = `${process.env.BACKEND_URL}/api/v1/profile/me`
@@ -69,7 +69,9 @@ export default async function profile() {
             <div className='text-2xl py-4'>Your Submissions</div>
             <div className='flex flex-wrap gap-4'>
               {user.dev.submissions.map((submit: any) => (
-                <Card2 key={submit.id} repo={submit.repoLink} live={submit.liveLink} submit={submit} profile={true} id={submit.id} />
+                <Card key={submit.id} repo={submit.repoLink} live={submit.liveLink} submit={submit}  personalProfile={true} id={submit.id} project={submit.project} starGiven={submit.stars}
+                 stars={submit._count.stars}
+                   />
               ))}
             </div>
           </div>) : ( <div className='px-10 py-20 text-2xl'>No Submissions</div> )

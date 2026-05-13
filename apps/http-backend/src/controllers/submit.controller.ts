@@ -132,7 +132,10 @@ export const deleteSubmit = async (req: Request, res: Response) => {
       res.status(404).json({ message: "Not Allowed to Delete others Submission" })
     }
     return res.json({ message: "Done", submit })
-  } catch (error) {
+  } catch (error: any) {
+    if(error.code=='P2003'){
+      return res.status(409).json({ message: "Can't Delete a Submission with Stars" })
+    }
     console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })
   }

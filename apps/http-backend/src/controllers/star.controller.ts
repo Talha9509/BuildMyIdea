@@ -3,11 +3,13 @@ import { prismaClient } from "@repo/db/client";
 
 export const giveStar = async (req: Request, res: Response) => {
   const userId = req.userId
-  const submitId = parseInt(req.params.id as string)
+  const submitId = parseInt(req.params.submitId as string)
+  const projectId = parseInt(req.params.projectId as string)
   try {
     const star = await prismaClient.stars.create({
       data: {
         submitId: submitId,
+        ProjectId: projectId,
         userId: (userId as number)
       }
     })
@@ -24,11 +26,12 @@ export const giveStar = async (req: Request, res: Response) => {
 
 export const deleteStar = async (req: Request, res: Response) => {
   const userId = req.userId
-  const submitId = parseInt(req.params.id as string)
+  const submitId = parseInt(req.params.submitId as string)
+  const projectId = parseInt(req.params.projectId as string)
   try {
     const deleted = await prismaClient.stars.deleteMany({
       where: {
-        submitId: submitId,
+        ProjectId: projectId,
         userId: (userId as number)
       }
     })

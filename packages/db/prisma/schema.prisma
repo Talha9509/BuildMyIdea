@@ -58,6 +58,7 @@ model Project{
   ownerId       Int          
   owner         Owner        @relation(fields: [ownerId],references: [id])
   submits      Submit[]
+  star          Stars[]         
 }
 
 model Submit{
@@ -77,9 +78,11 @@ model Stars {
   id            Int            @id @default(autoincrement())
   submitId      Int            
   submit        Submit         @relation(fields: [submitId],references: [id])
+  ProjectId      Int            
+  project       Project        @relation(fields: [ProjectId],references: [id])
   userId        Int            
   user          User           @relation(fields: [userId],references: [id])
-  @@unique([submitId, userId])
+  @@unique([ProjectId, userId])
 }
 
 // in future, create one more model Application, devs can apply

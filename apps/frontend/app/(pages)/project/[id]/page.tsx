@@ -57,7 +57,7 @@ export default async function page({ params }: { params: { id: number } }) {
               <div className='text-lg'><Link href={data.project.refrenceLink}>{data.project.refrenceLink}</Link></div>
             </div>}
             <div className='text-2xl'>Idea Creator :&nbsp;&nbsp;
-              <Link className='bg-gray-800 hover:bg-gray-600 p-1 rounded-md text-lg' href={`/profile/${data.project.owner.user.id}`}> {data.project.owner.user.name}</Link>
+              <Link className='bg-gray-800 hover:bg-gray-600 p-1 rounded-md text-lg' href={`/profile/${data.project.owner.user.id}`}> {data.project.owner.user.name} </Link>
             </div>
           </div>
 
@@ -70,7 +70,7 @@ export default async function page({ params }: { params: { id: number } }) {
             <div className='flex flex-wrap py-4 gap-2'>
               {submissions.length>0 ? submissions.map((s: any, id: any) => {
                 return (
-                  <Card key={id} repo={s.repoLink} live={s.liveLink} devName={s.dev.user.name} devId={s.dev.user.id} />
+                  <Card key={id} repo={s.repoLink} live={s.liveLink} devName={s.dev.user.name} devId={s.dev.user.id} stars={s._count.stars} starGiven={s.stars} id={s.id} projectId={data.project.id} />
                 )
               }): <div className='py-8 text-center text-xl mx-auto'>No Submissions</div>}
             </div>

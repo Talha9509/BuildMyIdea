@@ -175,7 +175,7 @@ export const deleteProject = async( req:Request, res: Response) => {
 }
 
 export const getProjectbyId = async( req:Request, res: Response) => {
-    const id = parseInt(req.params.id as string)
+  const id = parseInt(req.params.id as string)
   const userId = req.userId
   console.log(id)
 
@@ -194,7 +194,18 @@ export const getProjectbyId = async( req:Request, res: Response) => {
         }
       }, submits: {
         select: {
-          liveLink: true, repoLink: true,
+          liveLink: true, repoLink: true, id: true,
+          // here we are counting stars related to this submission
+           _count: {
+          select: { 
+            stars: true
+          },
+        },
+          stars:{
+            where:{
+              userId:userId
+            }
+          },
           dev: {
             select: {
               user: {

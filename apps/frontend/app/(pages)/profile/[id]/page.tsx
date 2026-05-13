@@ -53,7 +53,7 @@ export default async function profile({ params }: { params: { id: number } }) {
             <div className='text-3xl py-4'>Submissions</div>
             <div className='flex flex-wrap gap-4'>
               {user.dev.submissions.map((submit: any) => (
-                <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} />
+                <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} project={submit.project} stars={submit._count.stars} Profile={true} starGiven={submit.stars} id={submit.id}  />
               ))}
             </div>
           </div>

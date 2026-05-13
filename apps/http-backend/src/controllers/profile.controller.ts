@@ -88,7 +88,7 @@ export const editProfile = async( req:Request, res: Response) => {
 }
 
 export const getMyProfile = async( req:Request, res: Response) => {
-    console.log(process.env.DATABASE_URL)
+  console.log(process.env.DATABASE_URL)
   const userId = req.userId
   // same profile will be shown to user and others. only difference is, user can edit his profile
   // for checking others profile, email and phone will only be visible when both are connected
@@ -111,7 +111,22 @@ export const getMyProfile = async( req:Request, res: Response) => {
           select: {
             submissions: {
               select: {
-                repoLink: true, liveLink: true, id:true
+                repoLink: true, liveLink: true, id:true, 
+                _count:{
+                  select: {
+                    stars:true
+                  }    
+                },
+                stars:{
+                  where:{
+                    userId:userId 
+                  }
+                },
+                project:{
+                  select: {
+                    name:true, id:true
+                  }
+                }
               }
             }
           }
@@ -150,7 +165,22 @@ export const getProfilebyId = async( req:Request, res: Response) => {
         select: {
           submissions: {
             select: {
-              repoLink: true, liveLink: true
+              repoLink: true, liveLink: true, id: true,
+              _count:{
+                select:{
+                  stars:true
+                }
+              },
+              project:{
+                select:{
+                  id:true, name:true
+                }
+              }, 
+              stars:{
+                where:{
+                  userId:userId, 
+                }
+              }
             }
           }
         }
