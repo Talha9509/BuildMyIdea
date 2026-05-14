@@ -8,6 +8,7 @@ import projectRoutes from "./routes/project.Routes.js";
 import profileRoutes from "./routes/profile.Routes.js";
 import submitRoutes from "./routes/submit.Routes.js";
 import starRoutes from "./routes/star.Routes.js";
+import connectRoutes from "./routes/connect.Routes.js";
 
 declare global {
   namespace Express {
@@ -39,6 +40,7 @@ app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/submit", submitRoutes);
 app.use("/api/v1/star", starRoutes);
+app.use("/api/v1/connect", connectRoutes);
 
 // next: not complted
 app.post("/api/v1/connect", async (req, res) => {

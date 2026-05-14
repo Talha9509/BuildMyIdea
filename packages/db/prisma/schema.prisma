@@ -17,20 +17,30 @@ enum Role{
   OWNER
 }
 
+enum Status{
+  Pending
+  Connected
+  Disconnected
+  Blocked
+}
+
 model User {
-  id            Int         @id @default(autoincrement())
-  email         String      @unique
-  name          String?
-  password      String?
-  job           String?
-  role          Role?
-  photo         String?
-  // role is like hr or teacher
-  owner         Owner?
-  dev           Dev?
-  phone         String?     
-  createdAt     DateTime    @default(now())
-  stars         Stars[]             
+  id              Int         @id @default(autoincrement())
+  email           String      @unique
+  name            String?
+  password        String?
+  job             String?
+  // job is like hr or teacher
+  role            Role?
+  photo           String?
+  owner           Owner?
+  dev             Dev?
+  phone           String?     
+  createdAt       DateTime    @default(now())
+  stars           Stars[]             
+  senders         Connect[]    @relation("SentConnections")  
+  receivers       Connect[]    @relation("ReceivedConnections")  
+  notifications   Notifications[]
 }
 
 
@@ -69,7 +79,6 @@ model Submit{
   dev           Dev            @relation(fields: [devId],references: [id])
   liveLink      String         
   repoLink      String         @unique
-  // maybe
   @@unique([projectId, devId])
   stars         Stars[]
 }
@@ -83,6 +92,26 @@ model Stars {
   userId        Int            
   user          User           @relation(fields: [userId],references: [id])
   @@unique([ProjectId, userId])
+}
+
+model Connect {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  status         Status
+  senderId       Int
+  sender         User           @relation("SentConnections",fields: [senderId], references: [id])  
+  receiverId     Int
+  receiver       User           @relation("ReceivedConnections",fields: [receiverId], references: [id])  
+  @@unique([senderId, receiverId])
+}
+
+model Notifications {
+  id             Int            @id @default(autoincrement())
+  createdAt      DateTime       @default(now())
+  message        String
+  isRead         Boolean
+  userId         Int
+  user           User           @relation(fields: [userId], references: [id])
 }
 
 // in future, create one more model Application, devs can apply
