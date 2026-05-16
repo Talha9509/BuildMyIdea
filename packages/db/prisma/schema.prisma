@@ -109,7 +109,7 @@ model Notifications {
   id             Int            @id @default(autoincrement())
   createdAt      DateTime       @default(now())
   message        String
-  isRead         Boolean
+  isRead         Boolean        @default(false)
   userId         Int
   user           User           @relation(fields: [userId], references: [id])
 }

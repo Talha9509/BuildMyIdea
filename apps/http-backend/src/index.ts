@@ -9,6 +9,7 @@ import profileRoutes from "./routes/profile.Routes.js";
 import submitRoutes from "./routes/submit.Routes.js";
 import starRoutes from "./routes/star.Routes.js";
 import connectRoutes from "./routes/connect.Routes.js";
+import { connectRedis } from '@repo/redis/client'
 
 declare global {
   namespace Express {
@@ -35,6 +36,9 @@ app.use(cors({
 }))
 app.use(cookieParser())
 app.use(passport.initialize())
+
+await connectRedis()
+
 app.use("/auth", authRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/profile", profileRoutes);
