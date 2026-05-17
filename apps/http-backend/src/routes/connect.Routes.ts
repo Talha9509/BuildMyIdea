@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { disConnect, sendConnectReq, updateConnect } from '../controllers/connect.controller.js'
+import { blockConnect, sendConnectReq, updateConnect, withdrawConnect } from '../controllers/connect.controller.js'
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router:Router = Router();
 
 router.post("/", authMiddleware, sendConnectReq);
 router.put("/", authMiddleware, updateConnect);
-// router.post("/withdraw", authMiddleware, withdrawConnect);
-router.delete("/", authMiddleware, disConnect);
+router.post("/block", authMiddleware, blockConnect);
+router.delete("/", authMiddleware, withdrawConnect);
 
 export default router;

@@ -15,6 +15,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "cookie": "^1.1.1",
+    "http": "0.0.1-security",
+    "jsonwebtoken": "^9.0.3",
     "typescript": "^6.0.3",
     "ws": "^8.20.1"
   },
