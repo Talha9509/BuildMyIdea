@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Tab2 } from '../../../../components/Tab'
 import {Card} from '../../../../components/Card'
+import { ConnectStatus } from '@/components/ConnectStatus'
 
 export default async function profile({ params }: { params: { id: number } }) {
   const param = await params
@@ -20,6 +21,8 @@ export default async function profile({ params }: { params: { id: number } }) {
   const data = await response.json()
   const user = data.user
   console.log(user)
+  const connections = data.connections
+  console.log(connections)
   // console.log(user.owner.projects)
   // console.log(user.owner.projects.length)
   return (<div className='px-6'>
@@ -27,9 +30,13 @@ export default async function profile({ params }: { params: { id: number } }) {
       <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
     </div>
     <div className='flex justify-center items-center gap-6 text-xl'>
+      <ConnectStatus connection={connections} id={id} />
+    </div>
+    <div className='flex justify-center items-center gap-6 text-xl'>
       <div>Name: {user.name}</div>
       {user.job && user.job.trim() != "" ? <div>Job: {user.job}</div> : ""}
       <div>Role: {user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
+      <div>Connections: {user._count.receivers+user._count.senders}</div>
     </div>
 
       {user.role === "OWNER" ? (

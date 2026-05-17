@@ -3,22 +3,21 @@ import { prismaClient } from "@repo/db/client";
 import { pubClient } from '@repo/redis/client'
 
 export const sendConnectReq = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = Number(req.userId);
   // send body like this from fe
   // {
   // "requester_id": "123",
   // "target_id": "456"
   // }
-  const senderId = req.body.sender_id;
-  const receiverId = req.body.receiver_id;
+  const receiverId = Number(req.body.receiver_id);
 
-  if(senderId===receiverId){
+  if(userId===receiverId){
     return res.status(403).json({ message:"Can't connect to youreslf" })
   }
 
   try {
     const [sender, receiver] = await Promise.all([
-      prismaClient.user.findUnique({ where: { id: senderId } }),
+      prismaClient.user.findUnique({ where: { id: userId } }),
       prismaClient.user.findUnique({ where: { id: receiverId } })
     ])
     if (!sender) {
@@ -28,10 +27,22 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "There is no one to Connect" })
     }
 
+    const connectionExists = await prismaClient.connect.findUnique({
+      where: {
+        senderId_receiverId: {
+          senderId: receiverId,
+          receiverId: userId
+        }
+      }
+    })
+    if(connectionExists){
+      return res.status(409).json({ message: "You already have the connection request" })
+    }
+
     const [connection, notification] = await prismaClient.$transaction([
       prismaClient.connect.create({
         data: {
-          senderId: senderId,
+          senderId: userId,
           receiverId: receiverId,
           status: 'Pending'
         }
@@ -49,6 +60,7 @@ export const sendConnectReq = async (req: Request, res: Response) => {
     return res.status(201).json({ message: "Done", connection })
   } catch (error: any) {
     if(error.code='P2002'){
+      console.log(error)
       return res.status(409).json({ message: `You already have the connection request` })
     }
     console.log(error)
@@ -57,24 +69,23 @@ export const sendConnectReq = async (req: Request, res: Response) => {
 }
 
 export const updateConnect = async (req: Request, res: Response) => {
-  const userId = req.userId;
+  const userId = Number(req.userId);
   // send body like this from fe
   // {
-  // "requester_id": "123",
   // "target_id": "456",
   // "status": 'eother block, disconnect,connect'
   // }
-  const senderId = req.body.sender_id;
-  const receiverId = req.body.receiver_id;
+  // const senderId = req.body.sender_id;
+  const receiverId = Number(req.body.receiver_id);
   const status = req.body.status;
 
-  if(senderId===receiverId){
+  if(userId===receiverId){
     return res.status(403).json({ message:"Can't connect to youreslf" })
   }
 
   try {
     const [sender, receiver] = await Promise.all([
-      prismaClient.user.findUnique({ where: { id: senderId } }),
+      prismaClient.user.findUnique({ where: { id: userId } }),
       prismaClient.user.findUnique({ where: { id: receiverId } })
     ])
     if (!sender) {
@@ -92,7 +103,7 @@ export const updateConnect = async (req: Request, res: Response) => {
       prismaClient.connect.update({
       where: {
         senderId_receiverId: {
-          senderId: senderId,
+          senderId: userId,
           receiverId: receiverId
         }
       },
@@ -173,24 +184,23 @@ export const blockConnect = async (req: Request, res: Response) => {
 }
 
 export const withdrawConnect = async ( req:Request, res:Response ) => {
-  const userId= req.userId;
+  const userId= (req.userId as number);
   // send body like this from fe
   // {
   // "requester_id": "123",
   // "target_id": "456",
   // "status": 'withdraw'
   // }
-  const senderId = req.body.sender_id;
   const receiverId = req.body.receiver_id;
   const status= req.body.status;
 
-  if(senderId===receiverId){
+  if(userId===receiverId){
     return res.status(403).json({ message:"Can't connect to youreslf" })
   }
 
   try {
     const [sender, receiver]= await Promise.all([
-      prismaClient.user.findUnique({ where:{ id:senderId }}),
+      prismaClient.user.findUnique({ where:{ id:userId }}),
       prismaClient.user.findUnique({ where:{ id: receiverId }})
     ])  
     if(!sender){
@@ -206,7 +216,7 @@ export const withdrawConnect = async ( req:Request, res:Response ) => {
       prismaClient.connect.delete({
       where:{
         senderId_receiverId:{
-          senderId: senderId,
+          senderId: userId,
           receiverId: receiverId,
         },
         status: 'Pending'
@@ -214,13 +224,13 @@ export const withdrawConnect = async ( req:Request, res:Response ) => {
     }),
     prismaClient.notifications.create({
       data: {
-        userId: senderId,
+        userId: userId,
         message: `Your connect request to ${receiver.name} is withdrawn`
       }
     })
     ])
 
-    await pubClient.publish(`notifications:${senderId}`, notification.message )
+    await pubClient.publish(`notifications:${userId}`, notification.message )
     
     return res.json({ updatedConnection })
   } catch (error:any) {

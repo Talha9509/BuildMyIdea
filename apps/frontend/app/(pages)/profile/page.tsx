@@ -38,6 +38,7 @@ export default async function profile() {
           <div>Phone: {user.phone}</div>
           <div>Email: {user.email}</div>
           <div>Role: {user.role == "DEV" ? `Developer` : user.role == "OWNER" ? `Idea Creator` : 'None'}</div>
+          <div>Connections: {user._count.receivers+user._count.senders}</div>
         </div>
         <div className='text-sm'>{user.role != "OWNER" && user.role != "DEV" ? 
           <div className='py-4 text-lg'>
