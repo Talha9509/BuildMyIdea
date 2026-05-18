@@ -49,7 +49,7 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       }),
       prismaClient.notifications.create({
         data: {
-          message: `There is a new Connection Request for you from ${sender.name}`,
+          message: `Connection Request from ${sender.name}`,
           userId: receiverId
         }
       })
@@ -184,14 +184,14 @@ export const blockConnect = async (req: Request, res: Response) => {
 }
 
 export const withdrawConnect = async ( req:Request, res:Response ) => {
-  const userId= (req.userId as number);
+  const userId= Number(req.userId);
   // send body like this from fe
   // {
   // "requester_id": "123",
   // "target_id": "456",
   // "status": 'withdraw'
   // }
-  const receiverId = req.body.receiver_id;
+  const receiverId = Number(req.body.receiver_id);
   const status= req.body.status;
 
   if(userId===receiverId){

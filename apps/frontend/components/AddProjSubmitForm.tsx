@@ -56,7 +56,7 @@ const AddProjSubmitForm = (props: any) => {
   }
 
   const projectErrors = props.project ? (errors as FieldErrors<ProjectFormType>) : null
-  console.log(projectErrors)
+  // console.log(projectErrors)
   const submitErrors = !props.project ? (errors as FieldErrors<SubmitFormType>) : null
 
   async function onsubmit(data: any) {
