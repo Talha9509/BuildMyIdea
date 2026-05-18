@@ -67,8 +67,8 @@ export const signin = async (req: Request, res: Response) => {
   
         return res.status(200).cookie('jwt', token, {
           httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
+          secure: process.env.NODE_ENV === "production",
+          sameSite: 'lax',
         }).json({ message: "Signed in" })
       }
       const pass = validatedInput.data.password
@@ -84,8 +84,8 @@ export const signin = async (req: Request, res: Response) => {
   
       return res.status(200).cookie('jwt', token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'lax',
       }).json({ message: "Signed in" })
     } catch (error) {
       return res.status(409).json({ message: "User Already Exists" })

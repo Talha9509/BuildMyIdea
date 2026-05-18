@@ -55,7 +55,7 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, notification.message );
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message) );
 
     return res.status(201).json({ message: "Done", connection })
   } catch (error: any) {
@@ -119,7 +119,7 @@ export const updateConnect = async (req: Request, res: Response) => {
     })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, notification.message )
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message) )
 
     return res.json({ updatedConnection })
   } catch (error: any) {
@@ -175,7 +175,7 @@ export const blockConnect = async (req: Request, res: Response) => {
     })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, notification.message )
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message) )
 
     return res.status(201).json({ blocked })
   } catch (error: any) {
@@ -230,7 +230,7 @@ export const withdrawConnect = async ( req:Request, res:Response ) => {
     })
     ])
 
-    await pubClient.publish(`notifications:${userId}`, notification.message )
+    await pubClient.publish(`notifications:${userId}`, JSON.stringify(notification.message) )
     
     return res.json({ updatedConnection })
   } catch (error:any) {

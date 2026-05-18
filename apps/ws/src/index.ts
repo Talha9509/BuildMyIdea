@@ -2,9 +2,13 @@ import { WebSocketServer, WebSocket } from 'ws'
 import { connectRedis, subClient } from '@repo/redis/client'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import cookie from 'cookie'
+import 'dotenv/config'
 
 const wss = new WebSocketServer({ port:8080 })
 const SECRET = process.env.JWT_SECRET
+if(!SECRET){
+  throw Error("No JWT Secret")
+}
 
 await connectRedis()
 let userId: number | null = null
@@ -12,7 +16,8 @@ let userId: number | null = null
 wss.on('connection', async (socket: WebSocket, req) => {
   try {
     const cookies = cookie.parse(req.headers.cookie || '');
-    const token = cookies.token;
+    const token = cookies.jwt;
+    console.log(token)
     if (!token) throw new Error("No cookie found");
 
     const decoded = jwt.verify(token, SECRET!) 
@@ -26,7 +31,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
   console.log(`User ${userId} authenticated and connected via WebSocket.`);
 
   const notificationListener = (message:string) => {
-    console.log(`notifying ${userId}`)
+    console.log(`notifying ${userId} with message: ${message}`)
     socket.send(JSON.stringify({ type: 'notification', data: message }))
   }
 
