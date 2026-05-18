@@ -42,6 +42,8 @@ model User {
   senders         Connect[]    @relation("SentConnections")  
   receivers       Connect[]    @relation("ReceivedConnections")  
   notifications   Notifications[]
+  sentMessages         Messages[]    @relation("SentMessages")  
+  receivedMessages     Messages[]    @relation("ReceivedMessages")  
 }
 
 
@@ -113,6 +115,16 @@ model Notifications {
   isRead         Boolean        @default(false)
   userId         Int
   user           User           @relation(fields: [userId], references: [id])
+}
+
+model Messages {
+  id             Int            @id @default(autoincrement())
+  senderId       Int
+  sender         User           @relation("SentMessages",fields: [senderId], references: [id])  
+  receiverId     Int
+  receiver       User           @relation("ReceivedMessages",fields: [receiverId], references: [id]) 
+  message        String
+  createdAt      DateTime       @default(now())
 }
 
 // in future, create one more model Application, devs can apply
