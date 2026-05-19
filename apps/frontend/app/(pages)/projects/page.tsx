@@ -45,7 +45,6 @@ export default async function page() {
         <div className=" mx-auto py-2 pb-20 text-lg table-fixed  w-[90vw] ">
           {/* <Table data={data} /> */}
           <DataTable columns={ProjectColumns} data={data} />
-          {/* add one more column top priority(one most imp prioirty of owner), other priorities in project page */}
         </div>
       </div>
     </div>

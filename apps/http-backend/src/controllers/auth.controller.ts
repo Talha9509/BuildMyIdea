@@ -88,6 +88,7 @@ export const signin = async (req: Request, res: Response) => {
         sameSite: 'lax',
       }).json({ message: "Signed in" })
     } catch (error) {
+      console.log(error)
       return res.status(409).json({ message: "User Already Exists" })
     }
 };

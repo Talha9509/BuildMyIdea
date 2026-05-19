@@ -20,12 +20,10 @@ const Navbar2 = () => {
       setNotifications(notify)
     }
   }
-
-  setTimeout(() => {
-    getPrevNotifications()
-  }, 5000);
-
+  
+  // remove useeffect as it feetches on every page
   useEffect(() => {
+    getPrevNotifications()
     const ws = new WebSocket("ws://localhost:8080");
     ws.onopen = () => {
       console.log("WebSocket Connected");
@@ -71,12 +69,12 @@ const Navbar2 = () => {
 
             {notificationOpen && (
               <div className="mt-2 bg-white shadow rounded-lg p-3">
-                {notifications.map((notify: any) => (
+                {/* {notifications.map((notify: any) => (
                   <div key={notify.id} className="mb-2 text-black">
                     <div>{notify.message}</div>
                     <div className="text-xs text-gray-500">{notify.createdAt}</div>
                   </div>
-                ))}
+                ))} */}
               </div>
             )}
           </div>

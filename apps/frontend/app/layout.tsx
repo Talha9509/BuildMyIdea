@@ -4,6 +4,7 @@ import "./globals.css";
 import { Poppins } from 'next/font/google';
 import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/sonner"
+import Providers from "./provider";
 
 // Configure the font loader
 const inter = Inter({
@@ -44,16 +45,19 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}
-        <Toaster duration={3000} position="bottom-right"
-      //    toastOptions={{
-      //   classNames: {
-      //     toast: "border-2 text-black",
-      //      title: " text-lg font-bold",
-      //      description:"font-semibold text-black" 
-      //   },
-      // }}
-       />
+      <body className="min-h-full flex flex-col">
+        <Providers>
+          {children}
+          <Toaster duration={3000} position="bottom-right"
+            // toastOptions={{
+            //   classNames: {
+            //     toast: "border-2 text-black",
+            //     title: " text-lg font-bold",
+            //     description:"font-semibold text-black" 
+            //   },
+            // }}
+          />
+        </Providers>
       </body>
     </html>
   );

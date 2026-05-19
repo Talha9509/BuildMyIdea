@@ -3,18 +3,17 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { updateProjectSchema } from '@repo/common/types'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import edit from '../public/edit.svg'
 import Cross from '../public/cross.svg'
 import { toast } from 'sonner'
 import { apiFetch } from '@/utils/Apifetch'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const EditProject = (props: any) => {
-  const router = useRouter()
+  const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateProjectSchema), defaultValues: { name: "", description: "", skillsreq: "",mainFeature:"", refrenceLink:"" } })
   const [onblur, setOnblur] = useState(false)
-  const [onLoading, setOnLoading] = useState(false)
   const url = process.env.NEXT_PUBLIC_BACKEND_URL 
   // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
   useEffect(() => {
@@ -42,20 +41,25 @@ export const EditProject = (props: any) => {
       })
   }
 
-  async function onsubmit(data: any) {
-    setOnLoading(true)
+  async function editProject(formData:any) {
     const response = await apiFetch(`${url}/api/v1/projects/${props.id}`, {
-      method: 'PATCH', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },  body: JSON.stringify(data) 
+      method: `PATCH`, credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData)
     })
-    
-    setOnLoading(false)
-    if (response) {
-      setOnblur(false)
-      router.refresh()
-      toast.success("Project Edited", { duration: 5000 });
-    }
+    return response
+  }
 
+   const updateProjectMutation = useMutation({
+      mutationFn: editProject,
+      onSuccess: () => {
+        setOnblur(false)
+        queryClient.invalidateQueries({ queryKey: ['profile-me']})
+        toast.success("Project Edited", { duration: 5000 });
+      }
+    })
+
+  async function onsubmit(data: any) {
+    updateProjectMutation.mutate(data)
   }
   return (<div>
     <button onClick={ Edit } className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
@@ -66,8 +70,6 @@ export const EditProject = (props: any) => {
       <form onSubmit={handleSubmit(onsubmit)}>
         <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
           <div className='flex flex-col p-8 gap-2 bg-white rounded-2xl relative'>
-
-            {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>}
 
             <div className='relative'>
             <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
@@ -101,7 +103,7 @@ export const EditProject = (props: any) => {
               </div>
             </div>
 
-            <input type="submit" className={`border-black border-2 rounded-4xl px-2  min-w-[5vw] cursor-pointer bg-blue-900 hover:bg-blue-950 text-white text-lg transition duration-300 ease-in-out`} />
+            <button type="submit" disabled={updateProjectMutation.isPending} className={`disabled:bg-blue-400 border-black border-2 rounded-4xl px-2  min-w-[5vw] cursor-pointer bg-blue-900 hover:bg-blue-950 text-white text-lg transition duration-300 ease-in-out`} >{updateProjectMutation.isPending ? "Updating..." : "Submit"}</button>
           </div>
         </div>
       </form>}
