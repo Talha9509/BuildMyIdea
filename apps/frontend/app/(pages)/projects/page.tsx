@@ -35,8 +35,6 @@ export default async function page() {
   const data = await getData()
 
   return (<>
-    <div className='bg-gray-950 min-h-screen'>
-      <Navbar />
       <div className='text-white'>
         <div className='flex gap-[60vw] items-center mx-[8vw]'>
           <div className='text-4xl font-semibold'>Projects</div>
@@ -47,7 +45,6 @@ export default async function page() {
           <DataTable columns={ProjectColumns} data={data} />
         </div>
       </div>
-    </div>
   </>
   )
 }

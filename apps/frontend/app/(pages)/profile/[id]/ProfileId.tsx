@@ -13,13 +13,14 @@ export const ProfileId = (props:any) => {
     const response = await fetch(url, {
       credentials: 'include'
     })
-    if (response.status === 401 || response.status === 500) {
+    if (response.status === 401) {
       console.log("error: " + response)
       const error: any = new Error('Unauthorized')
       error.status = 401
       throw error
     }
     const data = await response.json()
+    console.log(data)
     const user = data.user
     console.log("users count "+user._count)
     const connections = data.connections
@@ -28,15 +29,20 @@ export const ProfileId = (props:any) => {
   }
 
 
-  const { data: user, data: connections } = useQuery({
+  const { data } = useQuery({
     queryKey: ["profile-id"],
     queryFn: fetchProfile,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 3 * 60 * 1000
+    retry: false,
+    staleTime: 1 * 60 * 1000,
+    gcTime: 2 * 60 * 1000
   })
+
+  const user = data?.user
+  console.log("user: "+user)
+  const connections = data?.connections
   return (
     <div>
-    {user && connections && <div className='px-6'>
+    {user && <div className='px-6'>
         <div className='flex justify-center items-center gap-6'>
           <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
         </div>
@@ -44,18 +50,18 @@ export const ProfileId = (props:any) => {
           <ConnectStatus connection={connections} id={props.id} />
         </div>
         <div className='flex justify-center items-center gap-6 text-xl'>
-          <div>Name: {user.user.name}</div>
-          {user.user.job && user.user.job.trim() != "" ? <div>Job: {user.user.job}</div> : ""}
-          <div>Role: {user.user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
-          <div>Connections: {user.user._count.senders+user.user._count.receivers}</div>
+          <div>Name: {user.name}</div>
+          {user.job && user.job.trim() != "" ? <div>Job: {user.job}</div> : ""}
+          <div>Role: {user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
+          <div>Connections: {user._count.senders+user._count.receivers}</div>
         </div>
     
-          {user.user.role === "OWNER" ? (
-            user.user.owner?.projects?.length ? (
+          {user.role === "OWNER" ? (
+            user.owner?.projects?.length ? (
               <div className='py-10'>
                 <div className='text-3xl py-4'>Projects</div>
                 <div className='flex flex-wrap gap-4'>
-                  {user.user.owner.projects.map((project: any) => (
+                  {user.owner.projects.map((project: any) => (
                     <Tab2 key={project.name} project={project} id={project.id} />
                   ))}
                 </div>
@@ -65,12 +71,12 @@ export const ProfileId = (props:any) => {
             )
           ) : null}
     
-          {user.user.role === "DEV" ? (
-            user.user.dev?.submissions?.length ? (
+          {user.role === "DEV" ? (
+            user.dev?.submissions?.length ? (
               <div className='py-10'>
                 <div className='text-3xl py-4'>Submissions</div>
                 <div className='flex flex-wrap gap-4'>
-                  {user.user.dev.submissions.map((submit: any) => (
+                  {user.dev.submissions.map((submit: any) => (
                     <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} project={submit.project} stars={submit._count.stars} Profile={true} starGiven={submit.stars} id={submit.id}  />
                   ))}
                 </div>

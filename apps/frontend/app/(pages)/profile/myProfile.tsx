@@ -15,7 +15,7 @@ export const MyProfile = () => {
     })
     if (response.status === 401 || response.status === 500) {
       console.log("error: " + response)
-      const error: any = new Error('Unauthoized')
+      const error: any = new Error('Unauthorized')
       error.status = 401
       throw error
     }
@@ -28,6 +28,7 @@ export const MyProfile = () => {
   const { data: user, isLoading, isFetching } = useQuery({
     queryKey: ["profile-me"],
     queryFn: fetchProfile,
+    retry: false,
     staleTime: 3 * 60 * 1000,
     gcTime: 10 * 60 * 1000
   })

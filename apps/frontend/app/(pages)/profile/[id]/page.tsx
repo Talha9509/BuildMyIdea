@@ -22,9 +22,10 @@ export default async function profile({ params }: { params: { id: number } }) {
     }
     const data = await response.json()
     const user = data.user
+    console.log(data)
     console.log(user)
     const connections = data.connections
-    console.log(connections)
+    console.log("connections "+connections)
     return {connections, user}
   }
 

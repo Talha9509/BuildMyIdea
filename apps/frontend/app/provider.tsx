@@ -3,6 +3,8 @@ import { QueryClientProvider, QueryClient, QueryCache, MutationCache } from '@ta
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import Navbar from '../components/Navbar2'
+import Navbar2 from '../components/Navbar2'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -11,7 +13,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       onError: (error: any) => {
         if (error.status == 401) {
           console.log("error: " + error)
-          toast.error("Session Expires");
+          toast.error("Session Expired");
           router.push("/signin")
         }
       }
@@ -19,7 +21,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     mutationCache: new MutationCache({
       onError: (error: any) => {
         if (error.status == 401) {
-          toast.error("Session Expires");
+          toast.error("Session Expired");
           router.push("/signup");
         }
       },
@@ -27,7 +29,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }))
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <div className='bg-gray-950 min-h-screen p-2'>
+        <Navbar2 />
+        {children}
+      </div>
     </QueryClientProvider>
   )
 }
