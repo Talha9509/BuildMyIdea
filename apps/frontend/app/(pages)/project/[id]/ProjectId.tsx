@@ -27,8 +27,8 @@ export const ProjectId = (props: any) => {
     queryKey: ["project-id"],
     queryFn: fetchProjectId,
     retry: false,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 3 * 60 * 1000
+    staleTime: 1 * 60 * 1000,
+    gcTime: 2 * 60 * 1000
   })
 
   return (

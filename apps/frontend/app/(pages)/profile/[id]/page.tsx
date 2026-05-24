@@ -25,7 +25,7 @@ export default async function profile({ params }: { params: { id: number } }) {
     console.log(data)
     console.log(user)
     const connections = data.connections
-    console.log("connections "+connections)
+    console.log("connections "+JSON.stringify(connections))
     return {connections, user}
   }
 

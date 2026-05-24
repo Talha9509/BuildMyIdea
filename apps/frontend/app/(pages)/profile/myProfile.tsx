@@ -13,7 +13,7 @@ export const MyProfile = () => {
     const response = await fetch(url, {
       credentials: 'include'
     })
-    if (response.status === 401 || response.status === 500) {
+    if (response.status === 401) {
       console.log("error: " + response)
       const error: any = new Error('Unauthorized')
       error.status = 401
@@ -29,8 +29,8 @@ export const MyProfile = () => {
     queryKey: ["profile-me"],
     queryFn: fetchProfile,
     retry: false,
-    staleTime: 3 * 60 * 1000,
-    gcTime: 10 * 60 * 1000
+    staleTime: 1 * 60 * 1000,
+    gcTime: 2 * 60 * 1000
   })
   return (
     <div>

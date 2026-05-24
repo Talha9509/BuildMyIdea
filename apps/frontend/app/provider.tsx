@@ -3,7 +3,7 @@ import { QueryClientProvider, QueryClient, QueryCache, MutationCache } from '@ta
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import Navbar from '../components/Navbar2'
+import { WebSocketProvider } from "@/hooks/useGlobalWebSocket";
 import Navbar2 from '../components/Navbar2'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -31,7 +31,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <div className='bg-gray-950 min-h-screen p-2'>
         <Navbar2 />
+        <WebSocketProvider>
         {children}
+        </WebSocketProvider>
       </div>
     </QueryClientProvider>
   )

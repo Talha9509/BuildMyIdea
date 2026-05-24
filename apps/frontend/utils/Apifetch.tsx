@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 
-export async function apiFetch(url: string, options: any,) {
+export async function apiFetch(url: string, options: any) {
   try {
     const response = await fetch(url, options);
     const data=await response.json()

@@ -20,7 +20,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
   try {
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.jwt;
-    console.log(token)
+    // console.log(token)
     if (!token) throw new Error("No cookie found");
 
     const decoded = jwt.verify(token, SECRET!) 
@@ -45,9 +45,9 @@ wss.on('connection', async (socket: WebSocket, req) => {
   socket.on('message', async (rawMessage: string) => {
     try {
       const data = JSON.parse(rawMessage)
-      const receiverId = data.receiverId
+      const receiverId = Number(data.receiverId)
       // {
-      //    "receiverId": 20
+      //    "receiverId": 20,
       //    "message": "hi"
       // }
   
@@ -61,7 +61,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
   
       const receiverSocket = activeSockets.get(receiverId)
       if(receiverSocket?.readyState == WebSocket.OPEN){
-        receiverSocket.send(JSON.stringify({ type: 'message', message: savedMessage.message, receiverId: savedMessage.receiverId }))
+        receiverSocket.send(JSON.stringify({ type: 'message', message: savedMessage.message, receiverId: savedMessage.receiverId, createdAt: savedMessage.createdAt }))
       }
     } catch (error) {
       console.log(error)

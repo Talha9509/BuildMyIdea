@@ -2,6 +2,7 @@
 import { toast } from 'sonner'
 import { apiFetch } from '../utils/Apifetch'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
 
 export const ConnectStatus = (props: any) => {
   const queryClient = useQueryClient()
@@ -32,6 +33,12 @@ export const ConnectStatus = (props: any) => {
       body: (receiverId: number) => ({ receiver_id: receiverId, status: "Disconnected" }),
       toastMessage: "Connection Disconnected"
     },
+    reconnect: {
+      method: "PUT",
+      path: "/api/v1/connect",
+      body: (receiverId: number) => ({ receiver_id: receiverId, status: "Pending" }),
+      toastMessage: "Connection Pending"
+    },
     withdraw: {
       method: "DELETE",
       path: "/api/v1/connect",
@@ -54,6 +61,9 @@ export const ConnectStatus = (props: any) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(config.body(props.id)),
     })
+    if(response==undefined){
+      throw Error("undefined")
+    }
     return response
   }
 
@@ -95,14 +105,14 @@ export const ConnectStatus = (props: any) => {
     case 'Connected':
       return (
         <div className="p-3 flex gap-2">
-          <button className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Message</button>
+          <Link href={`/chat/${props.id}`} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Message</Link>
           <button onClick={() => { performConnectAction('disconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Disconnect</button>
         </div>
       )
     case 'Disconnected':
       return (
         <div className="p-3 flex gap-2">
-          <button onClick={() => { performConnectAction('connect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>
+          <button onClick={() => { performConnectAction('reconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>
         </div>
       )
     case 'Blocked':

@@ -5,6 +5,5 @@
  - Implement cicd on every push to production
 
 ### For Main/Dev branch:
- - Change frontend code for fetching with tanstack query for projects, projectId, notifications
- - Refactor the notifications frontend code for good ui
+ - Change frontend code for fetching with tanstack query for projects
  - Build the frontend for chats
