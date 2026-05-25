@@ -29,12 +29,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }))
   return (
     <QueryClientProvider client={queryClient}>
-      <div className='bg-gray-950 min-h-screen p-2'>
-        <Navbar2 />
-        <WebSocketProvider>
-        {children}
-        </WebSocketProvider>
-      </div>
+      <WebSocketProvider>
+        <div className='bg-gray-950 min-h-screen p-2'>
+          <Navbar2 />
+          {children}
+        </div>
+      </WebSocketProvider>
     </QueryClientProvider>
   )
 }

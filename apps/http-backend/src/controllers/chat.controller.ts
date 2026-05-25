@@ -6,7 +6,7 @@ export const getChatsbyId = async (req: Request, res: Response) => {
 	const userId = req.userId
 
 	try {
-		const [messageHistory, receiverName, notConnected] = await Promise.all([
+		const [messageHistory, receiverName, Connected] = await Promise.all([
 			prismaClient.messages.findMany({
 				where: {
 					OR: [
@@ -29,9 +29,10 @@ export const getChatsbyId = async (req: Request, res: Response) => {
 						{ senderId: userId, receiverId: id }
 					] , status:'Connected'
 				}
-			})
+			}).then(res => !!res)
 		])
-		return res.json({ messageHistory, receiverName, notConnected })
+		console.log("status "+Connected)
+		return res.json({ messageHistory, receiverName, Connected })
 	} catch (error) {
 		console.log(error)
 		return res.status(500).json({ message: "Internal Server Error" })

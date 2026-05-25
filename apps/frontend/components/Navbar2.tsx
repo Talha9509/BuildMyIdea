@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Logout from '../components/Logout'
 import { apiFetch } from "@/utils/Apifetch";
 import { toast } from "sonner";
-import { QueryClient, useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket'
 import { usePathname } from 'next/navigation';
 
@@ -13,7 +13,7 @@ const Navbar2 = () => {
    const hiddenRoutes = ['/signin', '/signup','/'];
    if (hiddenRoutes.includes(pathname) || pathname.startsWith("/chat")) return null;
   const { socket, isConnected } = useGlobalWebSocket();
-  const queryClient = new QueryClient()
+  const queryClient = useQueryClient()
   const [notificationOpen, setNotificationOpen] = useState(false)
   // const [notifications, setNotifications] = useState([])
   const url = process.env.NEXT_PUBLIC_BACKEND_URL
@@ -31,7 +31,7 @@ const Navbar2 = () => {
   }
 
   const { data: notifications } = useQuery({
-    queryKey: ['unread- notifications'],
+    queryKey: ['unread-notifications'],
     queryFn: getPrevNotifications,
     retry: false,
     staleTime: 15 * 60 * 1000,
@@ -39,32 +39,6 @@ const Navbar2 = () => {
     refetchOnReconnect: false,
     refetchOnWindowFocus: false
   })
-
-  // remove useeffect as it feetches on every page
-  // useEffect(() => {
-  //   const ws = new WebSocket("ws://localhost:8080");
-  //   ws.onopen = () => {
-  //     console.log("WebSocket Connected");
-  //   };
-  //   ws.onmessage = (event) => {
-  //     const parsed = JSON.parse(event.data);
-  //     if (parsed.type === 'notification') {
-  //       queryClient.setQueryData(['unread-notifications'], (oldData: any) => {
-  //         if (!oldData || !oldData.notifications) {
-  //           toast.info(`${parsed.data}`, { duration: 5000 })
-  //           return { notifications: [parsed.data] };
-  //         }
-  //         return {
-  //           notifications: [parsed.data, ...oldData.notifications]
-  //         };
-  //       });
-  //     }
-  //   };
-
-  //   return () => {
-  //     ws.close();
-  //   };
-  // }, [queryClient])
 
    useEffect(() => {
     if(!socket) return
@@ -78,6 +52,7 @@ const Navbar2 = () => {
             toast.info(`${parsed.data}`, { duration: 5000 })
             return { notifications: [parsed.data] };
           }
+          toast.info(`${parsed.data}`, { duration: 5000 })
           return {
             notifications: [parsed.data, ...oldData.notifications]
           };
@@ -86,7 +61,7 @@ const Navbar2 = () => {
     }
     socket.addEventListener("message", handleMessage);
     return () => socket.removeEventListener("message",handleMessage)
-  },[socket])
+  },[socket, queryClient])
 
   return (
     <div>
@@ -105,7 +80,7 @@ const Navbar2 = () => {
 
             {notificationOpen && (
               <div className="mt-2 bg-white shadow rounded-lg p-3 absolute z-10 w-70 flex flex-col left-1/2 -translate-x-1/2">
-                {notifications.length !== 0 ? notifications.map((notify: any) => (
+                {notifications && notifications.length !== 0 ? notifications.map((notify: any) => (
                   <div key={notify.id} className="mb-1 text-black">
                     <div>{notify.message}</div>
                     <div className="text-xs text-gray-500">{

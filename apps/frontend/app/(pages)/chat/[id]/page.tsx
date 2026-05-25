@@ -13,23 +13,19 @@ export default function page() {
   const receiverId = params.id
   const queryClient = useQueryClient()
   const [text, setText] = useState('')
-  const [notConnected,setNotConnected] = useState(false)
 
   async function getPrevMessages() {
     const url = process.env.NEXT_PUBLIC_BACKEND_URL
     const response = await apiFetch(`${url}/api/v1/chats/${receiverId}`, {
-      methode: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
+      method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
     })
     console.log(response)
-    if(!response.notConnected){
-      console.log("not connected")
-      setNotConnected(true)
-    }
     const messageHistory = await response.messageHistory
     const receiverName = response.receiverName.name
+    const isConnected = response.Connected
     console.log("messages "+messageHistory)
-    console.log("name "+receiverName)
-    return {messageHistory, receiverName}
+    console.log("connected "+isConnected)
+    return {messageHistory, receiverName, isConnected}
   }
 
   const { data, isLoading } = useQuery({
@@ -42,7 +38,6 @@ export default function page() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000
   })
-
 
   useEffect(() => {
     if (!socket) return
@@ -81,12 +76,18 @@ export default function page() {
         setText("");
   }
 
+  if (!isLoading && data && data?.isConnected==false) {
+    return (
+      <div className='h-screen flex flex-col gap-2 p-8 items-center justify-center text-center text-4xl text-white'>
+        <div>404</div>
+        <div>Page Not Found</div>
+        </div>
+    )
+  }
+
   const receiverName = data?.receiverName
   const messages = data?.messageHistory
   console.log(messages)
-  if(notConnected){
-   router.push(`/profile/${receiverId}`)
-  }
 
   return (
     <div>
@@ -94,7 +95,8 @@ export default function page() {
       :
       <div>
       <div className='text-3xl text-white text-center pt-2'>{receiverName}</div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
+      <div className="border-gray-300 border-t my-4" />
+      <div className="flex-1 overflow-y-auto p-4 pb-16 space-y-1">
         {messages.length > 0 && messages.map((msg: any) => (
           <div key={msg.id} className={msg.receiverId == receiverId ? "text-right" : "text-left"}>
             <span className="inline-block px-2 py-1 rounded bg-gray-200">
@@ -105,15 +107,17 @@ export default function page() {
       </div>
       </div>
       }
-      
-      {!isLoading && <form onSubmit={sendMessage} className="p-4 bg-white border-t">
+      <div>
+
+      {!isLoading && <form onSubmit={sendMessage} className="p-2 bg-gray-950 fixed bottom-0 left-0 right-0">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type a message..."
-          className="w-full p-2 border rounded"
-        />
+          className=" text-black bg-white w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-[#FF3511]"
+          />
       </form>}
+          </div>
     </div>
   )
 }
