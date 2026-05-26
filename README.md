@@ -21,7 +21,7 @@ BuildMyIdea is a platform where users can post software/app ideas and developers
 * Prisma ORM
 * PostgreSQL
 * Passport.js OAuth
-* JWT Authentication
+* Redis Pub/Sub
 * Docker
 
 ---
@@ -33,12 +33,13 @@ BuildMyIdea/
 │
 ├── apps/
 │   ├── frontend/        # Next.js frontend
-│   └── backend/         # Express backend
+│   ├── backend/         # Express backend
+│   └── websockets/      # WebSockets backend
 │
 ├── packages/
 │   ├── db/              # Prisma schema + Prisma Client
-│   └── common/          # Shared Zod schemas / Types
-│
+│   ├── common/          # Shared Zod schemas / Types
+│   └── redis/           # Shared Redis
 └── docker-compose.yml
 ```
 

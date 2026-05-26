@@ -72,7 +72,9 @@ export const ConnectStatus = (props: any) => {
     onSuccess: (_data,action) => {
       const config = actionConfig[action]
       queryClient.invalidateQueries({ queryKey: ["profile-id"] })
-      toast.success(`${config.toastMessage}`, { duration: 7000 })
+      if(!actionConfig['withdraw']){
+        toast.success(`${config.toastMessage}`, { duration: 7000 })
+      }
     }
   })
 
@@ -110,6 +112,12 @@ export const ConnectStatus = (props: any) => {
         </div>
       )
     case 'Disconnected':
+      return (
+        <div className="p-3 flex gap-2">
+          <button onClick={() => { performConnectAction('reconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>
+        </div>
+      )
+    case 'Rejected':
       return (
         <div className="p-3 flex gap-2">
           <button onClick={() => { performConnectAction('reconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>

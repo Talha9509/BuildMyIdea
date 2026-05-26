@@ -7,7 +7,6 @@ import Link from 'next/link'
 
 export const ProjectId = (props: any) => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/projects/${props.id}`
-  console.log(url)
   async function fetchProjectId() {
     const response = await fetch(url, {
       credentials: 'include'

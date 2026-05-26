@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket'
 import { usePathname } from 'next/navigation';
+import { format } from 'date-fns';
 
 const Navbar2 = () => {
   const pathname = usePathname();
@@ -22,12 +23,16 @@ const Navbar2 = () => {
       method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
     })
 
-    if (response) {
-      const notify = response.notifications
-      console.log(notify)
-      // setNotifications(notify)
-    }
-    return response.notifications
+    // if (response) {
+    //   const notify = response.notifications
+    //   console.log(notify)
+    //   // setNotifications(notify)
+    // }
+    // return {notifications: response.notifications}
+    console.log(response)
+    const notificationss = response.notifications
+    console.log("notifications "+JSON.stringify(notificationss))
+    return notificationss
   }
 
   const { data: notifications } = useQuery({
@@ -45,17 +50,17 @@ const Navbar2 = () => {
     const handleMessage = (event:MessageEvent) => {
       const parsed = JSON.parse(event.data)
       if (parsed.type === 'notification') {
-        console.log(parsed)
+        console.log("parsed data: "+JSON.stringify(parsed))
         queryClient.setQueryData(['unread-notifications'], (oldData: any) => {
-          if (!oldData || !oldData.notifications) {
+          console.log("oldData: "+JSON.stringify(oldData))
+          if (!oldData) {
             console.log("new notification")
-            toast.info(`${parsed.data}`, { duration: 5000 })
-            return { notifications: [parsed.data] };
+            toast.info(`${parsed.data.slice(1,-1)}`, { duration: 5000 })
+            return  [{message:(parsed.data.slice(1,-1)), id:Date.now(), createdAt: Date.now()}]
           }
-          toast.info(`${parsed.data}`, { duration: 5000 })
-          return {
-            notifications: [parsed.data, ...oldData.notifications]
-          };
+          toast.info(`${(parsed.data.slice(1,-1))}`, { duration: 5000 })
+          return [{message:(parsed.data.slice(1,-1)), id:Date.now(), createdAt: Date.now()}, ...oldData]
+          ;
         });
       } 
     }
@@ -79,13 +84,11 @@ const Navbar2 = () => {
             </button>
 
             {notificationOpen && (
-              <div className="mt-2 bg-white shadow rounded-lg p-3 absolute z-10 w-70 flex flex-col left-1/2 -translate-x-1/2">
+              <div className="mt-2 bg-white shadow rounded-lg p-3 absolute z-10 w-70 flex flex-col left-1/2 -translate-x-1/2 max-h-[50vh] overflow-y-auto">
                 {notifications && notifications.length !== 0 ? notifications.map((notify: any) => (
                   <div key={notify.id} className="mb-1 text-black">
                     <div>{notify.message}</div>
-                    <div className="text-xs text-gray-500">{
-                      // notify.createdAt.split("-")[1]}:{notify.createdAt.split("-")[0]
-                      notify.createdAt}</div>
+                    <div className="text-xs text-gray-500">{format(notify.createdAt, 'dd/MM hh:mm a')}</div>
                   </div>
                 ))
               : <div className="text-center">No Notifications</div>}

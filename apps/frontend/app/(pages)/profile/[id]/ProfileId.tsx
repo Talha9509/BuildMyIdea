@@ -33,8 +33,8 @@ export const ProfileId = (props:any) => {
     queryKey: ["profile-id"],
     queryFn: fetchProfile,
     retry: false,
-    staleTime: 1 * 60 * 1000,
-    gcTime: 2 * 60 * 1000
+    staleTime: 30 * 1000,
+    gcTime: 60 * 1000
   })
 
   const user = data?.user

@@ -137,7 +137,7 @@ export const updateConnect = async (req: Request, res: Response) => {
       prismaClient.notifications.create({
         data: {
           userId: receiverId,
-          message: `You are ${status} with ${sender.name}`
+          message: `${status=='Pending' ? `Connection Request from ${sender.name}` : `You are ${status} with ${sender.name}` }`
         }
       })
     ])

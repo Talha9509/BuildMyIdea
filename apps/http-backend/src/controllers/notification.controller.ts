@@ -9,7 +9,9 @@ export const getNotifications = async (req: Request, res: Response) => {
         userId: userId,
         isRead: false
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { id: true, message: true, createdAt: true }
     });
     // here give only 5 first then show loading circle, then more 5 like that
 
