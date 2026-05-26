@@ -1,4 +1,13 @@
 services:
+  redis_service:
+    image: redis:latest
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
+
   backend:
     build: 
       context: .
@@ -18,13 +27,16 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID}
       - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
+      - REDIS_URL=${REDIS_URL}
+
+    depends_on:
+      redis_service:
+        condition: service_healthy
 
   frontend:
     build: 
       context: .
       dockerfile: docker/Dockerfile.frontend
-      # args:
-      #   - DATABASE_URL=value
 
     ports:
       - 3000:3000
@@ -32,3 +44,21 @@ services:
     environment:
       - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
       - BACKEND_URL=${BACKEND_URL} 
+
+  ws:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile.ws
+
+    ports:
+      - 8080:8080
+
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    
+    depends_on:
+      redis_service:
+        condition: service_healthy
+    

@@ -142,6 +142,7 @@ export const updateConnect = async (req: Request, res: Response) => {
       })
     ])
 
+    // accepted, disconnected, rejected notifications not coming
     await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
 
     return res.json({ updatedConnection })

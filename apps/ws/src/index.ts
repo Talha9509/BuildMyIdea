@@ -18,6 +18,10 @@ let userId: number | null = null
 
 wss.on('connection', async (socket: WebSocket, req) => {
   try {
+    (socket as any).isAlive = true;
+    socket.on('pong', () => {
+        (socket as any).isAlive = true;
+    });
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.jwt;
     // console.log(token)
@@ -75,4 +79,56 @@ wss.on('connection', async (socket: WebSocket, req) => {
   })
 
 })
+const interval = setInterval(() => {
+    wss.clients.forEach((socket) => {
+        if ((socket as any).isAlive === false) {
+            return socket.terminate(); // Kill dead connections
+        }
+        
+        // Assume they are dead until they reply
+        (socket as any).isAlive = false; 
+        socket.ping(); // Send a hidden network ping
+    });
+}, 25000); // 25 seconds
 
+wss.on('close', () => {
+    clearInterval(interval);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// decoupling websocket server from database:
+//  The Message Flow:
+// Send: A client sends a message to the WebSocket server.
+// Publish: The WebSocket server receives the message and immediately publishes it to a message broker or queue (e.g., Redis).
+// Broadcast: The message broker pushes the message to the intended recipient(s) in real-time.
+// Save: A background worker or consumer service picks up the message from the queue and saves it to the main database.
+
+// Batch/Bulk Saving: Instead of saving every message one by one, the background worker collects messages in memory and bulk-inserts them into the database every few seconds. This drastically reduces database load.
+
+
+
+
+
+
+
+// Adjust Proxy Timeouts:If using NGINX, increase the proxy_read_timeout and proxy_send_timeout in your configuration to allow longer idle periods.
+// Automatic Reconnection Logic:Since WebSockets are inherently fragile, you should always implement client-side logic to detect a closed connection and automatically attempt to reconnect after a short delay.
+// Check for SSL Issues:If you are using wss://, ensure your SSL certificates are valid, as invalid handshakes will immediately terminate the attempt

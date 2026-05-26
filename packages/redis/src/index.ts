@@ -1,6 +1,10 @@
 import { createClient, type RedisClientType } from 'redis'
+import "dotenv/config";
 
-const redisClient = createClient()
+console.log("redis url: "+process.env.REDIS_URL)
+const redisClient = createClient({
+    url: process.env.REDIS_URL!
+})
 
 export const pubClient: RedisClientType = redisClient.duplicate();
 export const subClient: RedisClientType = redisClient.duplicate();

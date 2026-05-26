@@ -110,12 +110,15 @@ export default function page() {
       <div>
 
       {!isLoading && <form onSubmit={sendMessage} className="p-2 bg-gray-950 fixed bottom-0 left-0 right-0">
+        <div className='flex px-4'>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type a message..."
-          className=" text-black bg-white w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-[#FF3511]"
+          className=" text-black bg-white w-full rounded-l-lg border p-2 focus:outline-none focus:ring-2 focus:ring-[#FF3511]"
           />
+          <button onClick={sendMessage} className='bg-[#f72500] text-gray-100 px-4 rounded-r-lg cursor-pointer font-semibold text-lg hover:bg-[#a01800]'>Send</button>
+          </div>
       </form>}
           </div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { usePathname } from 'next/navigation';
 
 interface WebSocketContextType {
   socket: WebSocket | null;
@@ -15,13 +16,25 @@ const WebSocketContext = createContext<WebSocketContextType>({
 export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Prevent this from running on the Next.js server during SSR
     if (typeof window === "undefined") return;
 
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8080";
-    const ws = new WebSocket(wsUrl);
+    const excludedRoutes = ['/', '/signin', '/signup'];
+    const shouldConnect = !excludedRoutes.includes(pathname);
+
+    if (!shouldConnect) {
+      if (socket) {
+        socket.close();
+        setSocket(null);
+      }
+      return;
+    }
+
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    const ws = new WebSocket(wsUrl!);
 
     ws.onopen = () => {
       console.log("Global WebSocket Connected");
