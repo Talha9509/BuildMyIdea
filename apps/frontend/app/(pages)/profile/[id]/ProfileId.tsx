@@ -30,7 +30,7 @@ export const ProfileId = (props:any) => {
 
 
   const { data } = useQuery({
-    queryKey: ["profile-id"],
+    queryKey: ["profile-id", props.id],
     queryFn: fetchProfile,
     retry: false,
     staleTime: 30 * 1000,

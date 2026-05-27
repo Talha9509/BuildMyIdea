@@ -27,6 +27,7 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "There is no one to Connect" })
     }
 
+    console.log("checking connection exists?")
     const connectionExists = await prismaClient.connect.findFirst({
       where: {
         OR: [
@@ -35,31 +36,33 @@ export const sendConnectReq = async (req: Request, res: Response) => {
         ]
       }
     })
+    console.log("exists: "+connectionExists)
     if (connectionExists) {
-      if (connectionExists?.status == 'Disconnected') {
-        console.log("connecting from dis")
-        const [updatedConnection, notification] = await prismaClient.$transaction([
-          prismaClient.connect.update({
-            where: {
-              senderId_receiverId: {
-                senderId: userId,
-                receiverId: receiverId
-              }
-            },
-            data: { status: 'Pending' }
-          }),
-          prismaClient.notifications.create({
-            data: {
-              userId: receiverId,
-              message: `Connection Request from ${sender.name}`
-            }
-          })
-        ])
+      console.log("status: "+connectionExists.status)
+      // if (connectionExists?.status == 'Disconnected' || 'Rejected') {
+      //   console.log("connecting from dis")
+      //   const [updatedConnection, notification] = await prismaClient.$transaction([
+      //     prismaClient.connect.update({
+      //       where: {
+      //         senderId_receiverId: {
+      //           senderId: userId,
+      //           receiverId: receiverId
+      //         }
+      //       },
+      //       data: { status: 'Pending' }
+      //     }),
+      //     prismaClient.notifications.create({
+      //       data: {
+      //         userId: receiverId,
+      //         message: `Connection Request from ${sender.name}`
+      //       }
+      //     })
+      //   ])
 
-        await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
+      //   await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
 
-        return res.json({ updatedConnection })
-      }
+      //   return res.json({ updatedConnection })
+      // }
       return res.status(409).json({ message: "You already have the connection request" })
     }
 

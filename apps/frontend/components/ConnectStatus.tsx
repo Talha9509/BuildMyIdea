@@ -71,7 +71,7 @@ export const ConnectStatus = (props: any) => {
     mutationFn: a,
     onSuccess: (_data,action) => {
       const config = actionConfig[action]
-      queryClient.invalidateQueries({ queryKey: ["profile-id"] })
+      queryClient.invalidateQueries({ queryKey: ["profile-id", props.id] })
       if(!actionConfig['withdraw']){
         toast.success(`${config.toastMessage}`, { duration: 7000 })
       }
