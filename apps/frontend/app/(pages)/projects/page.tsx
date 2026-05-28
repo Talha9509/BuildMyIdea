@@ -1,10 +1,10 @@
 
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import Navbar from '../../../components/Navbar2'
 import { DataTable } from "../../../components/data-table"
 import { ProjectColumns, Project } from "../../../components/columns"
 import AddProject from '../../../components/AddProjSubmitForm'
+import { SearchBar } from '@/components/SearchBar'
 
 async function getData(): Promise<Project[]> {
   const cookieStore = cookies()
@@ -40,6 +40,7 @@ export default async function page() {
           <div className='text-4xl font-semibold'>Projects</div>
           <div><AddProject title={"Add Project"} to={"projects"} project={true} /></div>
         </div>
+          <SearchBar />
         <div className=" mx-auto py-2 pb-20 text-lg table-fixed  w-[90vw] ">
           {/* <Table data={data} /> */}
           <DataTable columns={ProjectColumns} data={data} />

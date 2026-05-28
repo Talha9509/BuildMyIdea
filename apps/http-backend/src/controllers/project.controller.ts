@@ -24,7 +24,7 @@ export const createProject = async (req: Request, res: Response) => {
       input: inputforAi
     })
 
-    console.log(aiResponse.data)
+    console.log(aiResponse.data[0]?.embedding)
     const embeddingNumbers = aiResponse.data[0]?.embedding
 
     const project = await prismaClient.project.create({
@@ -34,13 +34,15 @@ export const createProject = async (req: Request, res: Response) => {
         skillsreq: validated.data.skillsreq,
         refrenceLink: validated.data.refrenceLink,
         mainFeature: validated.data.mainFeature,
-        // @ts-ignore
-        embedding: (embeddingNumbers as any),
         owner: {
           connect: { userId: userId } 
         }
       }
     });
+
+    const vectorString = `[${embeddingNumbers?.join(',')}]`;
+
+    await prismaClient.$executeRaw`UPDATE "Project" SET embedding = ${vectorString}::vector WHERE id = ${project.id}`;
 
     return res.status(201).json({ message: "Done", project });
 
@@ -240,23 +242,23 @@ export const getProjectbyId = async( req:Request, res: Response) => {
 
 export const getProjectbySearch = async (req: Request, res: Response) => {
   const userId = req.userId
-  const { query } = req.query
+  const query  = req.query.search
 
-  const validated = searchQuerySchema.safeParse(query)
-  if(!validated.success){
-    return res.status(422).json({ message: "Invalid Inputs" })
-  }
+  // const validated = searchQuerySchema.safeParse(query)
+  // if(!validated.success){
+  //   return res.status(422).json({ message: "Invalid Inputs" })
+  // }
 
   try {
-    console.log(validated.data.query)
+    console.log(query)
     const aiReponse = openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: validated.data.query as string
+      input: query as string
     })
     const searchVector = `[${(await aiReponse).data[0]?.embedding.join(",")}]`
     
     const matchingprojects = await prismaClient.$queryRaw`
-      SELECT id, name, description, mainFeature
+      SELECT id, name, description, "mainFeature"
         FROM "Project" 
         ORDER BY embedding <-> ${searchVector}::vector 
         LIMIT 5;

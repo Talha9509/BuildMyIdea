@@ -4,10 +4,8 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket'
 import { apiFetch } from '@/utils/Apifetch'
-import { useRouter } from 'next/navigation'
 
 export default function page() {
-  const router = useRouter()
   const { socket } = useGlobalWebSocket();
   const params = useParams()
   const receiverId = params.id
