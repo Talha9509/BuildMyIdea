@@ -41,3 +41,7 @@ export const updateSubmitSchema=z.object({
     repoLink:z.optional(z.string().min(6,"Give a Proper Link")),
     liveLink:z.optional(z.string().min(6,"Give a Proper Link"))
 })
+
+export const searchQuerySchema = z.object({
+    query: z.string().min(4)
+})

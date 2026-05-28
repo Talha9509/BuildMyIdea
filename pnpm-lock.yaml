@@ -246,6 +246,12 @@ importers:
       '@prisma/client':
         specifier: ^7.5.0
         version: 7.5.0(prisma@7.5.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.3))(typescript@6.0.3)
+      pgvector:
+        specifier: ^0.2.1
+        version: 0.2.1
+      prisma-extension-pgvector:
+        specifier: ^0.11.0
+        version: 0.11.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.3))(typescript@6.0.3))(pgvector@0.2.1)
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -3130,6 +3136,10 @@ packages:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
     engines: {node: '>=4'}
 
+  pgvector@0.2.1:
+    resolution: {integrity: sha512-nKaQY9wtuiidwLMdVIce1O3kL0d+FxrigCVzsShnoqzOSaWWWOvuctb/sYwlai5cTwwzRSNa+a/NtN2kVZGNJw==}
+    engines: {node: '>= 18'}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -3204,6 +3214,12 @@ packages:
   pretty-ms@9.3.0:
     resolution: {integrity: sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==}
     engines: {node: '>=18'}
+
+  prisma-extension-pgvector@0.11.0:
+    resolution: {integrity: sha512-ITk+oDKX8V6gROvjJ/Gl7j9SZJWKf9kGn0pJ3bEPjSc+mqpI2r90t61AE2IzEXVjUQIczkA80vmT6zIGB95HIA==}
+    peerDependencies:
+      '@prisma/client': ^5.14.0
+      pgvector: '>=0.1.8'
 
   prisma@7.5.0:
     resolution: {integrity: sha512-n30qZpWehaYQzigLjmuPisyEsvOzHt7bZeRyg8gZ5DvJo9FGjD+gNaY59Ns3hlLD5/jZH5GBeftIss0jDbUoLg==}
@@ -6805,6 +6821,8 @@ snapshots:
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
 
+  pgvector@0.2.1: {}
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -6861,6 +6879,11 @@ snapshots:
   pretty-ms@9.3.0:
     dependencies:
       parse-ms: 4.0.0
+
+  prisma-extension-pgvector@0.11.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.3))(typescript@6.0.3))(pgvector@0.2.1):
+    dependencies:
+      '@prisma/client': 7.5.0(prisma@7.5.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.3))(typescript@6.0.3)
+      pgvector: 0.2.1
 
   prisma@7.5.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.3):
     dependencies:

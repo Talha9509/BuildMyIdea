@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prismaClient } from "@repo/db/client";
-import { ProjectSchema, updateProjectSchema } from "@repo/common/types";
+import { ProjectSchema, updateProjectSchema, searchQuerySchema } from '@repo/common/types'
+import { openai } from "../utils/aiClient.js";
 
 export const createProject = async (req: Request, res: Response) => {
   const userId = req.userId;
@@ -16,6 +17,16 @@ export const createProject = async (req: Request, res: Response) => {
   }
 
   try {
+    const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
+    console.log(inputforAi)
+    const aiResponse = await openai.embeddings.create({
+      model:"text-embedding-3-small",
+      input: inputforAi
+    })
+
+    console.log(aiResponse.data)
+    const embeddingNumbers = aiResponse.data[0]?.embedding
+
     const project = await prismaClient.project.create({
       data: {
         name: validated.data.name,
@@ -23,6 +34,8 @@ export const createProject = async (req: Request, res: Response) => {
         skillsreq: validated.data.skillsreq,
         refrenceLink: validated.data.refrenceLink,
         mainFeature: validated.data.mainFeature,
+        // @ts-ignore
+        embedding: (embeddingNumbers as any),
         owner: {
           connect: { userId: userId } 
         }
@@ -223,4 +236,36 @@ export const getProjectbyId = async( req:Request, res: Response) => {
       return res.status(404).json({ message:"Project Not Found"})
     }
   return res.json({ message: "Done", project })
+}
+
+export const getProjectbySearch = async (req: Request, res: Response) => {
+  const userId = req.userId
+  const { query } = req.query
+
+  const validated = searchQuerySchema.safeParse(query)
+  if(!validated.success){
+    return res.status(422).json({ message: "Invalid Inputs" })
+  }
+
+  try {
+    console.log(validated.data.query)
+    const aiReponse = openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: validated.data.query as string
+    })
+    const searchVector = `[${(await aiReponse).data[0]?.embedding.join(",")}]`
+    
+    const matchingprojects = await prismaClient.$queryRaw`
+      SELECT id, name, description, mainFeature
+        FROM "Project" 
+        ORDER BY embedding <-> ${searchVector}::vector 
+        LIMIT 5;
+    `
+    console.log(matchingprojects)
+
+    return res.json(matchingprojects)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
 }
