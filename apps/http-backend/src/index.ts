@@ -12,7 +12,6 @@ import connectRoutes from "./routes/connect.Routes.js";
 import { connectRedis } from '@repo/redis/client'
 import notificationRoutes from './routes/notification.Routes.js'
 import chatRoutes from './routes/chat.routes.js'
-import aiRoutes from './routes/ai.routes.js'
 
 declare global {
   namespace Express {
@@ -50,7 +49,6 @@ app.use("/api/v1/star", starRoutes);
 app.use("/api/v1/connect", connectRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/chats", chatRoutes);
-app.use("/api/v1/ai", aiRoutes);
 
 // next: not complted
 app.post("/api/v1/connect", async (req, res) => {

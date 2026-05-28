@@ -1,5 +1,7 @@
 import { createClient, type RedisClientType } from 'redis'
 import "dotenv/config";
+import IORedis from 'ioredis'
+import { Queue } from 'bullmq';
 
 console.log("redis url: "+process.env.REDIS_URL)
 const redisClient = createClient({
@@ -15,6 +17,17 @@ export async function connectRedis () {
     if(!subClient.isOpen) await subClient.connect()
     console.log("Redis connected successfully")
 }
+
+// @ts-ignore
+export const bullMQConnection = (new IORedis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: null 
+}) as any);
+
+// Export the Queue so your Express Backend can add jobs to it
+export const embeddingQueue = new Queue('project-embeddings', { 
+    connection: bullMQConnection 
+});
+
 
 
 
