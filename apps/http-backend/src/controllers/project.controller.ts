@@ -20,7 +20,7 @@ export const createProject = async (req: Request, res: Response) => {
     const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
     console.log(inputforAi)
     const aiResponse = await openai.embeddings.create({
-      model:"text-embedding-3-small",
+      model: "text-embedding-3-small",
       input: inputforAi
     })
 
@@ -35,7 +35,7 @@ export const createProject = async (req: Request, res: Response) => {
         refrenceLink: validated.data.refrenceLink,
         mainFeature: validated.data.mainFeature,
         owner: {
-          connect: { userId: userId } 
+          connect: { userId: userId }
         }
       }
     });
@@ -58,12 +58,12 @@ export const createProject = async (req: Request, res: Response) => {
   }
 };
 
-export const getProjects = async( req:Request, res: Response) => {
-    console.log(process.env.DATABASE_URL)
+export const getProjects = async (req: Request, res: Response) => {
+  console.log(process.env.DATABASE_URL)
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
     select: {
-      name: true, description: true, id: true, mainFeature:true, 
+      name: true, description: true, id: true, mainFeature: true,
       owner: {
         select: {
           user: {
@@ -84,112 +84,128 @@ export const getProjects = async( req:Request, res: Response) => {
       }
     },
   })
-  return res.json({ projects:projects })
+  return res.json({ projects: projects })
 }
 
-export const updateProject = async( req:Request, res: Response) => {
-    // to edit a project by owner
-      const userId = req.userId;
-      const body = req.body
-      const id = parseInt(req.params.id as string)
-      if (typeof userId != 'number') {
-        return res.status(401).json({ message: "Unauthorized" })
-      }
-      console.log(userId)
-    
-      const validated = updateProjectSchema.safeParse(body)
-      console.log(validated)
-      if (!validated.success) {
-        return res.status(400).json({ message: "Invalid Inputs" })
-      }
-    
-      if (Object.keys(validated.data).length === 0) {
-        return res.status(400).json({ message: "Nothing to be changed" })
-      }
-    
-      try {
-        const owner = await prismaClient.owner.findFirst({
-          where: {
-            userId: userId, projects: {
-              some: { id: id }
-            }
-          },
-          select: {
-            projects: {
-              where: { id: id },
-              select: { id: true }
-            }
-          }
-        })
-        console.log(owner?.projects)
-        if (!owner) {
-          return res.status(403).json({ message: "Not Allowed to edit others project" })
+export const updateProject = async (req: Request, res: Response) => {
+  const userId = req.userId;
+  const body = req.body
+  const id = parseInt(req.params.id as string)
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  console.log(userId)
+
+  const validated = updateProjectSchema.safeParse(body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
+
+  if (Object.keys(validated.data).length === 0) {
+    return res.status(400).json({ message: "Nothing to be changed" })
+  }
+
+  try {
+    const owner = await prismaClient.owner.findFirst({
+      where: {
+        userId: userId, projects: {
+          some: { id: id }
         }
-        const project = await prismaClient.project.update({
+      },
+      select: {
+        projects: {
           where: { id: id },
-          data: validated.data,
-        })
-        console.log("project: ", project)
-        return res.json({ message: "Done", project: project })
-      }
-      catch (err: any) {
-        if (err.code === "P2002") {
-          console.log(err)
-          return res.status(409).json({ message: "Project Already Exists" })
+          select: { id: true }
         }
-        if (err.code === "P2025") {
-          console.log(err)
-          return res.status(404).json({ message: "Project Not Found" })
-        }
-        console.log(err)
-        return res.status(500).json({ message: "Internal Server Error" })
       }
+    })
+    console.log(owner?.projects)
+    if (!owner) {
+      return res.status(403).json({ message: "Not Allowed to edit others project" })
+    }
+    const project = await prismaClient.project.update({
+      where: { id: id },
+      data: validated.data,
+    })
+
+    const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
+    console.log(inputforAi)
+    const aiResponse = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: inputforAi
+    })
+
+    console.log(aiResponse.data[0]?.embedding)
+    const embeddingNumbers = aiResponse.data[0]?.embedding
+
+    const vectorString = `[${embeddingNumbers?.join(',')}]`;
+
+    await prismaClient.$executeRaw`UPDATE "Project" SET embedding = ${vectorString}::vector WHERE id = ${project.id}`;
+
+    console.log("project: ", project)
+    return res.json({ message: "Done", project: project })
+  }
+  catch (err: any) {
+    if (err.code === "P2002") {
+      console.log(err)
+      return res.status(409).json({ message: "Project Already Exists" })
+    }
+    if (err.code === "P2025") {
+      console.log(err)
+      return res.status(404).json({ message: "Project Not Found" })
+    }
+    console.log(err)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
 }
 
-export const deleteProject = async( req:Request, res: Response) => {
-     // delte a project if owner wants to delete it
+export const deleteProject = async (req: Request, res: Response) => {
+  // delte a project if owner wants to delete it
   const userId = req.userId
   const id = parseInt(req.params.id as string)
 
   try {
     const owner = await prismaClient.owner.findFirst({
-    where: {
-      userId: userId, projects: {
-        some: { id: id }
+      where: {
+        userId: userId, projects: {
+          some: { id: id }
+        }
+      },
+      select: {
+        projects: {
+          where: { id: id },
+          select: { id: true }
+        }
       }
-    },
-    select: {
-      projects: {
-        where: { id: id },
-        select: { id: true }
-      }
+    })
+    console.log(owner)
+    console.log(owner?.projects)
+    if (!owner) {
+      return res.status(403).json({ message: "Not Allowed to Delete others Project" })
     }
-  })
-  console.log(owner)
-  console.log(owner?.projects)
-  if (!owner) {
-    return res.status(403).json({ message: "Not Allowed to Delete others Project" })
-  }
-  const deleted = await prismaClient.project.delete({
-    where: { id: id, submits:{
-      none:{}
-    } }
-  })
-  if (!deleted) {
-    return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
-  }
-  return res.status(200).json({ message: "Done", deleted })
-  // return res.status(204).send()
-  } catch (error:any) {
-    if(error.code=='P2002'){
-      return res.status(409).json({message:"Can't Delete a Project with Active Submissions"})
+    const deleted = await prismaClient.project.delete({
+      where: {
+        id: id, submits: {
+          none: {}
+        }
+      }
+    })
+    if (!deleted) {
+      return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
+    }
+    return res.status(200).json({ message: "Done", deleted })
+    // return res.status(204).send()
+  } catch (error: any) {
+    if (error.code == 'P2002') {
+      return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
     }
     console.log(error)
-    return res.status(500).json({ message:"Internal Server Error"})
+    return res.status(500).json({ message: "Internal Server Error" })
   }
 }
 
-export const getProjectbyId = async( req:Request, res: Response) => {
+export const getProjectbyId = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id as string)
   const userId = req.userId
   console.log(id)
@@ -198,7 +214,7 @@ export const getProjectbyId = async( req:Request, res: Response) => {
     relationLoadStrategy: 'join',
     where: { id: id },
     select: {
-      id: true, name: true, description: true, skillsreq: true, refrenceLink:true, mainFeature:true,
+      id: true, name: true, description: true, skillsreq: true, refrenceLink: true, mainFeature: true,
       owner: {
         select: {
           user: {
@@ -211,14 +227,14 @@ export const getProjectbyId = async( req:Request, res: Response) => {
         select: {
           liveLink: true, repoLink: true, id: true,
           // here we are counting stars related to this submission
-           _count: {
-          select: { 
-            stars: true
+          _count: {
+            select: {
+              stars: true
+            },
           },
-        },
-          stars:{
-            where:{
-              userId:userId
+          stars: {
+            where: {
+              userId: userId
             }
           },
           dev: {
@@ -234,15 +250,14 @@ export const getProjectbyId = async( req:Request, res: Response) => {
       }
     }
   })
-  if(!project){
-      return res.status(404).json({ message:"Project Not Found"})
-    }
+  if (!project) {
+    return res.status(404).json({ message: "Project Not Found" })
+  }
   return res.json({ message: "Done", project })
 }
 
 export const getProjectbySearch = async (req: Request, res: Response) => {
-  const userId = req.userId
-  const query  = req.query.search
+  const query = req.query.search
 
   // const validated = searchQuerySchema.safeParse(query)
   // if(!validated.success){
@@ -251,12 +266,13 @@ export const getProjectbySearch = async (req: Request, res: Response) => {
 
   try {
     console.log(query)
+    console.log("sending api request")
     const aiReponse = openai.embeddings.create({
       model: 'text-embedding-3-small',
       input: query as string
     })
     const searchVector = `[${(await aiReponse).data[0]?.embedding.join(",")}]`
-    
+
     const matchingprojects = await prismaClient.$queryRaw`
       SELECT id, name, description, "mainFeature"
         FROM "Project" 
