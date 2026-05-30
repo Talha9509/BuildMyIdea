@@ -6,6 +6,6 @@
 
 ### For Main/Dev branch:
  - Add Enhance feature for Add Project
- - Smart Match Search RAG 
  - Change frontend code for fetching with tanstack query for projects
+ - Fix the Connections code in both frontend and backend for reconnecting after disconnected or rejected
 
