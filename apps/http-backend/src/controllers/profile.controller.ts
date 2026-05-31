@@ -222,3 +222,23 @@ export const getProfilebyId = async (req: Request, res: Response) => {
   console.log(user)
   return res.status(200).json({ message: "Done", user, connections })
 }
+
+export const getProfilebySearch = async (req: Request, res: Response) => {
+  console.log("profile searching")
+  const query = (req.query.search as string)
+  try {
+    const profiles = await prismaClient.user.findMany({
+      where: {
+        username: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      }, take: 6,
+      select: { username: true, id: true, role: true, job: true }
+    })
+    return res.json(profiles)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}

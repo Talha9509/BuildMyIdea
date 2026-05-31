@@ -20,6 +20,8 @@ coverage
 
 *.tsbuildinfo
 *.tsconfig.tsbuildinfo
+tsconfig.tsbuildinfo
+**/tsconfig.tsbuildinfo
 
 # Vercel
 .vercel

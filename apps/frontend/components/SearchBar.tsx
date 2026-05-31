@@ -4,11 +4,15 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 
 export const SearchBar = () => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register, handleSubmit, formState: { errors } } = useForm()
   const router = useRouter()
   const [proj, setProj] = useState(true)
   async function onsubmit(data: any) {
-    router.push(`/search?search=${data.search}`)
+    if(proj === true){
+      router.push(`/search/project?search=${data.search}`)
+    } else {
+      router.push(`/search/profile?search=${data.search}`)
+    }
     // console.log(data.search)
   }
   return (

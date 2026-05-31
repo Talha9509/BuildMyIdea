@@ -1,11 +1,15 @@
 'use client'
 import { Suspense } from 'react'
-import { SearchSuspense } from '@/components/SearchSuspense'
+import { SearchProject } from '@/components/SearchProject'
+import { SearchBar } from '@/components/SearchBar'
 
 export default function Search() {
   return (
     <Suspense fallback={<div className='h-screen flex justify-center py-50 text-white text-5xl'>Loading...</div>}>
-      <SearchSuspense />
+      <div className='text-white'>
+      <SearchBar />
+      <SearchProject />
+      </div>
     </Suspense>
   )
 }
