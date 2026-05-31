@@ -33,7 +33,7 @@ export const ProfileId = (props:any) => {
     queryKey: ["profile-id", props.id],
     queryFn: fetchProfile,
     retry: false,
-    staleTime: 10 * 1000,
+    staleTime: 15 * 1000,
     gcTime: 60 * 1000
   })
 
@@ -47,7 +47,7 @@ export const ProfileId = (props:any) => {
           <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
         </div>
         <div className='flex justify-center items-center gap-6 text-xl'>
-          <ConnectStatus connection={connections} id={props.id} />
+          <ConnectStatus connection={connections} id={props.id} name={user.name} />
         </div>
         <div className='flex justify-center items-center gap-6 text-xl'>
           <div>Name: {user.name}</div>

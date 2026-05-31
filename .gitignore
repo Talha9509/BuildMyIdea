@@ -18,6 +18,8 @@ coverage
 # Turbo
 .turbo
 
+*.tsbuildinfo
+
 # Vercel
 .vercel
 

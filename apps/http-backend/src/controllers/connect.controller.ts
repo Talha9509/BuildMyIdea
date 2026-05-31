@@ -134,8 +134,7 @@ export const blockConnect = async (req: Request, res: Response) => {
   // "status": 'withdraw'
   // }
   const senderId = req.body.sender_id;
-  const receiverId = req.body.receiver_id;
-  const status = req.body.status;
+  const receiverId = Number(req.body.receiver_id);
 
   if (senderId === receiverId) {
     return res.status(403).json({ message: "Can't connect to youreslf" })
@@ -143,7 +142,7 @@ export const blockConnect = async (req: Request, res: Response) => {
 
   try {
     const [sender, receiver] = await Promise.all([
-      prismaClient.user.findUnique({ where: { id: senderId } }),
+      prismaClient.user.findUnique({ where: { id: userId } }),
       prismaClient.user.findUnique({ where: { id: receiverId } })
     ])
     if (!sender) {
@@ -154,12 +153,12 @@ export const blockConnect = async (req: Request, res: Response) => {
     }
 
     const [blocked, notification] = await prismaClient.$transaction([
-      prismaClient.connect.update({
+      prismaClient.connect.updateMany({
         where: {
-          senderId_receiverId: {
-            senderId: senderId,
-            receiverId: receiverId
-          }
+          OR: [
+            { senderId: userId, receiverId: receiverId },
+            { senderId: receiverId, receiverId: userId }
+          ]
         }, data: {
           status: 'Blocked'
         }
@@ -176,6 +175,7 @@ export const blockConnect = async (req: Request, res: Response) => {
 
     return res.status(201).json({ blocked })
   } catch (error: any) {
+    console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })
   }
 }
