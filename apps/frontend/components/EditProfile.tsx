@@ -12,7 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const EditProfile = (props: any) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateUserSchema), defaultValues: { name: "", job: "", role: "OWNER", phone: "", email: "" } })
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateUserSchema), defaultValues: { name: "", username: "", job: "", role: "OWNER", phone: "", email: "" } })
   // const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateUserSchema), defaultValues: { name: "", job: "", role: undefined, phone: "", email: "" } })
   const [onblur, setOnblur] = useState(false)
   const role = watch("role")
@@ -34,6 +34,7 @@ export const EditProfile = (props: any) => {
     setOnblur(true)
     reset({
       name: props.user.name || "",
+      username: props.user.username || "",
       job: props.user.job || undefined,
       role: props.user.role || "OWNER",
       phone: props.user.phone || undefined,
@@ -76,6 +77,11 @@ export const EditProfile = (props: any) => {
             <div className='text-3xl text-center'>{props.title}</div>
 
             <div className='flex flex-col gap-2'>
+              <div>
+                <div>Username: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[10vw]' {...register("username")} /></div>
+                {errors.username && <div className='text-sm px-2'>{errors.username?.message}</div>}
+              </div>
+              
               <div>
                 <div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[10vw]' {...register("name")} /></div>
                 {errors.name && <div className='text-sm px-2'>{errors.name?.message}</div>}

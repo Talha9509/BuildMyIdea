@@ -43,6 +43,7 @@ export const MyProfile = () => {
       <div className='flex flex-col items-center'>
         <div>
           <div className='text-lg grid grid-cols-2 justify-center  gap-x-10'>
+            <div>Username: {user.username}</div>
             <div>Name: {user.name}</div>
             <div>Job: {user.job}</div>
             <div>Phone: {user.phone}</div>

@@ -82,6 +82,9 @@ export const editProfile = async (req: Request, res: Response) => {
     })
     return res.status(200).json({ message: "Profile Updated", role: result?.role })
   } catch (error: any) {
+    if(error.code == 'P2002'){
+      return res.status(409).json({ message: "That username is already in use. Please enter a unique username" })
+    }
     console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })
   }
@@ -97,7 +100,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
       relationLoadStrategy: 'join',
       where: { id: userId },
       select: {
-        email: true, name: true, job: true, phone: true, role: true,
+        email: true, name: true, job: true, phone: true, role: true, username: true,
         _count: {
           select: {
             senders: {
@@ -155,7 +158,7 @@ export const getProfilebyId = async (req: Request, res: Response) => {
     relationLoadStrategy: 'join',
     where: { id: id },
     select: {
-      name: true, job: true, role: true,
+      name: true, job: true, role: true, username: true,
       _count: {
         select: {
           senders: {

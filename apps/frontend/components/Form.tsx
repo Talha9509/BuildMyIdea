@@ -36,7 +36,7 @@ const Form = (props: any) => {
       <form onSubmit={handleSubmit(onSubmit)} >
         <div className={` flex flex-col justify-center items-center gap-2 ${props.boolean ? "gap-2" : "gap-3"} max-w-[60vw] `}>
           {props.boolean && <div>
-            <input {...register("name")} placeholder='Name' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
+            <input {...register("username")} placeholder='Username' className='border-black border-2 rounded-4xl p-1 px-2 focus:outline-none min-w-[20vw]' />
           </div>}
           <div className='flex flex-col'>
             <div>

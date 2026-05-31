@@ -44,7 +44,7 @@ export const ProfileId = (props:any) => {
     <div>
     {user && <div className='px-6'>
         <div className='flex justify-center items-center gap-6'>
-          <div className='text-center text-5xl py-2 px-10 font-semibold'>Profile</div>
+          <div className='text-center text-5xl py-2 px-10 font-semibold'>{user.username}</div>
         </div>
         <div className='flex justify-center items-center gap-6 text-xl'>
           <ConnectStatus connection={connections} id={props.id} name={user.name} />

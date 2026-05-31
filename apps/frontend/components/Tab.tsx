@@ -6,8 +6,8 @@ import Link from 'next/link'
 // for personal profile, with edit and delete options
 export const Tab = (props: any) => {
   return (
-    <div className=' hover:bg-gray-950 bg-gray-900 rounded-2xl'>
-      <div className='border border-white flex max-w-[40vw]  gap-4 justify-between p-4 rounded-2xl'>
+    <div>
+      <div className='border border-white flex max-w-[40vw]  gap-4 justify-between p-4 rounded-2xl hover:bg-gray-950 bg-gray-900 '>
         <Link key={props.project.id} href={`/project/${props.project.id}`}>
           <div>
             <div className='flex flex-col gap-1 max-w-[30vw]'>

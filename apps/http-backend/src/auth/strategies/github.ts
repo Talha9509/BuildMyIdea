@@ -22,6 +22,7 @@ async (accessToken:any, refreshToken:any, profile:any, done:any) => {
         data: {
           email: email ?? `github_${profile.username+Math.random()}@noreply.com`,
           name: profile.username,
+          username: (profile.username + Math.round(Math.random()*100))
         }
       });
     }

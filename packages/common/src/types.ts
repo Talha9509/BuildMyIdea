@@ -4,12 +4,12 @@ import {z} from 'zod'
 export const UserSchema=z.object({
     email:z.string().regex(/@/,"Invalid Email"),
     password:z.string().min(6,"Password must be atleast 6 characters"),
-    name:z.string().optional()
+    username:z.string().min(3,"Username Required")
 })
 
 export const ProjectSchema=z.object({
     name:z.string().min(3,"Give a Proper Name to the Project"),
-    description:z.string().min(10,"Give a Proper Description for the Project"),
+    description:z.string().min(40,"Description must be 40-100 characters"),
     skillsreq:z.string().optional(),
     refrenceLink:z.string().optional(),
     mainFeature:z.string().min(3,"Give a Vaild Main Feature for the Project")
@@ -17,7 +17,7 @@ export const ProjectSchema=z.object({
 
 export const updateProjectSchema=z.object({
     name:z.optional(z.string().min(3,"Give a Proper Name to the Project")),
-    description:z.optional(z.string().min(10,"Give a Proper Description for the Project")),
+    description:z.optional(z.string().min(40,"Description must be 40-100 characters")),
     skillsreq:z.string().optional(),
     refrenceLink:z.string().optional(),
     mainFeature:z.optional(z.string().min(3,"Give a Vaild Main Feature for the Project"))
@@ -25,6 +25,7 @@ export const updateProjectSchema=z.object({
 
 export const updateUserSchema=z.object({
     name:z.string().min(2,"Name Required"),
+    username:z.string().min(3,"Username Required"),
     job:z.string().optional(),
     role:z.enum(["DEV","OWNER"]).optional(),
     phone:z.string().optional().refine((val) => !val || /^\d{10}$/.test(val), "Phone number should be 10 digits"),

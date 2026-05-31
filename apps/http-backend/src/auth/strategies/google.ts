@@ -26,6 +26,7 @@ async (accessToken, refreshToken, profile, done) => {
         data: {
           email, photo,
           name: profile.displayName,
+          username: (profile.displayName + Math.round(Math.random()*100))
         }
       });
     }

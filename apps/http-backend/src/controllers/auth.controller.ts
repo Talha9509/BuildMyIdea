@@ -21,7 +21,7 @@ export const signup = async (req: Request, res: Response) => {
         data: {
           email: validatedInput.data.email,
           password: hashedPass,
-          name: validatedInput.data.name
+          username: validatedInput.data.username,
         }
       })
   
