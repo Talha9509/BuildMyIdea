@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket'
 import { usePathname } from 'next/navigation';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation'
 
 const Navbar2 = () => {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ const Navbar2 = () => {
   const { socket, isConnected } = useGlobalWebSocket();
   const queryClient = useQueryClient()
   const [notificationOpen, setNotificationOpen] = useState(false)
+  const router = useRouter()
   // const [notifications, setNotifications] = useState([])
   const url = process.env.NEXT_PUBLIC_BACKEND_URL
   async function getPrevNotifications() {
@@ -55,11 +57,12 @@ const Navbar2 = () => {
           console.log("oldData: "+JSON.stringify(oldData))
           if (!oldData) {
             console.log("new notification")
-            toast.info(`${parsed.data.slice(1,-1)}`, { duration: 5000 })
-            return  [{message:(parsed.data.slice(1,-1)), id:Date.now(), createdAt: Date.now()}]
+            toast.info(`${parsed.data}`, { duration: 5000 })
+            return  [{message:(parsed.data), id:Date.now(), createdAt: Date.now(), senderId: Number(parsed.senderId)}]
           }
-          toast.info(`${(parsed.data.slice(1,-1))}`, { duration: 5000 })
-          return [{message:(parsed.data.slice(1,-1)), id:Date.now(), createdAt: Date.now()}, ...oldData]
+          console.log("sender"+parsed.sender)
+          toast.info(`${(parsed.data)}`, { duration: 5000 })
+          return [{message:(parsed.data), id:Date.now(), createdAt: Date.now(), senderId: Number(parsed.senderId)}, ...oldData]
           ;
         });
       } 
@@ -76,17 +79,12 @@ const Navbar2 = () => {
         </Link>
         <div className='flex gap-2 items-center'>
           <div className="relative">
-            <button
-              onClick={() => setNotificationOpen(!notificationOpen)}
-              className="px-4 py-1 rounded-4xl font-semibold bg-gray-100 hover:bg-gray-300"
-            >
-              Notifications
-            </button>
+            <button onClick={() => setNotificationOpen(!notificationOpen)} className="px-4 py-1 rounded-4xl font-semibold bg-gray-100 hover:bg-gray-300 cursor-pointer"> Notifications </button>
 
             {notificationOpen && (
               <div className="mt-2 bg-white shadow rounded-lg p-3 absolute z-10 w-70 flex flex-col left-1/2 -translate-x-1/2 max-h-[50vh] overflow-y-auto">
                 {notifications && notifications.length !== 0 ? notifications.map((notify: any) => (
-                  <div key={notify.id} className="mb-1 text-black">
+                  <div key={notify.id} onClick={() => {setNotificationOpen(false);router.push(`/profile/${notify.senderId}`)}} className="mb-1 text-black hover:bg-gray-200 p-1 px-2 rounded-lg cursor-pointer">
                     <div>{notify.message}</div>
                     <div className="text-xs text-gray-500">{format(notify.createdAt, 'dd/MM hh:mm a')}</div>
                   </div>

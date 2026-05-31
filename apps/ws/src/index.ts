@@ -5,9 +5,9 @@ import cookie from 'cookie'
 import 'dotenv/config'
 import { prismaClient } from '@repo/db/client'
 
-const wss = new WebSocketServer({ port:8080 })
+const wss = new WebSocketServer({ port: 8080 })
 const SECRET = process.env.JWT_SECRET
-if(!SECRET){
+if (!SECRET) {
   throw Error("No JWT Secret")
 }
 
@@ -16,18 +16,22 @@ export const activeSockets = new Map<number, WebSocket>();
 await connectRedis()
 let userId: number | null = null
 
+wss.on('error', (error) => {
+  console.log(error)
+})
+
 wss.on('connection', async (socket: WebSocket, req) => {
   try {
     (socket as any).isAlive = true;
     socket.on('pong', () => {
-        (socket as any).isAlive = true;
+      (socket as any).isAlive = true;
     });
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.jwt;
     // console.log(token)
     if (!token) throw new Error("No cookie found");
 
-    const decoded = jwt.verify(token, SECRET!) 
+    const decoded = jwt.verify(token, SECRET!)
     userId = (decoded as JwtPayload).userId;
     activeSockets.set(userId!, socket);
 
@@ -39,12 +43,13 @@ wss.on('connection', async (socket: WebSocket, req) => {
 
   console.log(`User ${userId} authenticated and connected via WebSocket.`);
 
-  const notificationListener = (message:string) => {
-    console.log(`notifying ${userId} with message: ${message}`)
-    socket.send(JSON.stringify({ type: 'notification', data: message }))
+  const notificationListener = (message: string) => {
+    const data = JSON.parse(message.toString())
+    console.log(`notifying ${userId} with message: ${data.message}`)
+    socket.send(JSON.stringify({ type: 'notification', data: data.message, senderId: data.senderId }))
   }
 
-  await subClient.subscribe(`notifications:${userId}`,notificationListener )
+  await subClient.subscribe(`notifications:${userId}`, notificationListener)
 
   socket.on('message', async (rawMessage: string) => {
     try {
@@ -54,7 +59,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
       //    "receiverId": 20,
       //    "message": "hi"
       // }
-  
+
       const savedMessage = await prismaClient.messages.create({
         data: {
           senderId: userId!,
@@ -62,9 +67,9 @@ wss.on('connection', async (socket: WebSocket, req) => {
           message: data.message
         }
       })
-  
+
       const receiverSocket = activeSockets.get(receiverId)
-      if(receiverSocket?.readyState == WebSocket.OPEN){
+      if (receiverSocket?.readyState == WebSocket.OPEN) {
         receiverSocket.send(JSON.stringify({ type: 'message', message: savedMessage.message, receiverId: savedMessage.receiverId, createdAt: savedMessage.createdAt }))
       }
     } catch (error) {
@@ -80,19 +85,18 @@ wss.on('connection', async (socket: WebSocket, req) => {
 
 })
 const interval = setInterval(() => {
-    wss.clients.forEach((socket) => {
-        if ((socket as any).isAlive === false) {
-            return socket.terminate(); // Kill dead connections
-        }
-        
-        // Assume they are dead until they reply
-        (socket as any).isAlive = false; 
-        socket.ping(); // Send a hidden network ping
-    });
-}, 25000); // 25 seconds
+  wss.clients.forEach((socket) => {
+    if ((socket as any).isAlive === false) {
+      return socket.terminate();
+    }
+
+    (socket as any).isAlive = false;
+    socket.ping();
+  });
+}, 25000);
 
 wss.on('close', () => {
-    clearInterval(interval);
+  clearInterval(interval);
 });
 
 

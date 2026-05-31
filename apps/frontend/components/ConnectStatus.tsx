@@ -20,13 +20,13 @@ export const ConnectStatus = (props: any) => {
     accept: {
       method: "PUT",
       path: "/api/v1/connect",
-      body: (receiverId: number) => ({ receiver_id: receiverId, status: "Connected" }),
+      body: (senderId: number) => ({ sender_id: senderId, status: "Connected" }),
       toastMessage: "Connection Accepted"
     },
     reject: {
       method: "DELETE",
       path: "/api/v1/connect/reject",
-      body: (receiverId: number) => ({ receiver_id: receiverId, status: "Rejected" }),
+      body: (senderId: number) => ({ sender_id: senderId, status: "Rejected" }),
       toastMessage: "Connection Rejected"
     },
     disconnect: {
@@ -116,6 +116,15 @@ export const ConnectStatus = (props: any) => {
           <Link href={`/chat/${props.id}`} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Message</Link>
           <button onClick={() => { performConnectAction('disconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Disconnect</button>
           <button onClick={() => { performConnectAction('block') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Block</button>
+          {blur && <div className='h-screen w-screen  bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
+              <div className='flex flex-col p-8  gap-2 bg-white rounded-2xl relative'>
+                <div className='text-2xl text-center p-4'>Are you sure you want to Block {props.name}?</div>
+                <div className='flex gap-2  justify-end'>
+                  <button onClick={() => performConnectAction('block')} className='border-[#c4192e] border rounded-lg p-3 py-2 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white text-xl transition duration-300 ease-in-out'>Block</button>
+                  <button onClick={() => setBlur(false)} className='border-gray-500 border rounded-lg p-3 py-2 cursor-pointer bg-white hover:bg-gray-300 text-black text-xl transition duration-300 ease-in-out'>Cancel</button>
+                </div>
+              </div>
+            </div>}
         </div>
       )
     case 'Blocked':

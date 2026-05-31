@@ -48,12 +48,17 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       prismaClient.notifications.create({
         data: {
           message: `Connection Request from ${sender.name}`,
-          userId: receiverId
+          receiverId: receiverId,
+          senderId: userId
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message));
+    const payload = {
+      message: `Connection Request from ${sender.name}`,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(payload));
 
     return res.status(201).json({ message: "Done", connection })
   } catch (error: any) {
@@ -74,10 +79,10 @@ export const updateConnect = async (req: Request, res: Response) => {
   // "status": 'eother block, disconnect,connect'
   // }
   // const senderId = req.body.sender_id;
-  const receiverId = Number(req.body.receiver_id);
+  const senderId = Number(req.body.sender_id);
   const status = req.body.status;
 
-  if (userId === receiverId) {
+  if (userId === senderId) {
     return res.status(403).json({ message: "Can't connect to youreslf" })
   }
 
@@ -87,8 +92,8 @@ export const updateConnect = async (req: Request, res: Response) => {
 
   try {
     const [sender, receiver] = await Promise.all([
-      prismaClient.user.findUnique({ where: { id: userId } }),
-      prismaClient.user.findUnique({ where: { id: receiverId } })
+      prismaClient.user.findUnique({ where: { id: senderId } }),
+      prismaClient.user.findUnique({ where: { id: userId } })
     ])
     if (!sender) {
       return res.status(403).json({ message: "User" })
@@ -103,20 +108,25 @@ export const updateConnect = async (req: Request, res: Response) => {
 
     const [updatedConnection, notification] = await prismaClient.$transaction([
       prismaClient.connect.updateMany({
-        where: { senderId: receiverId, receiverId: userId },
+        where: { senderId: senderId, receiverId: userId },
         data: {
           status: status
         }
       }),
       prismaClient.notifications.create({
         data: {
-          userId: receiverId,
-          message: `You are connected with ${sender.name}` 
+          receiverId: senderId,
+          message: `You are connected with ${sender.name}`,
+          senderId: userId 
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
+    const payload = {
+      message: `You are connected with ${receiver.name}` ,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${senderId}`, JSON.stringify(payload))
 
     return res.json({ updatedConnection })
   } catch (error: any) {
@@ -133,10 +143,9 @@ export const blockConnect = async (req: Request, res: Response) => {
   // "target_id": "456",
   // "status": 'withdraw'
   // }
-  const senderId = req.body.sender_id;
   const receiverId = Number(req.body.receiver_id);
 
-  if (senderId === receiverId) {
+  if (userId === receiverId) {
     return res.status(403).json({ message: "Can't connect to youreslf" })
   }
 
@@ -165,13 +174,18 @@ export const blockConnect = async (req: Request, res: Response) => {
       }),
       prismaClient.notifications.create({
         data: {
-          userId: receiverId,
-          message: `You are Blocked by ${sender.name}`
+          receiverId: receiverId,
+          message: `You are Blocked by ${sender.name}`,
+          senderId: userId!
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
+    const payload = {
+      message: `You are Blocked by ${sender.name}`,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(payload))
 
     return res.status(201).json({ blocked })
   } catch (error: any) {
@@ -219,13 +233,18 @@ export const withdrawConnect = async (req: Request, res: Response) => {
       }),
       prismaClient.notifications.create({
         data: {
-          userId: userId,
-          message: `Your connect request to ${receiver.name} is withdrawn`
+          senderId: userId,
+          message: `Your connect request to ${receiver.name} is withdrawn`,
+          receiverId: userId
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${userId}`, JSON.stringify(notification.message))
+    const payload = {
+      message: `Your connect request to ${receiver.name} is withdrawn`,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${userId}`, JSON.stringify(payload))
 
     return res.status(204).json({ updatedConnection })
   } catch (error: any) {
@@ -242,7 +261,7 @@ export const rejectConnect = async (req: Request, res: Response) => {
   // "target_id": "456",
   // "status": 'withdraw'
   // }
-  const senderId = Number(req.body.receiver_id);
+  const senderId = Number(req.body.sender_id);
   const status = req.body.status;
 
   if (userId === senderId) {
@@ -276,13 +295,18 @@ export const rejectConnect = async (req: Request, res: Response) => {
       }),
       prismaClient.notifications.create({
         data: {
-          userId: userId,
-          message: `Your connect request to ${receiver.name} is Rejected`
+          senderId: userId,
+          message: `Your connect request to ${receiver.name} is Rejected`,
+          receiverId: senderId
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${senderId}`, JSON.stringify(notification.message))
+    const payload = {
+      message: `Your connect request to ${receiver.name} is Rejected`,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${senderId}`, JSON.stringify(payload))
 
     return res.status(204)
   } catch (error: any) {
@@ -332,13 +356,18 @@ export const disconnect = async (req: Request, res: Response) => {
       }),
       prismaClient.notifications.create({
         data: {
-          userId: userId,
-          message: `Your are Disconnected with ${sender.name} is withdrawn`
+          senderId: userId,
+          message: `Your are Disconnected with ${sender.name} is withdrawn`,
+          receiverId: receiverId
         }
       })
     ])
 
-    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
+    const payload = {
+      message: `Your are Disconnected with ${sender.name}`,
+      senderId: userId
+    }
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(payload))
 
     return res.status(204)
   } catch (error: any) {

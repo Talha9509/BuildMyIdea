@@ -42,9 +42,10 @@ model User {
   stars           Stars[]             
   senders         Connect[]    @relation("SentConnections")  
   receivers       Connect[]    @relation("ReceivedConnections")  
-  notifications   Notifications[]
-  sentMessages         Messages[]    @relation("SentMessages")  
-  receivedMessages     Messages[]    @relation("ReceivedMessages")  
+  sentNotification      Notifications[]   @relation("SentNotifications") 
+  recivedNotification   Notifications[]   @relation("ReceivedNotifications") 
+  sentMessages          Messages[]        @relation("SentMessages")  
+  receivedMessages      Messages[]        @relation("ReceivedMessages")  
 }
 
 
@@ -115,8 +116,10 @@ model Notifications {
   createdAt      DateTime       @default(now())
   message        String
   isRead         Boolean        @default(false)
-  userId         Int
-  user           User           @relation(fields: [userId], references: [id])
+  receiverId     Int
+  receiver       User           @relation("ReceivedNotifications",fields: [receiverId], references: [id])
+  senderId       Int
+  sender         User           @relation("SentNotifications",fields: [senderId], references: [id])
 }
 
 model Messages {
