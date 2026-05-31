@@ -22,26 +22,26 @@ export const ConnectStatus = (props: any) => {
       toastMessage: "Connection Accepted"
     },
     reject: {
-      method: "PUT",
-      path: "/api/v1/connect",
+      method: "DELETE",
+      path: "/api/v1/connect/reject",
       body: (receiverId: number) => ({ receiver_id: receiverId, status: "Rejected" }),
       toastMessage: "Connection Rejected"
     },
     disconnect: {
-      method: "PUT",
-      path: "/api/v1/connect",
+      method: "DELETE",
+      path: "/api/v1/connect/disconnect",
       body: (receiverId: number) => ({ receiver_id: receiverId, status: "Disconnected" }),
       toastMessage: "Connection Disconnected"
     },
-    reconnect: {
-      method: "PUT",
-      path: "/api/v1/connect",
-      body: (receiverId: number) => ({ receiver_id: receiverId, status: "Pending" }),
-      toastMessage: "Connection Pending"
-    },
+    // reconnect: {
+    //   method: "PUT",
+    //   path: "/api/v1/connect",
+    //   body: (receiverId: number) => ({ receiver_id: receiverId, status: "Pending" }),
+    //   toastMessage: "Connection Pending"
+    // },
     withdraw: {
       method: "DELETE",
-      path: "/api/v1/connect",
+      path: "/api/v1/connect/withdraw",
       body: (receiverId: number) => ({ receiver_id: receiverId }),
       toastMessage: "Connection Withdrawn"
     },
@@ -61,9 +61,6 @@ export const ConnectStatus = (props: any) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(config.body(props.id)),
     })
-    if(response==undefined){
-      throw Error("undefined")
-    }
     return response
   }
 
@@ -72,7 +69,8 @@ export const ConnectStatus = (props: any) => {
     onSuccess: (_data,action) => {
       const config = actionConfig[action]
       queryClient.invalidateQueries({ queryKey: ["profile-id", props.id] })
-      if(!actionConfig['withdraw']){
+      if(config != actionConfig['withdraw']){
+        console.log("send toast")
         toast.success(`${config.toastMessage}`, { duration: 7000 })
       }
     }
@@ -85,7 +83,7 @@ export const ConnectStatus = (props: any) => {
 
   if (!props.connection || props.connection == null || Object.keys(props.connection).length === 0 || !props.connection.status) {
     return (
-      <div className="p-3 flex gap-2"><button onClick={() => { performConnectAction('connect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button></div>
+      <div className="p-3 flex gap-2"><button onClick={() => { performConnectAction('connect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Connect</button></div>
     )
   }
   switch (props.connection.status) {
@@ -93,14 +91,14 @@ export const ConnectStatus = (props: any) => {
       if (props.connection.senderId == props.id) {
         return (
           <div className="p-3 flex gap-2">
-            <button onClick={() => { performConnectAction('accept') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Accept</button>
-            <button onClick={() => { performConnectAction('reject') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Reject</button>
+            <button onClick={() => { performConnectAction('accept') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Accept</button>
+            <button onClick={() => { performConnectAction('reject') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Reject</button>
           </div>
         )
       } else {
         return (
           <div className="p-3 flex gap-2">
-            <button onClick={() => { performConnectAction('withdraw') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Withdraw</button>
+            <button onClick={() => { performConnectAction('withdraw') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Withdraw</button>
           </div>
         )
       }
@@ -108,25 +106,13 @@ export const ConnectStatus = (props: any) => {
       return (
         <div className="p-3 flex gap-2">
           <Link href={`/chat/${props.id}`} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Message</Link>
-          <button onClick={() => { performConnectAction('disconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Disconnect</button>
-        </div>
-      )
-    case 'Disconnected':
-      return (
-        <div className="p-3 flex gap-2">
-          <button onClick={() => { performConnectAction('reconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>
-        </div>
-      )
-    case 'Rejected':
-      return (
-        <div className="p-3 flex gap-2">
-          <button onClick={() => { performConnectAction('reconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Connect</button>
+          <button onClick={() => { performConnectAction('disconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Disconnect</button>
         </div>
       )
     case 'Blocked':
       return (
         <div className="p-3 flex gap-2">
-          <button onClick={() => { performConnectAction('block') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Blocked</button>
+          <button onClick={() => { performConnectAction('block') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Block</button>
         </div>
       )
   }

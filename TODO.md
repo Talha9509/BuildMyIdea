@@ -8,4 +8,6 @@
  - Add Enhance feature for Add Project
  - Change frontend code for fetching with tanstack query for projects
  - Fix the Connections code in both frontend and backend for reconnecting after disconnected or rejected
+ - Search for user profiles
+ - when clicked on notifications, to the that profile
 

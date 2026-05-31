@@ -29,40 +29,11 @@ export const sendConnectReq = async (req: Request, res: Response) => {
 
     console.log("checking connection exists?")
     const connectionExists = await prismaClient.connect.findFirst({
-      where: {
-        OR: [
-          { senderId: receiverId, receiverId: userId },
-          { senderId: userId, receiverId: receiverId}
-        ]
-      }
+      where: { senderId: receiverId, receiverId: userId }
     })
     console.log("exists: "+connectionExists)
     if (connectionExists) {
       console.log("status: "+connectionExists.status)
-      // if (connectionExists?.status == 'Disconnected' || 'Rejected') {
-      //   console.log("connecting from dis")
-      //   const [updatedConnection, notification] = await prismaClient.$transaction([
-      //     prismaClient.connect.update({
-      //       where: {
-      //         senderId_receiverId: {
-      //           senderId: userId,
-      //           receiverId: receiverId
-      //         }
-      //       },
-      //       data: { status: 'Pending' }
-      //     }),
-      //     prismaClient.notifications.create({
-      //       data: {
-      //         userId: receiverId,
-      //         message: `Connection Request from ${sender.name}`
-      //       }
-      //     })
-      //   ])
-
-      //   await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
-
-      //   return res.json({ updatedConnection })
-      // }
       return res.status(409).json({ message: "You already have the connection request" })
     }
 
@@ -110,6 +81,10 @@ export const updateConnect = async (req: Request, res: Response) => {
     return res.status(403).json({ message: "Can't connect to youreslf" })
   }
 
+  if(status != 'Connected'){
+    return res.status(409).json({ message: "Cannot Connect" })
+  }
+
   try {
     const [sender, receiver] = await Promise.all([
       prismaClient.user.findUnique({ where: { id: userId } }),
@@ -128,11 +103,7 @@ export const updateConnect = async (req: Request, res: Response) => {
 
     const [updatedConnection, notification] = await prismaClient.$transaction([
       prismaClient.connect.updateMany({
-        where: {
-           OR: [
-          { senderId: receiverId, receiverId: userId },
-          { senderId: userId, receiverId: receiverId}
-        ]},
+        where: { senderId: receiverId, receiverId: userId },
         data: {
           status: status
         }
@@ -140,12 +111,11 @@ export const updateConnect = async (req: Request, res: Response) => {
       prismaClient.notifications.create({
         data: {
           userId: receiverId,
-          message: `${status=='Pending' ? `Connection Request from ${sender.name}` : `You are ${status} with ${sender.name}` }`
+          message: `You are connected with ${sender.name}` 
         }
       })
     ])
 
-    // accepted, disconnected, rejected notifications not coming
     await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
 
     return res.json({ updatedConnection })
@@ -237,8 +207,6 @@ export const withdrawConnect = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "There is no one to Connect" })
     }
 
-    // if sender!=userId:cant withdraw
-
     const [updatedConnection, notification] = await prismaClient.$transaction([
       prismaClient.connect.delete({
         where: {
@@ -259,15 +227,125 @@ export const withdrawConnect = async (req: Request, res: Response) => {
 
     await pubClient.publish(`notifications:${userId}`, JSON.stringify(notification.message))
 
-    return res.json({ updatedConnection })
+    return res.status(204).json({ updatedConnection })
   } catch (error: any) {
     console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })
   }
 }
 
+export const rejectConnect = async (req: Request, res: Response) => {
+  const userId = Number(req.userId);
+  // send body like this from fe
+  // {
+  // "requester_id": "123",
+  // "target_id": "456",
+  // "status": 'withdraw'
+  // }
+  const senderId = Number(req.body.receiver_id);
+  const status = req.body.status;
 
+  if (userId === senderId) {
+    return res.status(403).json({ message: "Can't connect to youreslf" })
+  }
 
+  try {
+    const [sender, receiver] = await Promise.all([
+      prismaClient.user.findUnique({ where: { id: senderId } }),
+      prismaClient.user.findUnique({ where: { id: userId } })
+    ])
+    if (!sender) {
+      return res.status(403).json({ message: "User" })
+    }
+    if (!receiver) {
+      return res.status(404).json({ message: "There is no one to Connect" })
+    }
+
+    if(status != 'Rejected'){
+      return res.status(409).json({ message: "Cannot Reject" })
+    }
+
+    const [updatedConnection, notification] = await prismaClient.$transaction([
+      prismaClient.connect.delete({
+        where: {
+          senderId_receiverId: {
+            senderId: senderId,
+            receiverId: userId
+          }
+        }
+      }),
+      prismaClient.notifications.create({
+        data: {
+          userId: userId,
+          message: `Your connect request to ${receiver.name} is Rejected`
+        }
+      })
+    ])
+
+    await pubClient.publish(`notifications:${senderId}`, JSON.stringify(notification.message))
+
+    return res.status(204)
+  } catch (error: any) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
+
+export const disconnect = async (req: Request, res: Response) => {
+  const userId = Number(req.userId);
+  // send body like this from fe
+  // {
+  // "requester_id": "123",
+  // "target_id": "456",
+  // "status": 'withdraw'
+  // }
+  const receiverId = Number(req.body.receiver_id);
+  const status = req.body.status;
+
+  if (userId === receiverId) {
+    return res.status(403).json({ message: "Can't connect to youreslf" })
+  }
+
+  try {
+    const [sender, receiver] = await Promise.all([
+      prismaClient.user.findUnique({ where: { id: userId } }),
+      prismaClient.user.findUnique({ where: { id: receiverId } })
+    ])
+    if (!sender) {
+      return res.status(403).json({ message: "User" })
+    }
+    if (!receiver) {
+      return res.status(404).json({ message: "There is no one to Connect" })
+    }
+
+    // if sender!=userId:cant withdraw
+
+    const [updatedConnection, notification] = await prismaClient.$transaction([
+      prismaClient.connect.deleteMany({
+        where: {
+          OR: [
+            { senderId: userId, receiverId: receiverId },
+            { senderId: receiverId, receiverId: userId }
+          ],
+          status: 'Connected'   
+        },
+      }),
+      prismaClient.notifications.create({
+        data: {
+          userId: userId,
+          message: `Your are Disconnected with ${sender.name} is withdrawn`
+        }
+      })
+    ])
+
+    await pubClient.publish(`notifications:${receiverId}`, JSON.stringify(notification.message))
+
+    return res.status(204)
+  } catch (error: any) {
+    console.log(error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
 
 
 
