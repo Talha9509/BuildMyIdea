@@ -23,6 +23,7 @@ wss.on('error', (error) => {
 wss.on('connection', async (socket: WebSocket, req) => {
   try {
     (socket as any).isAlive = true;
+    console.log("ponging "+userId)
     socket.on('pong', () => {
       (socket as any).isAlive = true;
     });
@@ -34,6 +35,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
     const decoded = jwt.verify(token, SECRET!)
     userId = (decoded as JwtPayload).userId;
     activeSockets.set(userId!, socket);
+    console.log("authorizing active sockets "+[...activeSockets.entries()])
 
   } catch (error) {
     console.log("Unauthorized WS connection attempt");
@@ -80,6 +82,7 @@ wss.on('connection', async (socket: WebSocket, req) => {
   socket.on('close', async () => {
     console.log(`user ${userId} disconnected`)
     activeSockets.delete(userId!);
+    console.log("closing active sockets "+[...activeSockets.entries()])
     await subClient.unsubscribe(`notifications:${userId}`)
   })
 
@@ -91,6 +94,7 @@ const interval = setInterval(() => {
     }
 
     (socket as any).isAlive = false;
+    console.log("pinging "+userId)
     socket.ping();
   });
 }, 25000);

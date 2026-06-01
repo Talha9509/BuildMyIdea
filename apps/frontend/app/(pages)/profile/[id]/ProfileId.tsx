@@ -34,7 +34,7 @@ export const ProfileId = (props:any) => {
     queryFn: fetchProfile,
     retry: false,
     staleTime: 15 * 1000,
-    gcTime: 60 * 1000
+    gcTime: 25 * 1000
   })
 
   const user = data?.user

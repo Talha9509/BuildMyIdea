@@ -39,7 +39,7 @@ export const SearchProfile = (props: any) => {
           <div className='mx-[6vw] text-4xl text-center font-semibold p-2 py-8 pb-4'>Results for {dataa}</div>
           <div className='mx-[8vw] flex gap-3 flex-wrap py-2 px-8'>
             {response && response.map((res:any) => (
-              <div key={res.id} onClick={()=>router.push(`profile/${res.id}`)} className='border p-4 rounded-2xl cursor-pointer bg-gray-900 min-w-[30%] max-w-[40%] hover:bg-gray-800'>
+              <div key={res.id} onClick={()=>router.push(`/profile/${res.id}`)} className='border p-4 rounded-2xl cursor-pointer bg-gray-900 min-w-[30%] max-w-[40%] hover:bg-gray-800'>
                 <div className='text-center text-2xl'>{res.username}</div>
                 <div className='text-center text-lg line-clamp-2'><span className='font-semibold'>Role: </span>{res.role=='OWNER' ? "Idea Creator" : "Developer"}</div>
                 {res.job && <div className='text-center text-lg line-clamp-2'><span className='font-semibold'>Job: </span>{res.job}</div>}

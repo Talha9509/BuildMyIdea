@@ -28,6 +28,7 @@ services:
       - TWITTER_CLIENT_ID=${TWITTER_CLIENT_ID}
       - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
       - REDIS_URL=${REDIS_URL}
+      - OPEN_API_KEY=${OPEN_API_KEY}
 
     depends_on:
       redis_service:
@@ -62,3 +63,16 @@ services:
       redis_service:
         condition: service_healthy
     
+  worker:
+    build: 
+      context: .
+      dockerfile: dpcker/Dockerfile.worker
+
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - OPEN_API_KEY=${OPEN_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+
+    depends_on:
+      redis_service:
+        condition: service_healthy

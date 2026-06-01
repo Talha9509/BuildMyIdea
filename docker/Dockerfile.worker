@@ -1,0 +1,21 @@
+FROM node:24-slim
+
+WORKDIR /app
+
+RUN apt-get update -y && apt-get install -y openssl
+
+RUN npm i -g pnpm
+
+COPY ./package.json ./package.json 
+COPY ./pnpm-lock.yaml ./pnpm-lock.yaml
+COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY ./turbo.json ./turbo.json
+
+COPY ./packages ./packages
+COPY ./apps/worker ./apps/worker
+
+RUN pnpm install --filter worker...
+RUN pnpm run db:generate
+RUN pnpm run build --filter worker...
+
+CMD [ "pnpm","run","start:worker" ]
