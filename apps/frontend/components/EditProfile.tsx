@@ -47,6 +47,9 @@ export const EditProfile = (props: any) => {
       method: `${props.method}`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, ...(props.method == 'PATCH' ? { body: JSON.stringify(formData) } : null)
     })
+    if(response==null){
+      throw new Error("error")
+    }
     return response
   }
 
@@ -55,6 +58,7 @@ export const EditProfile = (props: any) => {
       onSuccess: () => {
         setOnblur(false)
         queryClient.invalidateQueries({ queryKey: ['profile-me']})
+        console.log("response ok")
         toast.success("Profile Edited", { duration: 5000 });
       }
     })
