@@ -15,7 +15,7 @@ COPY ./packages ./packages
 COPY ./apps/ws ./apps/ws
 
 RUN pnpm install --filter ws...
-RUN pnpm db:generate
+RUN pnpm run db:generate
 RUN pnpm run build --filter ws... 
 
 EXPOSE 8080
