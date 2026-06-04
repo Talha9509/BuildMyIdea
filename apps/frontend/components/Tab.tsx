@@ -11,11 +11,11 @@ export const Tab = (props: any) => {
         <Link key={props.project.id} href={`/project/${props.project.id}`}>
           <div>
             <div className='flex flex-col gap-1 max-w-[30vw]'>
-              <div>Name: {props.project.name}</div>
-              <div className='line-clamp-2'>Description: {props.project.description}</div>
-              <div className='line-clamp-2'>Main Features: {props.project.mainFeature}</div>
-              <div className='line-clamp-1'>Refrence Link: {props.project.refrenceLink}</div>
-              <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
+              <div className='text-center text-2xl font-semibold pb-2'>{props.project.name}</div>
+              <div className='line-clamp-2'><span className='font-bold'>Main Features:</span> {props.project.mainFeature}</div>
+              <div className='line-clamp-2'><span className='font-bold'>Description:</span> {props.project.description}</div>
+              {props.project.refrenceLink && <div className='line-clamp-1'><span className='font-bold'>Refrence Link:</span> {props.project.refrenceLink}</div>}
+              {props.project.skillsreq && <div className='line-clamp-1'><span className='font-bold'>Skills Required:</span> {props.project.skillsreq}</div>}
             </div>
           </div>
         </Link>
@@ -36,11 +36,11 @@ export const Tab2 = (props: any) => {
         <Link key={props.project.id} href={`/project/${props.project.id}`}>
           <div>
             <div className='flex flex-col gap-1 '>
-              <div>Name: {props.project.name}</div>
-              <div className='line-clamp-2'>Description: {props.project.description}</div>
-              <div className='line-clamp-1'>Main Features: {props.project.mainFeature}</div>
-              <div className='line-clamp-1'>Refrence Link: {props.project.refrenceLink}</div>
-              <div className='line-clamp-1'>Skills Required: {props.project.skillsreq}</div>
+              <div className='text-center text-xl font-semibold'>{props.project.name}</div>
+              <div className='line-clamp-1'><span className='font-bold'>Main Features:</span> {props.project.mainFeature}</div>
+              <div className='line-clamp-2'><span className='font-bold'>Description:</span> {props.project.description}</div>
+              {props.project.refrenceLink && <div className='line-clamp-1'><span className='font-bold'>Refrence Link:</span> {props.project.refrenceLink}</div>}
+              {props.project.skillsreq && <div className='line-clamp-1'><span className='font-bold'>Skills Required:</span> {props.project.skillsreq}</div>}
             </div>
           </div>
         </Link>
