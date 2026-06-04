@@ -40,10 +40,10 @@ export const SearchProject = (props: any) => {
           <div className='mx-[6vw] text-4xl text-center font-semibold p-2 py-8 pb-4'>Results for {dataa}</div>
           <div className='mx-[8vw] flex gap-3 flex-wrap py-2 px-8'>
             {response && response.map((res:any) => (
-              <div key={res.id} onClick={()=>router.push(`/project/${res.id}`)} className='border p-4 rounded-2xl cursor-pointer bg-gray-900 max-w-[33%] hover:bg-gray-800'>
-                <div className='text-center text-2xl'>{res.name}</div>
-                <div className='text-center pb-2 text-lg line-clamp-2'>{res.mainFeature}</div>
-                <div className='line-clamp-4'>{res.description}</div>
+              <div key={res.id} onClick={()=>router.push(`/project/${res.id}`)} className='border p-4 rounded-2xl cursor-pointer bg-gray-900 max-w-[32%] hover:bg-gray-800'>
+                <div className='text-center text-2xl font-semibold pb-4'>{res.name}</div>
+                <div className='line-clamp-2'><span className='font-bold'>Main Features:</span> {res.mainFeature}</div>
+                <div className='line-clamp-4'><span className='font-bold'>Description:</span> {res.description}</div>
               </div>
             ))}
           </div>
