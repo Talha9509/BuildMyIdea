@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useGlobalWebSocket } from '@/hooks/useGlobalWebSocket'
 import { apiFetch } from '@/utils/Apifetch'
+import { format } from 'date-fns';
 
 export default function page() {
   const { socket } = useGlobalWebSocket();
@@ -99,6 +100,7 @@ export default function page() {
           <div key={msg.id} className={msg.receiverId == receiverId ? "text-right" : "text-left"}>
             <span className="inline-block px-2 py-1 rounded bg-gray-200">
               {msg.message}
+            <span className='text-[10px] pl-2'>{format(msg.createdAt, 'hh:mm a')}</span>
             </span>
           </div>
         ))}

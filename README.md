@@ -1,8 +1,12 @@
 
 # BuildMyIdea
-BuildMyIdea is a platform where users can post software/app ideas and developers can browse, submit solutions, and collaborate to build them.
+BuildMyIdea is a platform where users can post any AI, Software, App ideas and developers can browse, submit solutions, and collaborate to build them.
 
 ---
+
+## System architecture
+
+![Alt text](assets/architecture.png)
 
 ## Tech Stack
 
@@ -177,12 +181,10 @@ GITHUB_CLIENT_SECRET=
 
 ## Future Improvements
 
-* Chat / Messaging between Creator and Developer
 * Project Status Tracking
 * Reviews / Ratings
 * Team Collaboration
 * Payment / Escrow Support
-* AI Project Description Enhancement
 
 ---
 
