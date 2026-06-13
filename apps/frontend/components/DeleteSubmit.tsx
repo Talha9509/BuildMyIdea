@@ -24,7 +24,6 @@ export const DeleteSubmit = (props: any) => {
   }, [onblur])
 
   async function deleteSubmit() {
-    console.log("clicked")
     setOnblur(true)
   }
 

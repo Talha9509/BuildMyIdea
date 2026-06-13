@@ -8,7 +8,6 @@ export const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
         return res.status(401).json({ message:"Unauthorized" })
     }
     const decoded=jwt.verify(token,secret!)
-    console.log(decoded)
     if(!decoded){
         return res.status(401).json({ message:"Unauthorized" })
     }

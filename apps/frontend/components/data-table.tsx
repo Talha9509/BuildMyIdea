@@ -20,7 +20,7 @@ export function DataTable<TData extends Project, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-  const router=useRouter()
+  const router = useRouter()
 
   return (
     <div className="overflow-hidden  rounded-xl border border-white/10 bg-slate-950/90 shadow-[inset_1px_0_0_rgba(255,53,17,0.2),0_4px_10px_rgba(255,53,17,0.2)]">
@@ -28,11 +28,12 @@ export function DataTable<TData extends Project, TValue>({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              <TableHead className="w-[15%] text-white text-xl">Name</TableHead>
-              <TableHead className="w-[37%] text-white text-xl">Description</TableHead>
-              <TableHead className="w-[18%] text-white text-xl">Main Features</TableHead>
-              <TableHead className="w-[10%] text-white text-xl">Idea Creator</TableHead>
-              <TableHead className="w-[20%] text-white text-xl">Submissions</TableHead>
+              <TableHead className="lg:w-[15%] w-[20%] text-white lg:text-xl text-xs">Name</TableHead>
+              <TableHead className="lg:w-[37%] w-[40%] text-white lg:text-xl text-xs">Description</TableHead>
+              <TableHead className="lg:w-[18%] text-white lg:text-xl hidden lg:table-cell">Main Features</TableHead>
+              <TableHead className="lg:w-[10%] w-[15%] text-white lg:text-xl text-xs hidden lg:table-cell">Idea Creator</TableHead>
+              <TableHead className="lg:w-[10%] w-[15%] text-white lg:text-xl text-xs table-cell lg:hidden">Owner</TableHead>
+              <TableHead className="lg:w-[20%] w-[25%] text-white lg:text-xl text-xs">Submissions</TableHead>
             </TableRow>
           ))}
         </TableHeader>
@@ -42,14 +43,21 @@ export function DataTable<TData extends Project, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                onClick={()=>router.push(`/project/${row.original.id}`)}
+                onClick={() => router.push(`/project/${row.original.id}`)}
                 className="cursor-pointer"
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  if (cell.column.id === "mainFeature") {
+                    return <TableCell key={cell.id} className="hidden lg:table-cell">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  }
+                  return (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  )
+                })}
               </TableRow>
             ))
           ) : (

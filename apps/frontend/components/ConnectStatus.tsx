@@ -79,8 +79,8 @@ export const ConnectStatus = (props: any) => {
 
   if (!props.connection || props.connection == null || Object.keys(props.connection).length === 0 || !props.connection.status) {
     return (
-      <div className="p-3 flex gap-2">
-        <button onClick={() => { performConnectAction('connect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Connect</button>
+      <div className="lg:px-3 lg:py-3 py-2 flex gap-2">
+        <button onClick={() => { performConnectAction('connect') }} className="border px-1 lg:px-2 lg:py-1 lg:rounded-xl rounded-md bg-white text-black lg:text-base text-xs hover:bg-gray-300 cursor-pointer">Connect</button>
       </div>
     )
   }
@@ -88,7 +88,7 @@ export const ConnectStatus = (props: any) => {
     case 'Pending':
       if (props.connection.senderId == props.id) {
         return (
-          <div className="p-3 flex gap-2">
+          <div className="lg:px-3 lg:py-3 py-2 flex gap-2">
             <button onClick={() => { performConnectAction('accept') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Accept</button>
             <button onClick={() => { performConnectAction('reject') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Reject</button>
             <button onClick={() => { setBlur(true) }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Block</button>
@@ -112,10 +112,10 @@ export const ConnectStatus = (props: any) => {
       }
     case 'Connected':
       return (
-        <div className="p-3 flex gap-2">
-          <Link href={`/chat/${props.id}`} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300">Message</Link>
-          <button onClick={() => { performConnectAction('disconnect') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Disconnect</button>
-          <button onClick={() => { performConnectAction('block') }} className="border px-2 p-1 rounded-xl bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Block</button>
+        <div className="lg:px-3 lg:py-3 py-2 flex gap-2">
+          <Link href={`/chat/${props.id}`} className="border  px-1 lg:px-2 lg:py-1 lg:rounded-xl rounded-md bg-white text-black text-base hover:bg-gray-300">Message</Link>
+          <button onClick={() => { performConnectAction('disconnect') }} className="border px-1 lg:px-2 lg:py-1 lg:rounded-xl rounded-md bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Disconnect</button>
+          <button onClick={() => { performConnectAction('block') }} className="border px-1 lg:px-2 lg:py-1 lg:rounded-xl rounded-md bg-white text-black text-base hover:bg-gray-300 cursor-pointer">Block</button>
           {blur && <div className='h-screen w-screen  bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
               <div className='flex flex-col p-8  gap-2 bg-white rounded-2xl relative'>
                 <div className='text-2xl text-center p-4'>Are you sure you want to Block {props.name}?</div>

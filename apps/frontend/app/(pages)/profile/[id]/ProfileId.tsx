@@ -8,7 +8,6 @@ import { ConnectStatus } from '@/components/ConnectStatus'
 export const ProfileId = (props:any) => {
   console.log("myprofile")
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/profile/${props.id}`
-  console.log(url)
   async function fetchProfile() {
     const response = await fetch(url, {
       credentials: 'include'
@@ -42,14 +41,14 @@ export const ProfileId = (props:any) => {
   const connections = data?.connections
   return (
     <div>
-    {user && <div className='px-6'>
+    {user && <div className='lg:px-6 px-4'>
         <div className='flex justify-center items-center gap-6'>
-          <div className='text-center text-5xl py-2 px-10 font-semibold'>{user.username}</div>
+          <div className='text-center lg:text-5xl text-2xl lg:py-2 py-2 px-10 font-semibold'>{user.username}</div>
         </div>
-        <div className='flex justify-center items-center gap-6 text-xl'>
+        <div className='flex justify-center items-center lg:gap-6 gap-2 lg:text-xl text-xs'>
           <ConnectStatus connection={connections} id={props.id} name={user.name} />
         </div>
-        <div className='flex justify-center items-center gap-6 text-xl'>
+        <div className='flex lg:flex-row flex-col py-2 lg:py-0 justify-center items-center lg:gap-6 gap-1 lg:text-xl text-sm'>
           <div>Name: {user.name}</div>
           {user.job && user.job.trim() != "" ? <div>Job: {user.job}</div> : ""}
           <div>Role: {user.role == "DEV" ? `Developer` : `Idea Creator`}</div>
@@ -58,9 +57,9 @@ export const ProfileId = (props:any) => {
     
           {user.role === "OWNER" ? (
             user.owner?.projects?.length ? (
-              <div className='py-10'>
-                <div className='text-3xl py-4'>Projects</div>
-                <div className='flex flex-wrap gap-4'>
+              <div className='lg:py-10 py-4'>
+                <div className='lg:text-3xl text-xl py-4'>Projects</div>
+                <div className='flex flex-wrap lg:gap-4 gap-2'>
                   {user.owner.projects.map((project: any) => (
                     <Tab2 key={project.name} project={project} id={project.id} />
                   ))}
@@ -73,8 +72,8 @@ export const ProfileId = (props:any) => {
     
           {user.role === "DEV" ? (
             user.dev?.submissions?.length ? (
-              <div className='py-10'>
-                <div className='text-3xl py-4'>Submissions</div>
+              <div className='lg:py-10 py-4'>
+                <div className='lg:text-3xl text-xl py-4'>Submissions</div>
                 <div className='flex flex-wrap gap-4'>
                   {user.dev.submissions.map((submit: any) => (
                     <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} project={submit.project} stars={submit._count.stars} Profile={true} starGiven={submit.stars} id={submit.id}  />

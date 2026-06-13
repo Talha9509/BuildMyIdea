@@ -37,7 +37,6 @@ const AddProjSubmitForm = (props: any) => {
   }, [onblur])
 
   async function Add() {
-    console.log("clicked")
     setOnblur(true)
     if (props.project) {
       reset({
@@ -61,7 +60,6 @@ const AddProjSubmitForm = (props: any) => {
 
   async function onsubmit(data: any) {
     setOnLoading(true)
-    console.log(`${url}/api/v1/${props.to}`)
     const newUrl = props.project ? `${url}/api/v1/${props.to}` : `${url}/api/v1/${props.to}/${props.id}`
     const response = await apiFetch(`${newUrl}`, {
       method: `POST`, credentials: 'include',
@@ -81,7 +79,7 @@ const AddProjSubmitForm = (props: any) => {
     }
   }
   return (<div>
-    <button onClick={Add} className='flex gap-1 border px-2 py-1 cursor-pointer rounded-lg font-medium bg-gray-100 hover:bg-gray-300 text-black items-center'><div className=' text-black'><Image src={Plus} alt='Plus'></Image></div>{props.title}</button>
+    <button onClick={Add} className='flex gap-1 border lg:px-2 px-1 lg:py-1 cursor-pointer lg:rounded-lg rounded-sm lg:font-medium font-normal bg-gray-100 hover:bg-gray-300 text-black items-center lg:text-base text-xs'><div className=' text-black'><Image src={Plus} alt='Plus' className='lg:w-4 w-3'></Image></div>{props.title}</button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
@@ -100,18 +98,18 @@ const AddProjSubmitForm = (props: any) => {
                 {projectErrors?.name && <div className='text-sm px-2'>{projectErrors.name.message}</div>}
               </div>
 
-              <div><div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("description")} rows={3} placeholder='Describe the Project Procedure and Key Functionality' /></div></div>
+              <div><div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("description")} rows={3} placeholder='Describe the Project Procedure and Key Functionality' /></div></div>
                 {projectErrors?.description && <div className='text-sm px-2'>{projectErrors.description.message}</div>}
               </div>
 
-              <div><div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
+              <div><div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
                 {projectErrors?.mainFeature && <div className='text-sm px-2'>{projectErrors.mainFeature.message}</div>}
               </div>
 
-              <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
+              <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
               </div>
 
-              <div><div>Skills required <span className='text-xs text-gray-500'>(optional)</span><div><textarea className='border-black border-2 rounded-lg  px-2 py-1  focus:outline-none min-w-[25vw]' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
+              <div><div>Skills required <span className='text-xs text-gray-500'>(optional)</span><div><textarea className='border-black border-2 rounded-lg  px-2 py-1  focus:outline-none  w-full' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
                 {/* <div className='text-sm'>Write Skills with comma in between</div> */}
                 </div>
 

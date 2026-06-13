@@ -31,7 +31,6 @@ export const getChatsbyId = async (req: Request, res: Response) => {
         }
       }).then(res => !!res)
     ])
-    // console.log("status "+Connected)
     return res.json({ messageHistory, receiverName, Connected })
   } catch (error) {
     console.log(error)

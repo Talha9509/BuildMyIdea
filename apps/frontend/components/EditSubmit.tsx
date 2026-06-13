@@ -27,7 +27,6 @@ export const EditSubmit = (props: any) => {
   }, [onblur])
 
   async function Edit() {
-    console.log("clicked")
     setOnblur(true)
 
     reset({

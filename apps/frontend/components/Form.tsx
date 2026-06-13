@@ -10,7 +10,6 @@ const Form = (props: any) => {
   const router = useRouter()
   const [onLoading, setonLoading] = useState(false)
   const url = process.env.NEXT_PUBLIC_BACKEND_URL 
-  console.log(url)
   // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(UserSchema) })
 

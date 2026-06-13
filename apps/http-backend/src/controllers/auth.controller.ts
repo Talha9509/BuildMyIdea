@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken'
 const secret = process.env.JWT_SECRET!;
 
 export const signup = async (req: Request, res: Response) => {
-   console.log(`database url: ${process.env.DATABASE_URL}`)
     const input = req.body;
     const validatedInput = UserSchema.safeParse(input)
     if (!validatedInput.success) {
@@ -26,12 +25,11 @@ export const signup = async (req: Request, res: Response) => {
       })
   
       const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-      console.log(token)
   
       return res.status(201).cookie('jwt', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: 'lax',
+        sameSite: 'strict',
         maxAge: 72 * 60 * 60 * 1000
       }).json({ message: "Account created" })
     } catch (error:any) {
@@ -61,29 +59,25 @@ export const signin = async (req: Request, res: Response) => {
       }
       if (!user.password) {
         const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-        console.log(token)
   
         return res.status(200).cookie('jwt', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: 'lax',
+          sameSite: 'strict',
         }).json({ message: "Signed in" })
       }
       const pass = validatedInput.data.password
-      console.log(pass)
       const correct = await bcrypt.compare(pass, user.password)
-      console.log(correct)
       if (!correct) {
         return res.status(401).json({ message: "Incorrect Password" })
       }
   
       const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-      console.log(token)
   
       return res.status(200).cookie('jwt', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: 'lax',
+        sameSite: 'strict',
       }).json({ message: "Signed in" })
     } catch (error) {
       console.log(error)
@@ -92,11 +86,10 @@ export const signin = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  console.log(req.headers)
   res.clearCookie("jwt", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax"
+    sameSite: "strict"
   });
   return res.status(200).json({ message: 'Done ' });
 };

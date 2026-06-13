@@ -91,7 +91,6 @@ export const editProfile = async (req: Request, res: Response) => {
 }
 
 export const getMyProfile = async (req: Request, res: Response) => {
-  console.log(process.env.DATABASE_URL)
   const userId = req.userId
   // same profile will be shown to user and others. only difference is, user can edit his profile
   // for checking others profile, email and phone will only be visible when both are connected
@@ -139,7 +138,6 @@ export const getMyProfile = async (req: Request, res: Response) => {
       }
     })
     // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
-    console.log(user)
     return res.json({ message: "Done", user })
   } catch (error) {
     console.log(error)
@@ -219,7 +217,6 @@ export const getProfilebyId = async (req: Request, res: Response) => {
   })
   ])
   // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
-  console.log(user)
   return res.status(200).json({ message: "Done", user, connections })
 }
 

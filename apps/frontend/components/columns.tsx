@@ -30,7 +30,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         header: "Name",
         // header: () => <div className="w-[15%] text-center text-white text-2xl">Name</div>,
         cell: ({ row }) => (
-            <div className="line-clamp-2 text-base">
+            <div className="line-clamp-2 lg:text-base text-[8px]">
                 {row.original.name}
             </div>
         ),
@@ -40,7 +40,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         header: "Description",
         // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
         cell: ({ row }) => (
-            <div className="line-clamp-2 text-base">
+            <div className="line-clamp-2 lg:text-base text-[8px]">
                 {row.original.description}
             </div>
         ),
@@ -50,7 +50,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         header: "Imp",
         // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
         cell: ({ row }) => (
-            <div className="line-clamp-2 text-base">
+            <div className="line-clamp-2 lg:text-base text-[8px] hidden lg:table-cell">
                 {row.original.mainFeature}
             </div>
         ),
@@ -60,7 +60,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         header: "Owner",
         // header: () => <div className="size-10 text-center text-white text-2xl">Owner</div>,
         cell: ({ row }) => (
-            <div className="line-clamp-2 text-base">
+            <div className="line-clamp-2 lg:text-base text-[8px]">
                 {row.original.owner.user.name}
             </div>
         ),
@@ -73,7 +73,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         cell: ({ row }) => {
             const names = row.original.submits.map((s) => s.dev.user.name)
             return (
-                <div className="line-clamp-2 text-base">
+                <div className="line-clamp-2 lg:lg:text-base text-[8px]">
                     {names.join(", ")}
                 </div>
             )

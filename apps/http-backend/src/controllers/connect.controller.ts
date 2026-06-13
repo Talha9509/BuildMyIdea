@@ -27,7 +27,6 @@ export const sendConnectReq = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "There is no one to Connect" })
     }
 
-    console.log("checking connection exists?")
     const connectionExists = await prismaClient.connect.findFirst({
       where: { senderId: receiverId, receiverId: userId }
     })

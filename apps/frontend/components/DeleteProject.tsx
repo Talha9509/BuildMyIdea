@@ -24,7 +24,6 @@ export const DeleteProject = (props: any) => {
   }, [onblur])
 
   async function deleteProject() {
-    console.log("clicked")
     setOnblur(true)
   }
 
@@ -45,20 +44,20 @@ export const DeleteProject = (props: any) => {
   }
   return (<div>
     <button onClick={deleteProject} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
-      <Image src={Delete} width={15} alt='Delete'></Image>
+      <Image src={Delete} className='lg:w-4 w-3' alt='Delete'></Image>
     </div></button>
 
     {onblur && <div>
       <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
-        <div className='flex flex-col p-5 bg-white rounded-2xl relative border-2 border-black'>
+        <div className='flex flex-col lg:mx-0 mx-[3vw] lg:p-5 p-2 bg-white rounded-2xl relative border-2 border-black'>
           {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Deleting...</div>}
 
-          <div className='text-2xl text-center p-4'>Are you sure you want to delete? It will be removed permanently.</div>
+          <div className='lg:text-2xl text-xl text-center lg:p-4 p-3'>Are you sure you want to delete? It will be removed permanently.</div>
 
           <div className='flex gap-2  justify-end'>
-            <button onClick={onsubmit} className='border-[#c4192e] border rounded-lg p-3 py-2 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white text-xl transition duration-300 ease-in-out' >Delete
+            <button onClick={onsubmit} className='border-[#c4192e] border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white lg:text-xl text-sm transition duration-300 ease-in-out' >Delete
             </button>
-            <button onClick={() => setOnblur(false)} className='border-gray-500 border rounded-lg p-3 py-2 cursor-pointer bg-white hover:bg-gray-300 text-black text-xl transition duration-300 ease-in-out' >Cancel
+            <button onClick={() => setOnblur(false)} className='border-gray-500 border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-white hover:bg-gray-300 text-black lg:text-xl text-sm transition duration-300 ease-in-out' >Cancel
             </button>
           </div>
         </div>

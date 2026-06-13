@@ -7,6 +7,7 @@ import { signup, signin, logout } from '../controllers/auth.controller.js'
 const router:Router = express.Router();
 
 const signTokenAndRedirect = (req: any, res: any) => {
+  console.log(process.env.FRONTEND)
   const user = req.user as any;
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "72h" });
   res.status(201).cookie("jwt", token, {

@@ -56,6 +56,5 @@ app.post("/api/v1/connect", async (req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(process.env.DATABASE_URL)
   console.log("Listening on port: " + PORT)
 })

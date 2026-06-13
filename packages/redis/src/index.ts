@@ -3,7 +3,6 @@ import "dotenv/config";
 import IORedis from 'ioredis'
 import { Queue } from 'bullmq';
 
-console.log("redis url: "+process.env.REDIS_URL)
 const redisClient = createClient({
     url: process.env.REDIS_URL!
 })

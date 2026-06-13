@@ -28,7 +28,6 @@ export const EditProject = (props: any) => {
   }, [onblur])
 
   async function Edit() {
-    console.log("clicked")
     console.log(errors)
     setOnblur(true)
 
@@ -63,7 +62,7 @@ export const EditProject = (props: any) => {
   }
   return (<div>
     <button onClick={ Edit } className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
-      <Image src={edit} width={15} alt='Edit'></Image>
+      <Image src={edit} className='lg:w-4 w-3' alt='Edit'></Image>
       </div></button>
 
     {onblur &&
@@ -84,21 +83,21 @@ export const EditProject = (props: any) => {
               </div>
 
               <div>
-              <div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("description")} rows={3} /></div></div>
+              <div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none w-full' {...register("description")} rows={3} /></div></div>
               {errors.description && <div className='text-sm px-2'>{errors.description.message}</div>}
               </div>
 
               <div>
-                <div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
+                <div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none w-full' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
                 {errors?.mainFeature && <div className='text-sm px-2'>{errors.mainFeature.message}</div>}
               </div>
 
               <div>
-                <div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
+                <div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none w-full' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
               </div>
 
               <div>
-              <div>Skills required <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none min-w-[25vw]' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
+              <div>Skills required <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none w-full' {...register("skillsreq")} rows={1} placeholder='Enter Skills with comma in between' /></div></div>
               {/* <div className='text-sm'>Write Skills with comma in between</div> */}
               </div>
             </div>

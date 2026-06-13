@@ -57,7 +57,6 @@ export const createProject = async (req: Request, res: Response) => {
 };
 
 export const getProjects = async (req: Request, res: Response) => {
-  console.log(process.env.DATABASE_URL)
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
     select: {
@@ -92,10 +91,8 @@ export const updateProject = async (req: Request, res: Response) => {
   if (typeof userId != 'number') {
     return res.status(401).json({ message: "Unauthorized" })
   }
-  console.log(userId)
 
   const validated = updateProjectSchema.safeParse(body)
-  console.log(validated)
   if (!validated.success) {
     return res.status(400).json({ message: "Invalid Inputs" })
   }

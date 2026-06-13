@@ -30,7 +30,6 @@ export const EditProfile = (props: any) => {
   }, [onblur])
 
   async function Edit() {
-    console.log("clicked")
     setOnblur(true)
     reset({
       name: props.user.name || "",
@@ -68,7 +67,7 @@ export const EditProfile = (props: any) => {
     updateProfileMutation.mutate(data)
   }
   return (<div>
-    <button onClick={Edit} className='flex gap-1 border px-2  cursor-pointer rounded-lg  bg-gray-100 hover:bg-gray-300 text-black items-center'><div className=' text-black'><Image src={edit} height={15} alt='Plus'></Image></div>{props.title}</button>
+    <button onClick={Edit} className='flex gap-1 border lg:px-2 px-1 cursor-pointer lg:rounded-lg rounded-sm   bg-gray-100 hover:bg-gray-300 text-black items-center lg:font-medium font-normal lg:text-base text-xs'><div className=' text-black'><Image src={edit} alt='Plus' className='lg:w-4 w-3'></Image></div>{props.title}</button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
