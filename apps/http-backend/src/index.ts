@@ -29,7 +29,11 @@ const PORT = process.env.PORT || 3001
 
 const app = express()
 app.set('trust proxy', 1);
-const frontend=["http://localhost:3000","http://frontend:3000"]
+const prod = process.env.FRONTEND
+if(!prod){
+  throw Error("No frontend url")
+}
+const frontend=["http://localhost:3000","http://frontend:3000", prod]
 
 app.use(express.json())
 app.use(cors({
@@ -49,11 +53,6 @@ app.use("/api/v1/star", starRoutes);
 app.use("/api/v1/connect", connectRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/chats", chatRoutes);
-
-// next: not complted
-app.post("/api/v1/connect", async (req, res) => {
-  // connection between owner and dev
-})
 
 app.listen(PORT, () => {
   console.log("Listening on port: " + PORT)

@@ -30,7 +30,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <WebSocketProvider>
-        <div className='bg-gray-950 min-h-screen p-2'>
+        <div className='bg-gray-950 min-h-screen lg:p-2'>
           <Navbar2 />
           {children}
         </div>

@@ -1,10 +1,16 @@
 
 import {z} from 'zod'
 
-export const UserSchema=z.object({
+export const SignupSchema=z.object({
     email:z.string().regex(/@/,"Invalid Email"),
     password:z.string().min(6,"Password must be atleast 6 characters"),
     username:z.string().min(3,"Username Required")
+})
+
+export const SigninSchema=z.object({
+    email:z.string().regex(/@/,"Invalid Email"),
+    password:z.string().min(6,"Password must be atleast 6 characters"),
+    username:z.string().optional()
 })
 
 export const ProjectSchema=z.object({

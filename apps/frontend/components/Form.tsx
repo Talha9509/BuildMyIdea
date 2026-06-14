@@ -1,7 +1,7 @@
 "use client"
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
-import { UserSchema } from '@repo/common/types'
+import { SigninSchema, SignupSchema } from '@repo/common/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '../utils/Apifetch'
@@ -10,13 +10,12 @@ const Form = (props: any) => {
   const router = useRouter()
   const [onLoading, setonLoading] = useState(false)
   const url = process.env.NEXT_PUBLIC_BACKEND_URL 
-  // const url = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
-  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(UserSchema) })
+  const schema = props.method === 'signin' ? SigninSchema : SignupSchema ;
+  const { register, handleSubmit, formState: { errors } } = useForm({ resolver: zodResolver(schema) })
 
   async function onSubmit(data: any) {
     setonLoading(true)
     try {
-      console.log(`${url}/api/v1/${props.method}`)
       const response = await apiFetch(`${url}/auth/v1/${props.method}`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)

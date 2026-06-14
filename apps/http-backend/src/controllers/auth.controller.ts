@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient } from "@repo/db/client";
-import { UserSchema } from "@repo/common/types";
+import { SigninSchema, SignupSchema } from "@repo/common/types";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
@@ -8,7 +8,7 @@ const secret = process.env.JWT_SECRET!;
 
 export const signup = async (req: Request, res: Response) => {
     const input = req.body;
-    const validatedInput = UserSchema.safeParse(input)
+    const validatedInput = SignupSchema.safeParse(input)
     if (!validatedInput.success) {
       return res.status(400).json({ message: "Invalid inputs" })
     }
@@ -43,7 +43,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const signin = async (req: Request, res: Response) => {
    const input = req.body;
-    const validatedInput = UserSchema.safeParse(input)
+    const validatedInput = SigninSchema.safeParse(input)
     if (!validatedInput.success) {
       return res.status(400).json({ message: "Invalid inputs" })
     }

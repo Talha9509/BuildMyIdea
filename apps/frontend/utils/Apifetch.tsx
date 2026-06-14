@@ -6,6 +6,7 @@ export async function apiFetch(url: string, options: any) {
     const data=await response.json()
     if(!response.ok ){
       toast.error(data.message,{duration:7000})
+      throw new Error("Error while fetching")
       return
     }
     console.log(data)

@@ -187,7 +187,6 @@ export const deleteProject = async (req: Request, res: Response) => {
       return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
     }
     return res.status(200).json({ message: "Done", deleted })
-    // return res.status(204).send()
   } catch (error: any) {
     if (error.code == 'P2002') {
       return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })

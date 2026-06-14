@@ -14,16 +14,16 @@ if (!SECRET) {
 export const activeSockets = new Map<number, WebSocket>();
 
 await connectRedis()
-let userId: number | null = null
 
 wss.on('error', (error) => {
   console.log(error)
 })
 
 wss.on('connection', async (socket: WebSocket, req) => {
+  let userId: number;
   try {
     (socket as any).isAlive = true;
-    console.log("ponging "+userId)
+    console.log("ponging ")
     socket.on('pong', () => {
       (socket as any).isAlive = true;
     });
@@ -94,7 +94,7 @@ const interval = setInterval(() => {
     }
 
     (socket as any).isAlive = false;
-    console.log("pinging "+userId)
+    console.log("pinging "+ [...activeSockets.entries()])
     socket.ping();
   });
 }, 25000);

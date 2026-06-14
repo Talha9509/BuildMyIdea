@@ -107,7 +107,7 @@ export const updateConnect = async (req: Request, res: Response) => {
 
     const [updatedConnection, notification] = await prismaClient.$transaction([
       prismaClient.connect.updateMany({
-        where: { senderId: senderId, receiverId: userId },
+        where: { senderId: senderId, receiverId: userId, status: 'Pending' },
         data: {
           status: status
         }
