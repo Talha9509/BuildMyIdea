@@ -46,30 +46,30 @@ export const AddRemoveStar = (props:any) => {
 
   return(
     <div>
-      <button onClick={popup} className='flex gap-1 cursor-pointer bg-gray-900 hover:bg-gray-800  p-1 px-2 rounded-sm'>
+      <button onClick={popup} className='flex gap-1 cursor-pointer bg-gray-900 hover:bg-gray-800  lg:py-1 lg:px-2 px-1 py-1 rounded-sm'>
         {(props.starGiven && props.starGiven.length == 0) ?
-          <Image src={nostar} alt='No Star' />
+          <Image src={nostar} alt='No Star' className='lg:w-4 w-3' />
           :
-          <Image src={star} alt='Star'  />
+          <Image src={star} alt='Star' className='lg:w-4 w-3' />
         }
-      <div className='text-sm'>{props.stars}</div>
+      <div className='lg:text-sm text-xs'>{props.stars}</div>
       </button>
 
       {onblur && <div>
       <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
-        <div className='flex flex-col p-5 bg-white rounded-2xl relative border-2 border-black'>
+        <div className='flex flex-col lg:mx-0 mx-[3vw] lg:p-5 p-2 bg-white rounded-2xl relative border-2 border-black'>
           {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>}
 
           {props.starGiven == 0 ? <div className='text-2xl text-center p-4'>Are you sure you want to Add Star to the Submission?</div>
           :
-          <div className='text-2xl text-center p-4'>Are you sure you want to Remove Star from the Submission?</div>}
+          <div className='lg:text-2xl text-xl text-center lg:p-4 p-3'>Are you sure you want to Remove Star from the Submission?</div>}
 
           <div className='flex gap-2  justify-end'>
-            {props.starGiven == 0 ? <button onClick={AddRemove} className='border-black border rounded-lg p-2 py-1 cursor-pointer bg-gray-800 hover:bg-gray-950 text-white text-lg transition duration-300 ease-in-out' >Add Star
+            {props.starGiven == 0 ? <button onClick={AddRemove} className='border-black border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-gray-800 hover:bg-gray-950 text-white lg:text-xl text-sm transition duration-300 ease-in-out' >Add Star
             </button> :
             <button onClick={AddRemove} className='border-[#c4192e] border rounded-lg p-2 py-1 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white text-lg transition duration-300 ease-in-out' >Delete Star
             </button> }
-            <button onClick={() => setOnblur(false)} className='border-gray-500 border rounded-lg p-2 py-1 cursor-pointer bg-white hover:bg-gray-300 text-black text-lg transition duration-300 ease-in-out' >Cancel
+            <button onClick={() => setOnblur(false)} className='border-gray-500 border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-white hover:bg-gray-300 text-black lg:text-xl text-sm transition duration-300 ease-in-out' >Cancel
             </button>
           </div>
         </div>

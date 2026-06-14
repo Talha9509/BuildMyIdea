@@ -57,13 +57,13 @@ export const EditSubmit = (props: any) => {
   }
   return (<div>
     <button onClick={Edit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-white items-center'><div className=' text-black'>
-      <Image src={edit} width={15} alt='Edit'></Image>
+      <Image src={edit} className='lg:w-4 w-3' alt='Edit'></Image>
     </div></button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
         <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black '>
-          <div className='flex flex-col p-8 gap-2 bg-white rounded-2xl  relative'>
+          <div className='flex flex-col lg:p-8 p-3 lg:mx-0 mx-[3vw] gap-2 bg-white rounded-2xl  relative'>
 
             <div className='relative'>
               <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
