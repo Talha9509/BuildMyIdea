@@ -50,7 +50,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         header: "Imp",
         // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
         cell: ({ row }) => (
-            <div className="line-clamp-2 lg:text-base text-[8px] hidden lg:table-cell">
+            <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
                 {row.original.mainFeature}
             </div>
         ),

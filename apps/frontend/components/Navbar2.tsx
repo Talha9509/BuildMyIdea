@@ -75,7 +75,7 @@ const Navbar2 = () => {
     <div>
       <div className='flex justify-around lg:min-h-[10vh] min-h-[5vh] items-center'>
         <Link href={"/"}>
-          <div className='text-xl lg:text:3xl font-bold font-mono'><span className='text-[#d4d3d3]'>BuildMy</span><span className='text-[#FF3511]'>Idea</span></div>
+          <div className='text-xl lg:text-3xl font-bold font-mono'><span className='text-[#d4d3d3]'>BuildMy</span><span className='text-[#FF3511]'>Idea</span></div>
         </Link>
         <div className='flex lg:gap-2 gap-1 items-center'>
           <div className="relative">

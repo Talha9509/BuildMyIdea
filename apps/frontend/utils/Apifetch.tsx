@@ -4,7 +4,7 @@ export async function apiFetch(url: string, options: any) {
   try {
     const response = await fetch(url, options);
     const data=await response.json()
-    if(!response.ok ){
+    if(!response.ok){
       toast.error(data.message,{duration:7000})
       throw new Error("Error while fetching")
       return
@@ -14,6 +14,7 @@ export async function apiFetch(url: string, options: any) {
 
   } catch (error) {
     console.log(error)
+    throw error
   }
 }
 
