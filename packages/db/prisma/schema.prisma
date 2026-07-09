@@ -61,7 +61,7 @@ model Dev{
   id            Int       @id @default(autoincrement())
   userId        Int       @unique
   user          User      @relation(fields: [userId], references: [id])
-  submissions   Submit[]
+  contributions SubmissionContributor[]
 }
 
 model Project{
@@ -82,12 +82,22 @@ model Submit{
   id            Int            @id @default(autoincrement())
   projectId     Int
   project       Project        @relation(fields: [projectId],references: [id])
-  devId         Int
-  dev           Dev            @relation(fields: [devId],references: [id])
   liveLink      String         
   repoLink      String         @unique
-  @@unique([projectId, devId])
   stars         Stars[]
+  NoofContributors   Int     @default(1)
+  contributors    SubmissionContributor[]    
+}
+
+model SubmissionContributor {
+  submitId             Int
+  submission          Submit        @relation(fields: [submitId],references: [id], onDelete: Cascade)
+  devId                Int
+  dev                  Dev            @relation(fields: [devId],references: [id], onDelete: Cascade)
+  contributionPercent  Int
+  projectId            Int
+  @@unique([projectId, devId])
+  @@id([submitId, devId])
 }
 
 model Stars {
