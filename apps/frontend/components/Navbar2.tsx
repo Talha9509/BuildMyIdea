@@ -31,9 +31,8 @@ const Navbar2 = () => {
     //   // setNotifications(notify)
     // }
     // return {notifications: response.notifications}
-    console.log(response)
     const notificationss = response.notifications
-    console.log("notifications " + JSON.stringify(notificationss))
+    // console.log("notifications " + JSON.stringify(notificationss))
     return notificationss
   }
 

@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query"
 import Navbar from '../../../../components/Navbar2'
 import { Card } from '../../../../components/Card'
-import AddSubmit from '../../../../components/AddProjSubmitForm'
+import AddSubmit from '@/components/AddSubmitForm'
 import Link from 'next/link'
 
 export const ProjectId = (props: any) => {
@@ -18,7 +18,7 @@ export const ProjectId = (props: any) => {
       throw error
     }
     const data = await response.json()
-    console.log(data)
+    console.log(data.project.submits)
     return data
   }
 
@@ -63,13 +63,14 @@ export const ProjectId = (props: any) => {
         <div className='lg:py-10 lg:px-4 py-6'>
           <div className='flex   lg:gap-[70vw] gap-[20vw] items-center lg:mx-0 mx-[6vw] '>
             <div className='lg:text-2xl text-lg'>Submissions</div>
-            <div><AddSubmit title={"Add Submission"} project={false} to={'submit'} id={props.id} /></div>
+            <div><AddSubmit id={props.id} /></div>
+            {/* <div><AddSubmit title={"Add Submission"} project={false} to={'submit'} id={props.id} /></div> */}
           </div>
 
           <div className='flex flex-wrap lg:py-12 py-4 gap-2'>
             {data.project.submits.length > 0 ? data.project.submits.map((s: any, id: any) => {
               return (
-                <Card key={id} repo={s.repoLink} live={s.liveLink} devName={s.dev.user.name} devId={s.dev.user.id} stars={s._count.stars} starGiven={s.stars} id={s.id} projectId={data.project.id} />
+                <Card key={id} repo={s.repoLink} live={s.liveLink} contributors={s.contributors ?? []} stars={s._count?.stars ?? 0} starGiven={s.stars ?? []} id={s.id} projectId={data.project.id} />
               )
             }) : <div className='py-8 text-center lg:text-xl text-lg mx-auto'>No Submissions</div>}
           </div>

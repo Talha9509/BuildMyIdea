@@ -33,15 +33,15 @@ export const createProject = async (req: Request, res: Response) => {
 
     const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
     console.log(inputforAi)
-    
+
     await embeddingQueue.add('generate-embeddings', {
       projectId: project.id,
       inputforAi: inputforAi
-    },{
+    }, {
       attempts: 3,
-      backoff: { type: 'exponential', delay: 5000}
+      backoff: { type: 'exponential', delay: 5000 }
     })
-    
+
     return res.status(201).json({ message: "Done", project });
 
   } catch (err: any) {
@@ -70,10 +70,14 @@ export const getProjects = async (req: Request, res: Response) => {
       },
       submits: {
         select: {
-          dev: {
+          contributors: {
             select: {
-              user: {
-                select: { name: true }
+              dev: {
+                select: {
+                  user: {
+                    select: { name: true }
+                  }
+                }
               }
             }
           }
@@ -126,13 +130,13 @@ export const updateProject = async (req: Request, res: Response) => {
 
     const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
     console.log(inputforAi)
-    
+
     await embeddingQueue.add('generate-embeddings', {
       projectId: project.id,
       inputforAi: inputforAi
-    },{
+    }, {
       attempts: 3,
-      backoff: { type: 'exponential', delay: 5000}
+      backoff: { type: 'exponential', delay: 5000 }
     })
 
     console.log("project: ", project)
@@ -228,11 +232,15 @@ export const getProjectbyId = async (req: Request, res: Response) => {
               userId: userId
             }
           },
-          dev: {
+          contributors: {
             select: {
-              user: {
+              dev: {
                 select: {
-                  name: true, id: true
+                  user: {
+                    select: {
+                      name: true, id: true
+                    }
+                  }
                 }
               }
             }

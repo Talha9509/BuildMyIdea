@@ -42,7 +42,7 @@ export const editProfile = async (req: Request, res: Response) => {
     }
     if (currentRole === "DEV" && user.dev) {
       // check if he has submits. as submit.count
-      const hasSubmits = await prismaClient.submit.count({
+      const hasSubmits = await prismaClient.submissionContributor.count({
         where: { devId: user.dev?.id }
       })
       if (hasSubmits > 0) {
@@ -82,7 +82,7 @@ export const editProfile = async (req: Request, res: Response) => {
     })
     return res.status(200).json({ message: "Profile Updated", role: result?.role })
   } catch (error: any) {
-    if(error.code == 'P2002'){
+    if (error.code == 'P2002') {
       return res.status(409).json({ message: "That username is already in use. Please enter a unique username" })
     }
     console.log(error)
@@ -119,17 +119,21 @@ export const getMyProfile = async (req: Request, res: Response) => {
         },
         dev: {
           select: {
-            submissions: {
+            contributions: {
               select: {
-                repoLink: true, liveLink: true, id: true,
-                _count: {
-                  select: { stars: true }
-                },
-                stars: {
-                  where: { userId: userId }
-                },
-                project: {
-                  select: { name: true, id: true }
+                submission: {
+                  select: {
+                    repoLink: true, liveLink: true, id: true,
+                    _count: {
+                      select: { stars: true }
+                    },
+                    stars: {
+                      where: { userId: userId }
+                    },
+                    project: {
+                      select: { name: true, id: true }
+                    }
+                  }
                 }
               }
             }
@@ -151,70 +155,74 @@ export const getProfilebyId = async (req: Request, res: Response) => {
   // same profile will be shown to user and others. only difference is, user can edit his profile
   // for checking others profile, email and phone will only be visible when both are connected
 
-  const [user,connections] = await Promise.all([
+  const [user, connections] = await Promise.all([
     prismaClient.user.findUnique({
-    relationLoadStrategy: 'join',
-    where: { id: id },
-    select: {
-      name: true, job: true, role: true, username: true,
-      _count: {
-        select: {
-          senders: {
-            where: {
-              status: 'Connected',
-            }
-          },
-          receivers: {
-            where: {
-              status: 'Connected'
-            }
-          }
-        }
-      },
-      owner: {
-        select: {
-          projects: {
-            select: {
-              name: true, description: true, skillsreq: true, id: true, mainFeature: true
+      relationLoadStrategy: 'join',
+      where: { id: id },
+      select: {
+        name: true, job: true, role: true, username: true,
+        _count: {
+          select: {
+            senders: {
+              where: {
+                status: 'Connected',
+              }
+            },
+            receivers: {
+              where: {
+                status: 'Connected'
+              }
             }
           }
-        }
-      },
-      dev: {
-        select: {
-          submissions: {
-            select: {
-              repoLink: true, liveLink: true, id: true,
-              _count: {
-                select: {
-                  stars: true
-                }
-              },
-              project: {
-                select: {
-                  id: true, name: true
-                }
-              },
-              stars: {
-                where: {
-                  userId: userId,
+        },
+        owner: {
+          select: {
+            projects: {
+              select: {
+                name: true, description: true, skillsreq: true, id: true, mainFeature: true
+              }
+            }
+          }
+        },
+        dev: {
+          select: {
+            contributions: {
+              select: {
+                submission: {
+                  select: {
+                    repoLink: true, liveLink: true, id: true,
+                    _count: {
+                      select: {
+                        stars: true
+                      }
+                    },
+                    project: {
+                      select: {
+                        id: true, name: true
+                      }
+                    },
+                    stars: {
+                      where: {
+                        userId: userId,
+                      }
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  }),
-  prismaClient.connect.findFirst({
-    where: {
-      OR: [
-        { senderId: userId, receiverId: id },
-        { senderId: id, receiverId: userId }
-      ]
-    }, 
-    select: { status: true, senderId: true }
-  })
+    }),
+    prismaClient.connect.findFirst({
+      where: {
+        OR: [
+          { senderId: userId, receiverId: id },
+          { senderId: id, receiverId: userId }
+        ]
+      },
+      select: { status: true, senderId: true }
+    })
   ])
   // in profile, i also want the profile's projects, if owner, then owner/posted projects and vice versa
   return res.status(200).json({ message: "Done", user, connections })

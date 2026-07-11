@@ -15,11 +15,13 @@ export type Project = {
         }
     }
     submits: [{
-        dev: {
-            user: {
-                name: string
+        contributors: [{
+            dev: {
+                user: {
+                    name: string
+                }
             }
-        }
+        }]
     }]
 }
 
@@ -67,11 +69,11 @@ export const ProjectColumns: ColumnDef<Project>[] = [
     },
     {
         accessorFn: (row) =>
-            row.submits.map((s) => s.dev.user.name),
+            row.submits.map((s) => s.contributors.map((a) => a.dev.user.name)),
         header: "Submissions",
         // header: () => <div className="w-[15%] text-center text-white text-2xl">Name</div>,
         cell: ({ row }) => {
-            const names = row.original.submits.map((s) => s.dev.user.name)
+            const names = row.original.submits.map((s) => s.contributors.map((a) => a.dev.user.name))
             return (
                 <div className="line-clamp-2 lg:lg:text-base text-[8px]">
                     {names.join(", ")}

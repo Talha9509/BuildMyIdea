@@ -3,63 +3,141 @@ import { prismaClient } from "@repo/db/client";
 import { submitSchema, updateSubmitSchema } from "@repo/common/types";
 
 export const createSubmit = async (req: Request, res: Response) => {
-  // the dev will post the code repo link of github
-    const userId = req.userId
-    const projectId = parseInt(req.params.id as string)
-  
-    if (typeof userId != 'number') {
-      return res.status(401).json({ message: "Unauthorized" })
+  const userId = req.userId
+  const projectId = parseInt(req.params.id as string)
+
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  console.log(userId)
+
+  const validated = submitSchema.safeParse(req.body)
+  console.log(validated)
+  if (!validated.success) {
+    return res.status(400).json({ message: "Invalid Inputs" })
+  }
+
+
+  // {
+  //   "liveLink": "https://awesome-project.vercel.app",
+  //     "repoLink": "https://github.com/alice/awesome-project",
+  //       "noofContributors": 3,
+  //         "items": [
+  //           {
+  //             "username": "AliceSmith",
+  //             "contribution": 40
+  //           },
+  //           {
+  //             "username": "BobJones",
+  //             "contribution": 35
+  //           },
+  //           {
+  //             "username": "CharlieDev",
+  //             "contribution": 25
+  //           }
+  //         ]
+  // }
+
+  try {
+    const [dev, project] = await Promise.all([
+      prismaClient.dev.findUnique({ where: { userId: userId } }),
+      prismaClient.project.findUnique({ where: { id: projectId } })
+    ])
+    console.log(dev)
+    if (!dev) {
+      return res.status(403).json({ message: "Only Developers are allowed for Submissions" })
     }
-    console.log(userId)
-  
-    const validated = submitSchema.safeParse(req.body)
-    console.log(validated)
-    if (!validated.success) {
-      return res.status(400).json({ message: "Invalid Inputs" })
+    if (!project) {
+      return res.status(404).json({ message: "Project Not Found" })
     }
-  
-    try {
-      const [dev,project]=await Promise.all([
-        prismaClient.dev.findUnique({ where: { userId: userId } }),
-        prismaClient.project.findUnique({ where: { id: projectId } })
-      ])
-      console.log(dev)
-      if (!dev) {
-        return res.status(403).json({ message: "Only Developers are allowed for Submissions" })
+
+    let contributorsData: any[] = [];
+    const isTeam = validated.data.items && validated.data.items.length > 0;
+
+    if (!isTeam) {
+      contributorsData.push({
+        devId: dev.id,
+        projectId: projectId,
+        contributionPercent: 100
+      });
+    } else {
+      const usernames = validated.data.items.map(item => item.username);
+
+      const teamDevs = await prismaClient.dev.findMany({
+        where: { user: { username: { in: usernames } } },
+        include: { user: true }
+      });
+
+      if (teamDevs.length !== usernames.length) {
+        const foundUsernames = teamDevs.map(td => td.user.username);
+        const missing = usernames.filter(un => !foundUsernames.includes(un));
+        return res.status(404).json({ message: `Devs not found: ${missing.join(', ')}` });
       }
-      if (!project) {
-        return res.status(404).json({ message: "Project Not Found" })
+
+      const isSubmitterInTeam = teamDevs.some(td => td.id === dev.id);
+      if (!isSubmitterInTeam) {
+        return res.status(403).json({ message: "You cannot submit a team project without including yourself." });
       }
-  
-      const submit = await prismaClient.submit.create({
-        data: {
-          repoLink: validated.data.repoLink,
-          liveLink: validated.data.liveLink,
-          devId: dev.id,
-          projectId: projectId
-        }
-      })
-      if (!submit) {
-        return res.status(409).json({ mesage: "Submission already exists" })
+
+      contributorsData = validated.data.items.map(item => {
+        const matchedDev = teamDevs.find(td => td.user.username === item.username)!;
+        return {
+          devId: matchedDev.id,
+          projectId: projectId,
+          contributionPercent: item.contribution
+        };
+      });
+    }
+
+    const submit = await prismaClient.submit.create({
+      data: {
+        repoLink: validated.data.repoLink,
+        liveLink: validated.data.liveLink,
+        projectId: projectId,
+        NoofContributors: validated.data.noofContributors || 1, 
+        contributors: { create: contributorsData }
       }
-      return res.status(201).json({ message: "Done", submit })
-    } catch (error:any) {
-      if(error.code==='P2002'){
-        console.log("meta "+JSON.stringify(error.meta))
-  
-        const cause=error.meta.driverAdapterError.cause
-        console.log(cause)
-  
-        if(cause.originalMessage.includes('projectId') && cause.originalMessage.includes('devId')){
-          return res.status(409).json({ message: "You already submitted to this project" })
-        }
-        if(cause.originalMessage.includes('repoLink')){
-          return res.status(403).json({ message: "Repo Link can't be same" })
-        }
-      }
+    })
+
+    // option of contribution percentage has to be given then change it, and in edit submit also
+    // and also check delete submit
+    // const submit = await prismaClient.submit.create({
+    //   data: {
+    //     repoLink: validated.data.repoLink,
+    //     liveLink: validated.data.liveLink,
+    //     projectId: projectId,
+    //     contributors: {
+    //       create: {
+    //         devId: dev.id,
+    //         contributionPercent: 100,
+    //         projectId: projectId
+    //       }
+    //     }
+    //   }
+    // })
+    if (!submit) {
+      return res.status(409).json({ mesage: "Submission already exists" })
+    }
+    return res.status(201).json({ message: "Done", submit })
+  } catch (error: any) {
+    if (error.code === 'P2002') {
       console.log(error)
-      return res.status(500).json({ message: "Internal server Error" })
+      // if in team, a dev has already contributed. but another dev is adding that devs name then that error.
+      console.log("meta " + JSON.stringify(error.meta))
+
+      const cause = error.meta.driverAdapterError.cause
+      console.log(cause)
+
+      if (cause.originalMessage.includes('projectId') && cause.originalMessage.includes('devId')) {
+        return res.status(409).json({ message: "You already submitted to this project" })
+      }
+      if (cause.originalMessage.includes('repoLink')) {
+        return res.status(403).json({ message: "Repo Link can't be same" })
+      }
     }
+    console.log(error)
+    return res.status(500).json({ message: "Internal server Error" })
+  }
 };
 
 export const updateSubmit = async (req: Request, res: Response) => {
@@ -91,7 +169,7 @@ export const updateSubmit = async (req: Request, res: Response) => {
     }
 
     const submit = await prismaClient.submit.update({
-      where: { id: submitId, devId: dev.id },
+      where: { id: submitId, contributors: { some: { devId: dev.id } } },
       data: validated.data
     })
     if (!submit) {
@@ -99,8 +177,8 @@ export const updateSubmit = async (req: Request, res: Response) => {
     }
     // either submission dont exist or you are not the owner of submission
     return res.json({ message: "Done", submit })
-  } catch (error:any) {
-    if(error.code==='P2002'){
+  } catch (error: any) {
+    if (error.code === 'P2002') {
       return res.status(403).json({ message: "Repo Link can't be same" })
     }
     console.log(error)
@@ -126,14 +204,14 @@ export const deleteSubmit = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Idea Creators not allowed to Delete" })
     }
     const submit = await prismaClient.submit.delete({
-      where: { id: submitId, devId: dev.id }
+      where: { id: submitId, contributors: { some: { devId: dev.id } } }
     })
     if (!submit) {
       res.status(404).json({ message: "Not Allowed to Delete others Submission" })
     }
     return res.json({ message: "Done", submit })
   } catch (error: any) {
-    if(error.code=='P2003'){
+    if (error.code == 'P2003') {
       return res.status(409).json({ message: "Can't Delete a Submission with Stars" })
     }
     console.log(error)

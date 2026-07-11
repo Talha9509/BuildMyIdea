@@ -1,24 +1,18 @@
 "use client"
-import { useForm, FieldErrors } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ProjectSchema, submitSchema } from '@repo/common/types'
+import { ProjectSchema } from '@repo/common/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
 import Image from 'next/image'
 import Plus from '../public/plus.svg'
 import Cross from '../public/cross.svg'
 import { toast } from 'sonner'
 import { apiFetch } from '../utils/Apifetch'
 
-type ProjectFormType = z.infer<typeof ProjectSchema>
-type SubmitFormType = z.infer<typeof submitSchema>
-type FormType = ProjectFormType | SubmitFormType
-
-const AddProjSubmitForm = (props: any) => {
-  const schema = props.project ? ProjectSchema : submitSchema
+const AddProjectForm = () => {
   const router = useRouter()
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormType>({ resolver: zodResolver(schema), defaultValues: props.project ? { name: "", description: "", mainFeature:"" } : { liveLink: "", repoLink: "" } })
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({ resolver: zodResolver(ProjectSchema), defaultValues: { name: "", description: "", mainFeature:"" } })
 
   const [onLoading, setOnLoading] = useState(false)
   const [onblur, setOnblur] = useState(false)
@@ -38,7 +32,6 @@ const AddProjSubmitForm = (props: any) => {
 
   async function Add() {
     setOnblur(true)
-    if (props.project) {
       reset({
         name: "",
         description: "",
@@ -46,21 +39,12 @@ const AddProjSubmitForm = (props: any) => {
         mainFeature:"",
         refrenceLink:undefined
       })
-    } else {
-      reset({
-        liveLink: "",
-        repoLink: ""
-      })
-    }
+    
   }
-
-  const projectErrors = props.project ? (errors as FieldErrors<ProjectFormType>) : null
-  // console.log(projectErrors)
-  const submitErrors = !props.project ? (errors as FieldErrors<SubmitFormType>) : null
 
   async function onsubmit(data: any) {
     setOnLoading(true)
-    const newUrl = props.project ? `${url}/api/v1/${props.to}` : `${url}/api/v1/${props.to}/${props.id}`
+    const newUrl = `${url}/api/v1/projects` 
     const response = await apiFetch(`${newUrl}`, {
       method: `POST`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
@@ -71,15 +55,11 @@ const AddProjSubmitForm = (props: any) => {
       setOnblur(false)
       // next: use usestate to add a new project
       router.refresh()
-      if(props.project){
         toast.success("Project Added", { duration: 5000 });
-      } else{
-        toast.success("Submission Added", { duration: 5000 });
-      }
     }
   }
   return (<div>
-    <button onClick={Add} className='flex gap-1 border lg:px-2 px-1 lg:py-1 cursor-pointer lg:rounded-lg rounded-sm lg:font-medium font-normal bg-gray-100 hover:bg-gray-300 text-black items-center lg:text-base text-xs'><div className=' text-black'><Image src={Plus} alt='Plus' className='lg:w-4 w-3'></Image></div>{props.title}</button>
+    <button onClick={Add} className='flex gap-1 border lg:px-2 px-1 lg:py-1 cursor-pointer lg:rounded-lg rounded-sm lg:font-medium font-normal bg-gray-100 hover:bg-gray-300 text-black items-center lg:text-base text-xs'><div className=' text-black'><Image src={Plus} alt='Plus' className='lg:w-4 w-3'></Image></div>Add Project</button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
@@ -91,19 +71,19 @@ const AddProjSubmitForm = (props: any) => {
             <div className='relative'>
               <button className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
             </div>
-            <div className='text-3xl p-1 text-center'>{props.title}</div>
+            <div className='text-3xl p-1 text-center'>Add Project</div>
 
-            {props.project && <div className='flex flex-col gap-1'>
+            <div className='flex flex-col gap-1'>
               <div><div>Name: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[20vw]' {...register("name")} placeholder='Name of Project' /></div>
-                {projectErrors?.name && <div className='text-sm px-2'>{projectErrors.name.message}</div>}
+                {errors?.name && <div className='text-sm px-2'>{errors.name.message}</div>}
               </div>
 
               <div><div>Description <div><textarea className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("description")} rows={3} placeholder='Describe the Project Procedure and Key Functionality' /></div></div>
-                {projectErrors?.description && <div className='text-sm px-2'>{projectErrors.description.message}</div>}
+                {errors?.description && <div className='text-sm px-2'>{errors.description.message}</div>}
               </div>
 
               <div><div>Main Feature <div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("mainFeature")} placeholder='Important Feature of Project' /></div></div>
-                {projectErrors?.mainFeature && <div className='text-sm px-2'>{projectErrors.mainFeature.message}</div>}
+                {errors?.mainFeature && <div className='text-sm px-2'>{errors.mainFeature.message}</div>}
               </div>
 
               <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
@@ -113,17 +93,7 @@ const AddProjSubmitForm = (props: any) => {
                 {/* <div className='text-sm'>Write Skills with comma in between</div> */}
                 </div>
 
-            </div>}
-
-            {!props.project && <div className='flex flex-col gap-1 pb-2'>
-              <div><div>Live Link: <input className='border-black border-2 rounded-lg px-2 focus:outline-none w-80' {...register("liveLink")} /></div>
-                {submitErrors?.liveLink && <div className='text-sm px-2'>{submitErrors.liveLink.message}</div>}
-              </div>
-
-              <div><div>Repo Link: <input className='border-black border-2 rounded-lg px-2 focus:outline-none w-80' {...register("repoLink")} /></div>
-                {submitErrors?.repoLink && <div className='text-sm px-2'>{submitErrors.repoLink.message}</div>}
-              </div>
-            </div>}
+            </div>
 
             <input type="submit" className='border-black border-2 rounded-4xl px-2  min-w-[3vw] cursor-pointer bg-blue-900 hover:bg-blue-950 text-white text-lg transition duration-300 ease-in-out' />
           </div>
@@ -133,4 +103,4 @@ const AddProjSubmitForm = (props: any) => {
   </div>)
 }
 
-export default AddProjSubmitForm
+export default AddProjectForm

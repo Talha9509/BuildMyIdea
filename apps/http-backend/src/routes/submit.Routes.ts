@@ -4,7 +4,7 @@ import { createSubmit, updateSubmit, deleteSubmit } from '../controllers/submit.
 
 const router:Router = Router();
 
-router.post("/:id", authMiddleware, createSubmit);
+router.post("/:id{/team}", authMiddleware, createSubmit);
 router.patch("/:id", authMiddleware, updateSubmit);
 router.delete("/:id", authMiddleware, deleteSubmit);
 

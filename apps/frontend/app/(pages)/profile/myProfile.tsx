@@ -75,15 +75,22 @@ export const MyProfile = () => {
 
       {/* <div className='py-6'> */}
       {user.role === "DEV" ? (
-        user.dev?.submissions?.length ? (
+        user.dev?.contributions?.length ? (
           <div className='py-6'>
             <div className='lg:text-2xl text-xl py-4'>Your Submissions</div>
             <div className='flex flex-wrap gap-4'>
-              {user.dev.submissions.map((submit: any) => (
+              {/* {user.dev.submissions.map((submit: any) => (
                 <Card key={submit.id} repo={submit.repoLink} live={submit.liveLink} submit={submit} personalProfile={true} id={submit.id} project={submit.project} starGiven={submit.stars}
                   stars={submit._count.stars}
                 />
-              ))}
+              ))} */}
+              {user.dev.contributions.map((contribution: any) => {
+                    const submission = contribution?.submission
+                    if (!submission) return null
+                    return (
+                      <Card key={submission.id} repo={submission.repoLink} live={submission.liveLink} personalProfile={true} project={submission.project} stars={submission._count?.stars ?? 0} starGiven={submission.stars} id={submission.id} />
+                    )
+              })}
             </div>
           </div>) : (<div className='px-10 py-20 text-2xl'>No Submissions</div>)
       ) : null}

@@ -12,9 +12,22 @@ export const Card = (props: any) => {
     <div className='flex border lg:p-4 p-3 lg:min-w-[20vw] lg:max-w-[45vw] gap-4 justify-between rounded-2xl'>
       <div className='text-white  flex flex-col gap-1'>
 
-        {(props.Profile || props.personalProfile) ? <div className='lg:text-base text-sm'>Name of Project:&nbsp;<Link className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md' href={`/project/${props.project.id}`}>{props.project.name}</Link></div> :
-          <div className='lg:text-base text-sm'>Name:&nbsp;<Link className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md' href={`/profile/${props.devId}`}>{props.devName}</Link></div>
-        }
+        {(props.Profile || props.personalProfile) ? (
+          <div className='lg:text-base text-sm'>Name of Project:&nbsp;<Link className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md' href={`/project/${props.project.id}`}>{props.project.name}</Link></div>
+        ) : (
+          <div className='flex flex-col gap-1'>
+            {(Array.isArray(props.contributors) ? props.contributors : []).map((contributor: any, index: number) => {
+              const user = contributor?.dev?.user
+              if (!user) return null
+              return (
+                <div key={user.id ?? index} className='lg:text-base text-sm'>
+                  Name:&nbsp;
+                  <Link className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md' href={`/profile/${user.id}`}>{user.name}</Link>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         <div className='lg:text-base text-sm'>Repo Link: <a href={`${props.repo}`} target="_blank" rel="noopener noreferrer" className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md truncate'>{props.repo}</a></div>
         <div className='lg:text-base text-sm'>Live Link: <a href={`${props.live}`} target="_blank" rel="noopener noreferrer" className='bg-gray-900 hover:bg-gray-600 px-2 rounded-md truncate'>{props.live}</a></div>

@@ -5,7 +5,6 @@ import { MyProfile } from './myProfile'
 
 export default async function profile() {
   const url = `${process.env.BACKEND_URL}/api/v1/profile/me`
-  console.log(url)
   const cookieStore = cookies()
   const queryClient = new QueryClient()
 
@@ -15,13 +14,13 @@ export default async function profile() {
         cookie: (await cookieStore).toString()
       }
     })
-    console.log(response)
     if (response.status === 401) {
       console.log(response.status)
       redirect("/signin")
     }
     const data = await response.json()
     const user = data.user
+    console.log(user)
     return user
   }
 

@@ -71,13 +71,20 @@ export const ProfileId = (props:any) => {
           ) : null}
     
           {user.role === "DEV" ? (
-            user.dev?.submissions?.length ? (
+            user.dev?.contributions?.length ? (
               <div className='lg:py-10 py-4'>
                 <div className='lg:text-3xl text-xl py-4'>Submissions</div>
                 <div className='flex flex-wrap gap-4'>
-                  {user.dev.submissions.map((submit: any) => (
+                  {/* {user.dev.submissions.map((submit: any) => (
                     <Card key={submit.repoLink} repo={submit.repoLink} live={submit.liveLink} profile={true} project={submit.project} stars={submit._count.stars} Profile={true} starGiven={submit.stars} id={submit.id}  />
-                  ))}
+                  ))} */}
+                  {user.dev.contributions.map((contribution: any) => {
+                    const submission = contribution?.submission
+                    if (!submission) return null
+                    return (
+                      <Card key={submission.id} repo={submission.repoLink} live={submission.liveLink} profile={true} project={submission.project} stars={submission._count?.stars ?? 0} Profile={true} starGiven={submission.stars} id={submission.id} />
+                    )
+                  })}
                 </div>
               </div>
             ) : (
