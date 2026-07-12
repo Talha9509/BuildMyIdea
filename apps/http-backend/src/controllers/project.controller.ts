@@ -213,33 +213,26 @@ export const getProjectbyId = async (req: Request, res: Response) => {
       owner: {
         select: {
           user: {
-            select: {
-              name: true, id: true
-            }
+            select: { name: true, id: true }
           }
         }
-      }, submits: {
+      }, 
+      submits: {
         select: {
           liveLink: true, repoLink: true, id: true,
           // here we are counting stars related to this submission
           _count: {
-            select: {
-              stars: true
-            },
+            select: { stars: true },
           },
           stars: {
-            where: {
-              userId: userId
-            }
+            where: { userId: userId }
           },
           contributors: {
-            select: {
+            select: { contributionPercent: true, contributionRole: true,
               dev: {
                 select: {
                   user: {
-                    select: {
-                      name: true, id: true
-                    }
+                    select: { name: true, id: true }
                   }
                 }
               }

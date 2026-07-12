@@ -82,7 +82,7 @@ export const ProfileId = (props:any) => {
                     const submission = contribution?.submission
                     if (!submission) return null
                     return (
-                      <Card key={submission.id} repo={submission.repoLink} live={submission.liveLink} profile={true} project={submission.project} stars={submission._count?.stars ?? 0} Profile={true} starGiven={submission.stars} id={submission.id} />
+                      <Card key={submission.id} repo={submission.repoLink} live={submission.liveLink} profile={true} project={submission.project} stars={submission._count?.stars ?? 0} Profile={true} starGiven={submission.stars} id={submission.id} percent={contribution.contributionPercent} role={contribution.contributionRole} />
                     )
                   })}
                 </div>

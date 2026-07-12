@@ -64,7 +64,6 @@ export const ProjectId = (props: any) => {
           <div className='flex   lg:gap-[70vw] gap-[20vw] items-center lg:mx-0 mx-[6vw] '>
             <div className='lg:text-2xl text-lg'>Submissions</div>
             <div><AddSubmit id={props.id} /></div>
-            {/* <div><AddSubmit title={"Add Submission"} project={false} to={'submit'} id={props.id} /></div> */}
           </div>
 
           <div className='flex flex-wrap lg:py-12 py-4 gap-2'>

@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { apiFetch } from '@/utils/Apifetch'
@@ -13,6 +13,11 @@ export const AddRemoveStar = (props:any) => {
     const [onblur, setOnblur] = useState(false)
     const [onLoading, setOnLoading] = useState(false)
     const url = process.env.NEXT_PUBLIC_BACKEND_URL
+
+    const stopLinkNavigation = (event: MouseEvent<HTMLElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     useEffect(() => {
       if (onblur) {
         document.body.style.overflow = 'hidden'
@@ -24,11 +29,17 @@ export const AddRemoveStar = (props:any) => {
       }
     }, [onblur])
   
-  async function popup() {
+  async function popup(event?: MouseEvent<HTMLElement>) {
+    if (event) {
+      stopLinkNavigation(event)
+    }
     setOnblur(true)
   }
 
-  async function AddRemove(){
+  async function AddRemove(event?: MouseEvent<HTMLElement>){
+    if (event) {
+      stopLinkNavigation(event)
+    }
     setOnLoading(true)
     const response = await apiFetch(`${url}/api/v1/star/${props.projectId}/${props.id}`, {
       method: `${props.starGiven.length == 0 ? `PUT` : `DELETE`}`, credentials: 'include',
@@ -46,7 +57,7 @@ export const AddRemoveStar = (props:any) => {
 
   return(
     <div>
-      <button onClick={popup} className='flex gap-1 cursor-pointer bg-gray-900 hover:bg-gray-800  lg:py-1 lg:px-2 px-1 py-1 rounded-sm'>
+      <button type='button' onClick={(event) => popup(event)} className='flex gap-1 cursor-pointer bg-gray-900 hover:bg-gray-800  lg:py-1 lg:px-2 px-1 py-1 rounded-sm'>
         {(props.starGiven && props.starGiven.length == 0) ?
           <Image src={nostar} alt='No Star' className='lg:w-4 w-3' />
           :
@@ -65,11 +76,11 @@ export const AddRemoveStar = (props:any) => {
           <div className='lg:text-2xl text-xl text-center lg:p-4 p-3'>Are you sure you want to Remove Star from the Submission?</div>}
 
           <div className='flex gap-2  justify-end'>
-            {props.starGiven == 0 ? <button onClick={AddRemove} className='border-black border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-gray-800 hover:bg-gray-950 text-white lg:text-xl text-sm transition duration-300 ease-in-out' >Add Star
+            {props.starGiven == 0 ? <button type='button' onClick={(event) => AddRemove(event)} className='border-black border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-gray-800 hover:bg-gray-950 text-white lg:text-xl text-sm transition duration-300 ease-in-out' >Add Star
             </button> :
-            <button onClick={AddRemove} className='border-[#c4192e] border rounded-lg p-2 py-1 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white text-lg transition duration-300 ease-in-out' >Delete Star
+            <button type='button' onClick={(event) => AddRemove(event)} className='border-[#c4192e] border rounded-lg p-2 py-1 cursor-pointer bg-[#c4192e] hover:bg-red-950 text-white text-lg transition duration-300 ease-in-out' >Delete Star
             </button> }
-            <button onClick={() => setOnblur(false)} className='border-gray-500 border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-white hover:bg-gray-300 text-black lg:text-xl text-sm transition duration-300 ease-in-out' >Cancel
+            <button type='button' onClick={(event) => { stopLinkNavigation(event); setOnblur(false) }} className='border-gray-500 border rounded-lg lg:px-3 lg:py-2 py-1 px-1 cursor-pointer bg-white hover:bg-gray-300 text-black lg:text-xl text-sm transition duration-300 ease-in-out' >Cancel
             </button>
           </div>
         </div>

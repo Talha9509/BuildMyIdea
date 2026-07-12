@@ -47,10 +47,10 @@ const submitContributionSchema = z.object({
 export const submitSchema = z.object({
     repoLink: z.string().min(6, "Give a Proper Link"),
     liveLink: z.string().min(6, "Give a Proper Link"),
-    noofContributors: z.number().min(1).max(4).optional(),
+    NoofContributors: z.number().min(1).max(4).optional(),
     items: z.array(submitContributionSchema).optional()
 }).superRefine((data, ctx) => {
-  const expectedCount = data.noofContributors ? data.noofContributors : 1;
+  const expectedCount = data.NoofContributors ? data.NoofContributors : 1;
   
   if (expectedCount > 1) {
       if (!data.items || data.items.length !== expectedCount) {

@@ -62,17 +62,17 @@ export const createSubmit = async (req: Request, res: Response) => {
         contributionRole: "Leader"
       });
     } else {
-      if(validated.data.items == undefined){
+      if (validated.data.items == undefined) {
         return res.status(401).json({ message: "no" })
       }
       const usernames = validated.data.items.map(item => item.username);
-      console.log("usernames "+usernames)
+      console.log("usernames " + usernames)
 
       const teamDevs = await prismaClient.dev.findMany({
         where: { user: { username: { in: usernames } } },
-        include: { user: { select: { username: true }} }
+        include: { user: { select: { username: true } } }
       });
-      console.log("teamdevs "+ JSON.stringify(teamDevs))
+      console.log("teamdevs " + JSON.stringify(teamDevs))
 
       if (teamDevs.length !== usernames.length) {
         const foundUsernames = teamDevs.map(td => td.user.username);
@@ -81,7 +81,7 @@ export const createSubmit = async (req: Request, res: Response) => {
       }
 
       const isSubmitterInTeam = teamDevs.some(td => td.id === dev.id);
-      console.log("submitter inteam "+isSubmitterInTeam)
+      console.log("submitter inteam " + isSubmitterInTeam)
       if (!isSubmitterInTeam) {
         return res.status(403).json({ message: "You cannot submit a team project without including yourself." });
       }
@@ -95,16 +95,16 @@ export const createSubmit = async (req: Request, res: Response) => {
           contributionRole: item.contributionRole
         };
       });
-      console.log("constributed data "+JSON.stringify(contributorsData))
+      console.log("constributed data " + JSON.stringify(contributorsData))
     }
 
-    
+
     const submit = await prismaClient.submit.create({
       data: {
         repoLink: validated.data.repoLink,
         liveLink: validated.data.liveLink,
         projectId: projectId,
-        NoofContributors: validated.data.noofContributors || 1, 
+        NoofContributors: validated.data.NoofContributors || 1,
         contributors: { create: contributorsData }
       }
     })
@@ -132,20 +132,20 @@ export const createSubmit = async (req: Request, res: Response) => {
 };
 
 export const updateSubmit = async (req: Request, res: Response) => {
-  // the dev wants to make some changes in the submission of  code repo link of github
   const userId = req.userId
   const submitId = parseInt(req.params.id as string)
 
   if (typeof userId != 'number') {
-    return res.status(401).json({ message: "Unauthoized" })
+    return res.status(401).json({ message: "Unauthorized" })
   }
   console.log(userId)
 
-  const validated = updateSubmitSchema.safeParse(req.body)
+  const validated = submitSchema.safeParse(req.body)
   console.log(validated)
   if (!validated.success) {
     return res.status(400).json({ message: "Invalid Inputs" })
   }
+  console.log("data "+validated.data)
 
   if (Object.keys(validated.data).length === 0) {
     return res.status(400).json({ message: "Nothing to be changed" })
@@ -159,14 +159,73 @@ export const updateSubmit = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Idea Creators not allowed to Edit" })
     }
 
+    let contributorsData: any[] = [];
+    const isTeam = validated.data.items && validated.data.items.length > 0;
+
+     if (!isTeam) {
+      contributorsData.push({
+        contributionPercent: 100,
+        contributionRole: "Leader"
+      });
+    } else {
+      if (validated.data.items == undefined) {
+        return res.status(401).json({ message: "no" })
+      }
+      const usernames = validated.data.items.map(item => item.username);
+      console.log("usernames " + usernames)
+
+      const teamDevs = await prismaClient.dev.findMany({
+        where: { user: { username: { in: usernames } } },
+        include: { user: { select: { username: true } } }
+      });
+      console.log("teamdevs " + JSON.stringify(teamDevs))
+
+      if (teamDevs.length !== usernames.length) {
+        const foundUsernames = teamDevs.map(td => td.user.username);
+        const missing = usernames.filter(un => !foundUsernames.includes(un));
+        return res.status(404).json({ message: `Devs not found: ${missing.join(', ')}` });
+      }
+
+      const isSubmitterInTeam = teamDevs.some(td => td.id === dev.id);
+      console.log("submitter inteam " + isSubmitterInTeam)
+      if (!isSubmitterInTeam) {
+        return res.status(403).json({ message: "You cannot submit a team project without including yourself." });
+      }
+
+      contributorsData = validated.data.items.map(item => {
+        const matchedDev = teamDevs.find(td => td.user.username === item.username)!;
+        return {
+          contributionPercent: item.contribution,
+          contributionRole: item.contributionRole
+        };
+      });
+      console.log("constributed data " + JSON.stringify(contributorsData))
+    }
+
+
+    // const submit = await prismaClient.submit.create({
+    //   data: {
+    //     repoLink: validated.data.repoLink,
+    //     liveLink: validated.data.liveLink,
+    //     projectId: projectId,
+    //     NoofContributors: validated.data.NoofContributors || 1,
+    //     contributors: { create: contributorsData }
+    //   }
+    // })
+
     const submit = await prismaClient.submit.update({
-      where: { id: submitId, contributors: { some: { devId: dev.id } } },
-      data: validated.data
+      where: { id: submitId, contributors: { some: { devId: dev.id, contributionRole: "Leader" } } },
+      data: {
+        NoofContributors: validated.data.NoofContributors || 1,
+        contributors: { 
+        // where it will update?
+          update: contributorsData}
+      }
+      // data: validated.data
     })
     if (!submit) {
       res.status(403).json({ message: "Not Allowed to Edit others Submission" })
     }
-    // either submission dont exist or you are not the owner of submission
     return res.json({ message: "Done", submit })
   } catch (error: any) {
     if (error.code === 'P2002') {
@@ -178,8 +237,6 @@ export const updateSubmit = async (req: Request, res: Response) => {
 };
 
 export const deleteSubmit = async (req: Request, res: Response) => {
-  // the dev wants to delete the posted code repo link of github
-  // check if user is dev. then delete submit from submit. then delete submit from projects
   const userId = req.userId
   const submitId = parseInt(req.params.id as string)
 
@@ -195,10 +252,10 @@ export const deleteSubmit = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Idea Creators not allowed to Delete" })
     }
     const submit = await prismaClient.submit.delete({
-      where: { id: submitId, contributors: { some: { devId: dev.id } } }
+      where: { id: submitId, contributors: { some: { devId: dev.id, contributionRole: "Leader" } } }
     })
     if (!submit) {
-      res.status(404).json({ message: "Not Allowed to Delete others Submission" })
+      res.status(404).json({ message: "Not Allowed to Delete Submission" })
     }
     return res.json({ message: "Done", submit })
   } catch (error: any) {
@@ -209,3 +266,37 @@ export const deleteSubmit = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal Server Error" })
   }
 };
+
+export const getSubmitbyId = async (req: Request, res: Response) => {
+  const userId = req.userId
+  const submitId = parseInt(req.params.id as string)
+
+  if (typeof userId != 'number') {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+
+  try {
+    const submit = await prismaClient.submit.findUnique({
+      where: { id: submitId },
+      select: { liveLink: true, repoLink: true, NoofContributors: true, id: true,
+        project: {
+          select: { name: true, id: true }
+        },
+        _count:{ 
+          select: { stars: true }
+        },
+        contributors: {
+          select: { contributionPercent: true, contributionRole: true,
+            dev: {
+              select: { id: true,  user: { select: { username: true } } }
+            }
+          }
+        }
+      }
+    })
+    return res.json({ submit: submit, userId: userId })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: "Internal Server Error" })
+  }
+}

@@ -59,7 +59,6 @@ export const MyProfile = () => {
         </div>
       </div>
 
-      {/* <div className=' py-6'> */}
       {user.role === "OWNER" ? (
         user.owner?.projects?.length ? (
           <div className='py-6'>
@@ -71,9 +70,7 @@ export const MyProfile = () => {
             </div>
           </div>) : (<div className='lg:px-10 px-5 py-10 lg:py-20 text-2xl'>No Projects</div>)
       ) : null}
-      {/* </div> */}
 
-      {/* <div className='py-6'> */}
       {user.role === "DEV" ? (
         user.dev?.contributions?.length ? (
           <div className='py-6'>
@@ -88,13 +85,12 @@ export const MyProfile = () => {
                     const submission = contribution?.submission
                     if (!submission) return null
                     return (
-                      <Card key={submission.id} repo={submission.repoLink} live={submission.liveLink} personalProfile={true} project={submission.project} stars={submission._count?.stars ?? 0} starGiven={submission.stars} id={submission.id} />
+                      <Card key={submission.id} personalProfile={true} starGiven={submission.stars} id={submission.id} project={submission.project} stars={submission._count?.stars ?? 0} repo={submission.repoLink} live={submission.liveLink} submit={submission} percent={contribution.contributionPercent} role={contribution.contributionRole} />
                     )
               })}
             </div>
           </div>) : (<div className='px-10 py-20 text-2xl'>No Submissions</div>)
       ) : null}
-      {/* </div> */}
 
     </div>}
     </div>

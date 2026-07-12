@@ -120,7 +120,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
         dev: {
           select: {
             contributions: {
-              select: {
+              select: { contributionPercent: true, contributionRole: true,
                 submission: {
                   select: {
                     repoLink: true, liveLink: true, id: true,
@@ -187,7 +187,7 @@ export const getProfilebyId = async (req: Request, res: Response) => {
         dev: {
           select: {
             contributions: {
-              select: {
+              select: { contributionPercent: true, contributionRole: true,
                 submission: {
                   select: {
                     repoLink: true, liveLink: true, id: true,

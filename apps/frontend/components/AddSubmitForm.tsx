@@ -12,14 +12,14 @@ import { apiFetch } from '../utils/Apifetch'
 
 const AddSubmitForm = (props: any) => {
   const router = useRouter()
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<SubmitFormValues>({ resolver: zodResolver(submitSchema), defaultValues: { liveLink: "", repoLink: "", noofContributors: 1, items: [] } })
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<SubmitFormValues>({ resolver: zodResolver(submitSchema), defaultValues: { liveLink: "", repoLink: "", NoofContributors: 1, items: [] } })
 
   const [onLoading, setOnLoading] = useState(false)
   const [onblur, setOnblur] = useState(false)
   const [onSingle, setOnSingle] = useState(true)
   const url = process.env.NEXT_PUBLIC_BACKEND_URL
 
-  const currentContributors = watch("noofContributors") || 1;
+  const currentContributors = watch("NoofContributors") || 1;
   const currentItems = watch("items") || [];
 
   console.log("errors " + errors)
@@ -41,14 +41,14 @@ const AddSubmitForm = (props: any) => {
     reset({
       liveLink: "",
       repoLink: "",
-      noofContributors: 1,
+      NoofContributors: 1,
       items: []
     })
   }
 
   const handleTeamClick = () => {
     setOnSingle(false);
-    setValue("noofContributors", 2);
+    setValue("NoofContributors", 2);
     setValue("items", [
       { username: "", contribution: 0, contributionRole: "Member" },
       { username: "", contribution: 0, contributionRole: "Member" }
@@ -57,14 +57,14 @@ const AddSubmitForm = (props: any) => {
 
   const handleSoloClick = () => {
     setOnSingle(true);
-    setValue("noofContributors", 1);
+    setValue("NoofContributors", 1);
     setValue("items", []);
   }
 
   const handleContributorCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const count = parseInt(e.target.value);
     if (count >= 2 && count <= 4) {
-      setValue("noofContributors", count);
+      setValue("NoofContributors", count);
 
       const newItems = Array.from({ length: count }).map((_, index) => {
         return currentItems[index] || { username: "", contribution: 0 };

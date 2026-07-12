@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Delete from '../public/delete.svg'
 import { toast } from 'sonner'
 import { apiFetch } from '@/utils/Apifetch'
+import {DeleteIcon} from './Icons/DeleteIcon'
 
 export const DeleteSubmit = (props: any) => {
   const router = useRouter()
@@ -43,9 +44,7 @@ export const DeleteSubmit = (props: any) => {
 
   }
   return (<div>
-    <button onClick={deleteSubmit} className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
-      <Image src={Delete} className='lg:w-4 w-3' alt='Delete'></Image>
-    </div></button>
+    <button onClick={deleteSubmit} className='flex gap-1 border lg:px-2 px-1 cursor-pointer lg:rounded-lg rounded-sm   bg-gray-100 hover:bg-gray-300 text-black items-center lg:font-medium font-normal lg:text-base text-xs'><div className=' text-black'><DeleteIcon className='lg:w-4 w-3 text-black' /></div>Delete</button>
 
     {onblur && <div>
       <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>

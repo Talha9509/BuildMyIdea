@@ -62,7 +62,7 @@ export const EditProject = (props: any) => {
   }
   return (<div>
     <button onClick={ Edit } className='flex gap-1  p-1 cursor-pointer rounded-2xl font-medium bg-gray-800 hover:bg-gray-600 text-black items-center'><div className=' text-black'>
-      <Image src={edit} className='lg:w-4 w-3' alt='Edit'></Image>
+      <Image src={edit} className='lg:w-4 w-3 text-white' alt='Edit'></Image>
       </div></button>
 
     {onblur &&
