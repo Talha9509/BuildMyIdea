@@ -26,6 +26,11 @@ enum Status{
   Blocked
 }
 
+enum RoleContributer {
+  Leader
+  Member
+}
+
 model User {
   id              Int         @id @default(autoincrement())
   email           String      @unique
@@ -96,6 +101,7 @@ model SubmissionContributor {
   dev                  Dev            @relation(fields: [devId],references: [id], onDelete: Cascade)
   contributionPercent  Int
   projectId            Int
+  contributionRole    RoleContributer   
   @@unique([projectId, devId])
   @@id([submitId, devId])
 }

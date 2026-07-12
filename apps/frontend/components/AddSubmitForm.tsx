@@ -22,7 +22,7 @@ const AddSubmitForm = (props: any) => {
   const currentContributors = watch("noofContributors") || 1;
   const currentItems = watch("items") || [];
 
-  console.log("errors "+errors)
+  console.log("errors " + errors)
 
   useEffect(() => {
     if (onblur) {
@@ -50,8 +50,8 @@ const AddSubmitForm = (props: any) => {
     setOnSingle(false);
     setValue("noofContributors", 2);
     setValue("items", [
-      { username: "", contribution: 0 },
-      { username: "", contribution: 0 }
+      { username: "", contribution: 0, contributionRole: "Member" },
+      { username: "", contribution: 0, contributionRole: "Member" }
     ]);
   }
 
@@ -145,6 +145,14 @@ const AddSubmitForm = (props: any) => {
                       </div>
                       {errors.items?.[index]?.contribution && <span className=" text-xs px-1">{errors.items[index]?.contribution?.message}</span>}
                     </div>
+
+                    <div className="flex flex-col">
+                      <select className='border-black border-2 rounded-lg px-2 py-1 focus:outline-none w-28 bg-white' {...register(`items.${index}.contributionRole` as const)}>
+                        <option value="Leader">Leader</option>
+                        <option value="Member">Member</option>
+                      </select>
+                      {errors.items?.[index]?.contributionRole && <span className="text-xs px-1">{errors.items[index]?.contributionRole?.message}</span>}
+                    </div>
                   </div>
                 ))}
 
@@ -155,6 +163,7 @@ const AddSubmitForm = (props: any) => {
               </div>
             </>
             )}
+            <div className='text-center'>Note: Leader can Edit or Delete the Submission</div>
 
             <input type="submit" value="Submit Project" className='border-black border-2 rounded-4xl px-2  min-w-[3vw] cursor-pointer bg-blue-900 hover:bg-blue-950 text-white text-lg transition duration-300 ease-in-out' />
           </div>

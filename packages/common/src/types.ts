@@ -40,14 +40,15 @@ export const updateUserSchema = z.object({
 
 const submitContributionSchema = z.object({
     username: z.string().min(3, "Username Required"),
-    contribution: z.number().min(1, "Min 1%").max(100, "Max 100%")
+    contribution: z.number().min(1, "Min 1%").max(100, "Max 100%"),
+    contributionRole: z.enum(["Leader", "Member"])
 })
 
 export const submitSchema = z.object({
     repoLink: z.string().min(6, "Give a Proper Link"),
     liveLink: z.string().min(6, "Give a Proper Link"),
     noofContributors: z.number().min(1).max(4).optional(),
-    items: z.array(submitContributionSchema)
+    items: z.array(submitContributionSchema).optional()
 }).superRefine((data, ctx) => {
   const expectedCount = data.noofContributors ? data.noofContributors : 1;
   
@@ -68,6 +69,15 @@ export const submitSchema = z.object({
           message: `Total contribution must be exactly 100%. Currently at ${totalContribution}%.`,
           path: ["items"], 
         });
+      }
+
+      const hasLeader = data.items.some(item => item.contributionRole == "Leader")
+      if(!hasLeader){
+        ctx.addIssue({
+            code: "custom",
+            message: "There must be atleast 1 Leader in a Team",
+            path: ["items"]
+        })
       }
   }
 });

@@ -58,15 +58,21 @@ export const createSubmit = async (req: Request, res: Response) => {
       contributorsData.push({
         devId: dev.id,
         projectId: projectId,
-        contributionPercent: 100
+        contributionPercent: 100,
+        contributionRole: "Leader"
       });
     } else {
+      if(validated.data.items == undefined){
+        return res.status(401).json({ message: "no" })
+      }
       const usernames = validated.data.items.map(item => item.username);
+      console.log("usernames "+usernames)
 
       const teamDevs = await prismaClient.dev.findMany({
         where: { user: { username: { in: usernames } } },
-        include: { user: true }
+        include: { user: { select: { username: true }} }
       });
+      console.log("teamdevs "+ JSON.stringify(teamDevs))
 
       if (teamDevs.length !== usernames.length) {
         const foundUsernames = teamDevs.map(td => td.user.username);
@@ -75,6 +81,7 @@ export const createSubmit = async (req: Request, res: Response) => {
       }
 
       const isSubmitterInTeam = teamDevs.some(td => td.id === dev.id);
+      console.log("submitter inteam "+isSubmitterInTeam)
       if (!isSubmitterInTeam) {
         return res.status(403).json({ message: "You cannot submit a team project without including yourself." });
       }
@@ -84,11 +91,14 @@ export const createSubmit = async (req: Request, res: Response) => {
         return {
           devId: matchedDev.id,
           projectId: projectId,
-          contributionPercent: item.contribution
+          contributionPercent: item.contribution,
+          contributionRole: item.contributionRole
         };
       });
+      console.log("constributed data "+JSON.stringify(contributorsData))
     }
 
+    
     const submit = await prismaClient.submit.create({
       data: {
         repoLink: validated.data.repoLink,
@@ -99,25 +109,6 @@ export const createSubmit = async (req: Request, res: Response) => {
       }
     })
 
-    // option of contribution percentage has to be given then change it, and in edit submit also
-    // and also check delete submit
-    // const submit = await prismaClient.submit.create({
-    //   data: {
-    //     repoLink: validated.data.repoLink,
-    //     liveLink: validated.data.liveLink,
-    //     projectId: projectId,
-    //     contributors: {
-    //       create: {
-    //         devId: dev.id,
-    //         contributionPercent: 100,
-    //         projectId: projectId
-    //       }
-    //     }
-    //   }
-    // })
-    if (!submit) {
-      return res.status(409).json({ mesage: "Submission already exists" })
-    }
     return res.status(201).json({ message: "Done", submit })
   } catch (error: any) {
     if (error.code === 'P2002') {
