@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient } from "@repo/db/client";
-import { submitSchema, updateSubmitSchema } from "@repo/common/types";
+import { submitSchema } from "@repo/common/types";
 
 export const createSubmit = async (req: Request, res: Response) => {
   const userId = req.userId
@@ -145,7 +145,7 @@ export const updateSubmit = async (req: Request, res: Response) => {
   if (!validated.success) {
     return res.status(400).json({ message: "Invalid Inputs" })
   }
-  console.log("data "+validated.data)
+  console.log("data " + validated.data)
 
   if (Object.keys(validated.data).length === 0) {
     return res.status(400).json({ message: "Nothing to be changed" })
@@ -159,13 +159,23 @@ export const updateSubmit = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Idea Creators not allowed to Edit" })
     }
 
+    
+    const isLeader = await prismaClient.submit.findFirst({
+      where: { id: submitId, contributors: { some: { devId: dev.id, contributionRole: "Leader" } } },
+    })
+    if (!isLeader) {
+      return res.status(403).json({ message: "Only Team Leaders are allowed to Edit the submission" })
+    }
+
     let contributorsData: any[] = [];
     const isTeam = validated.data.items && validated.data.items.length > 0;
 
-     if (!isTeam) {
+    if (!isTeam) {
       contributorsData.push({
+        devId: dev.id,
         contributionPercent: 100,
-        contributionRole: "Leader"
+        contributionRole: "Leader",
+        projectId: isLeader.projectId
       });
     } else {
       if (validated.data.items == undefined) {
@@ -195,37 +205,26 @@ export const updateSubmit = async (req: Request, res: Response) => {
       contributorsData = validated.data.items.map(item => {
         const matchedDev = teamDevs.find(td => td.user.username === item.username)!;
         return {
+          devId: matchedDev.id,
           contributionPercent: item.contribution,
-          contributionRole: item.contributionRole
+          contributionRole: item.contributionRole,
+          projectId: isLeader?.projectId
         };
       });
       console.log("constributed data " + JSON.stringify(contributorsData))
     }
 
-
-    // const submit = await prismaClient.submit.create({
-    //   data: {
-    //     repoLink: validated.data.repoLink,
-    //     liveLink: validated.data.liveLink,
-    //     projectId: projectId,
-    //     NoofContributors: validated.data.NoofContributors || 1,
-    //     contributors: { create: contributorsData }
-    //   }
-    // })
-
     const submit = await prismaClient.submit.update({
-      where: { id: submitId, contributors: { some: { devId: dev.id, contributionRole: "Leader" } } },
+      where: { id: submitId },
       data: {
         NoofContributors: validated.data.NoofContributors || 1,
-        contributors: { 
-        // where it will update?
-          update: contributorsData}
+        contributors: {
+          deleteMany: {},
+          create: contributorsData
+        }
       }
-      // data: validated.data
     })
-    if (!submit) {
-      res.status(403).json({ message: "Not Allowed to Edit others Submission" })
-    }
+
     return res.json({ message: "Done", submit })
   } catch (error: any) {
     if (error.code === 'P2002') {
@@ -278,17 +277,19 @@ export const getSubmitbyId = async (req: Request, res: Response) => {
   try {
     const submit = await prismaClient.submit.findUnique({
       where: { id: submitId },
-      select: { liveLink: true, repoLink: true, NoofContributors: true, id: true,
+      select: {
+        liveLink: true, repoLink: true, NoofContributors: true, id: true,
         project: {
           select: { name: true, id: true }
         },
-        _count:{ 
+        _count: {
           select: { stars: true }
         },
         contributors: {
-          select: { contributionPercent: true, contributionRole: true,
+          select: {
+            contributionPercent: true, contributionRole: true,
             dev: {
-              select: { id: true,  user: { select: { username: true } } }
+              select: { id: true, user: { select: { username: true } } }
             }
           }
         }

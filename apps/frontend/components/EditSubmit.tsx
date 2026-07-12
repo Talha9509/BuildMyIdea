@@ -14,7 +14,7 @@ export const EditSubmit = (props: any) => {
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({ resolver: zodResolver(submitSchema), defaultValues: { liveLink: "", repoLink: "", NoofContributors: 1, items: [] } })
   const [onblur, setOnblur] = useState(false)
-  // const [onLoading, setOnLoading] = useState(false)
+  const [onLoading, setOnLoading] = useState(false)
   const [onSingle, setOnSingle] = useState(true)
   const url = process.env.NEXT_PUBLIC_BACKEND_URL
 
@@ -82,6 +82,7 @@ export const EditSubmit = (props: any) => {
   }
 
   async function editSubmission(formData: any) {
+    setOnLoading(true)
     const response = await apiFetch(`${url}/api/v1/submit/${props.id}`, {
       method: `PATCH`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData)
@@ -93,6 +94,7 @@ export const EditSubmit = (props: any) => {
     mutationFn: editSubmission,
     onSuccess: () => {
       setOnblur(false)
+      setOnLoading(false)
       queryClient.invalidateQueries({ queryKey: ['profile-me'] })
       toast.success("Submission Edited", { duration: 5000 });
     }
@@ -109,7 +111,7 @@ export const EditSubmit = (props: any) => {
         <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
           <div className='flex flex-col p-8  gap-2 bg-white rounded-2xl relative'>
 
-            {/* {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>} */}
+            {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>}
 
             <div className='relative'>
               <button type="button" className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
@@ -175,7 +177,7 @@ export const EditSubmit = (props: any) => {
         <div className='w-screen h-screen bg-slate-700/70 fixed top-0 left-0  flex justify-center items-center backdrop-blur-sm  z-20 text-black'>
           <div className='flex flex-col p-8  gap-2 bg-white rounded-2xl relative'>
 
-            {/* {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>} */}
+            {onLoading && <div className='rounded-2xl absolute inset-0 flex items-center justify-center text-3xl backdrop-blur-xs z-40 bg-gray-100/10 text-black'>Loading...</div>}
 
             <div className='relative'>
               <button type="button" className='cursor-pointer absolute top-0 right-0 p-1 hover:bg-gray-300 rounded-md min-w-2' onClick={() => setOnblur(false)}><Image src={Cross} alt='Plus'></Image></button>
