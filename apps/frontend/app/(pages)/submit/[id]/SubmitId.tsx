@@ -90,7 +90,7 @@ export const SubmitId = (props: any) => {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mx-2'>
             {submit.contributors.length >= 1 && submit.contributors.map((contribution: any) => {
               return (
-                <Link key={contribution.dev.id} href={`/profile/${contribution.dev.id}`} className="border border-gray-700 bg-gray-800/50 rounded-xl p-5 hover:bg-gray-800 transition duration-200 flex flex-col justify-between">
+                <Link key={contribution.dev.user.id} href={`/profile/${contribution.dev.user.id}`} className="border border-gray-700 bg-gray-800/50 rounded-xl p-5 hover:bg-gray-800 transition duration-200 flex flex-col justify-between">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Developer</div>

@@ -289,7 +289,7 @@ export const getSubmitbyId = async (req: Request, res: Response) => {
           select: {
             contributionPercent: true, contributionRole: true,
             dev: {
-              select: { id: true, user: { select: { username: true } } }
+              select: { user: { select: { username: true, id: true } } }
             }
           }
         }

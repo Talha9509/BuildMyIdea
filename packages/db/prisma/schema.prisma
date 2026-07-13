@@ -13,12 +13,12 @@ datasource db {
   extensions = [vector]
 }
 
-enum Role{
+enum Role {
   DEV
   OWNER
 }
 
-enum Status{
+enum Status {
   Pending
   Rejected
   Connected

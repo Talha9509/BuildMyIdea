@@ -1,7 +1,6 @@
 "use client"
 import Link from 'next/link'
-// import { EditSubmit } from './EditSubmit'
-import { EditSubmit } from './edit'
+import { EditSubmit } from './EditSubmit'
 import { DeleteSubmit } from './DeleteSubmit'
 import Image from 'next/image'
 import star from '../public/star.svg'
