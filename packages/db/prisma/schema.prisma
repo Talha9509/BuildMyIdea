@@ -31,6 +31,17 @@ enum RoleContributer {
   Member
 }
 
+enum PaymentType {
+  Deposit
+  Payout
+}
+
+enum ProjectPaymentStatus {
+  Unpaid
+  Paid      
+  Completed   
+}
+
 model User {
   id              Int         @id @default(autoincrement())
   email           String      @unique
@@ -60,6 +71,7 @@ model Owner{
   userId         Int      @unique
   user           User     @relation(fields: [userId], references: [id])
   projects       Project[]  
+  payments       Payments[]
 }
 
 model Dev{
@@ -67,6 +79,10 @@ model Dev{
   userId        Int       @unique
   user          User      @relation(fields: [userId], references: [id])
   contributions SubmissionContributor[]
+  razorpayAccountId String?      @unique
+  iifscCode      String?
+  upiId          String?
+  // i think i need upi id, account no., ifsc code
 }
 
 model Project{
@@ -81,6 +97,12 @@ model Project{
   submits      Submit[]
   star          Stars[] 
   embedding     Unsupported("vector(1536)")?        
+  Payments      Payments[]
+  bounty        Int?
+  equity        Int?
+  paymentStatus  ProjectPaymentStatus    @default(Unpaid)
+  winnerSubmitId Int?     @unique 
+  winnerSubmit   Submit?  @relation("ProjectWinner", fields: [winnerSubmitId], references: [id])
 }
 
 model Submit{
@@ -92,6 +114,7 @@ model Submit{
   stars         Stars[]
   NoofContributors   Int     @default(1)
   contributors    SubmissionContributor[]    
+  wonProject       Project?     @relation("ProjectWinner")
 }
 
 model SubmissionContributor {
@@ -147,6 +170,17 @@ model Messages {
   receiver       User           @relation("ReceivedMessages",fields: [receiverId], references: [id]) 
   message        String
   createdAt      DateTime       @default(now())
+}
+
+
+model Payments {
+  id             Int     @id @default(autoincrement())
+  projectId      Int
+  project        Project   @relation(fields: [projectId], references: [id])
+  ownerId        Int
+  owner          Owner     @relation(fields: [ownerId], references: [id])
+  paymentType    PaymentType
+  createdAt      DateTime     @default(now())
 }
 
 // in future, create one more model Application, devs can apply
