@@ -17,6 +17,11 @@ export const onboardDev = async (req: Request, res: Response) => {
   }
 
   try {
+    const isDev = await prismaClient.dev.findUnique({
+      where: { userId: userId }
+    })
+    if(!isDev) return res.status(400).json({ message: "You are not a Developer" })
+      
     const account = await razorpay.accounts.create({
       type: "route",
       email: validated.data.email,
@@ -37,6 +42,7 @@ export const onboardDev = async (req: Request, res: Response) => {
 
     res.json({ success: true, accountId: account.id });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Failed to link bank account" });
   }
 };

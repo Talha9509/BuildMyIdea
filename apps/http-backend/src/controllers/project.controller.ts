@@ -105,6 +105,12 @@ export const createProject = async (req: Request, res: Response) => {
 export const getProjects = async (req: Request, res: Response) => {
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
+    where: {
+      OR: [
+        { paymentStatus: "Paid" },
+        { bounty: { not: null } }
+      ]
+    },
     select: {
       name: true, description: true, id: true, mainFeature: true,
       owner: {
@@ -203,7 +209,6 @@ export const updateProject = async (req: Request, res: Response) => {
 }
 
 export const deleteProject = async (req: Request, res: Response) => {
-  // delte a project if owner wants to delete it
   const userId = req.userId
   const id = parseInt(req.params.id as string)
 
@@ -240,6 +245,9 @@ export const deleteProject = async (req: Request, res: Response) => {
   } catch (error: any) {
     if (error.code == 'P2002') {
       return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })
+    }
+    if (error.code == 'P2003') {
+      return res.status(409).json({ message: "Can't Delete a Project with Bounty" })
     }
     console.log(error)
     return res.status(500).json({ message: "Internal Server Error" })

@@ -21,18 +21,24 @@ export const ownerProjectPayment = async (req: Request, res: Response) => {
 
   const event = req.body.event
 
-  if (event == "order.paid") {
-    const payment = req.body.payload.payment.entity;
-    const orderId = payment.order_id;
+  try {
+    if (event == "order.paid") {
+      const payment = req.body.payload.payment.entity;
+      const orderId = payment.order_id;
 
-    const dbpayment = await prismaClient.payments.update({
-      where: { razorpayOrderId: orderId },
-      data: {
-        status: "Success",
-        razorpayPaymentId: payment.id
-      }
-    })
+      const dbpayment = await prismaClient.payments.update({
+        where: { razorpayOrderId: orderId },
+        data: {
+          status: "Success",
+          razorpayPaymentId: payment.id,
+          project: {
+            update: { paymentStatus: "Paid" }
+          }
+        }
+      })
+    }
+    res.json({ message: "ok" })
+  } catch (error) {
+    console.log(error)
   }
-
-  res.json({ message: "ok" })
 }
