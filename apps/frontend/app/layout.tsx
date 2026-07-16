@@ -5,6 +5,7 @@ import { Poppins } from 'next/font/google';
 import { Inter } from 'next/font/google';
 import { Toaster } from "@/components/ui/sonner"
 import Providers from "./provider";
+import Script from 'next/script'
 
 // Configure the font loader
 const inter = Inter({
@@ -45,6 +46,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
+      </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           {children}

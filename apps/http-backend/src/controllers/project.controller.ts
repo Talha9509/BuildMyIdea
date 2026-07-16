@@ -3,6 +3,7 @@ import { prismaClient } from "@repo/db/client";
 import { ProjectSchema, updateProjectSchema, searchQuerySchema } from '@repo/common/types'
 import { openai } from '@repo/embedding/embedding'
 import { embeddingQueue } from "@repo/redis/client";
+import { razorpay } from '../config/razorpay.js'
 
 export const createProject = async (req: Request, res: Response) => {
   const userId = req.userId;
@@ -16,23 +17,68 @@ export const createProject = async (req: Request, res: Response) => {
   if (!validated.success) {
     return res.status(422).json({ message: "Invalid Inputs" });
   }
+  console.log(validated.data)
+  console.log(JSON.stringify(validated.data))
 
   try {
-    const project = await prismaClient.project.create({
+    let project: any;
+    let order: any;
+    let amount: number | undefined;
+    if(validated.data.compensationType == "equity"){
+      project = await prismaClient.project.create({
       data: {
         name: validated.data.name,
         description: validated.data.description,
         skillsreq: validated.data.skillsreq,
         refrenceLink: validated.data.refrenceLink,
         mainFeature: validated.data.mainFeature,
+        equity: validated.data.equity,
+        owner: {
+          connect: { userId: userId }
+        }
+      }
+    });
+    }
+
+    else if(validated.data.compensationType == "bounty"){
+      const bountyInPaise = validated.data.bounty! * 100
+      amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
+      project = await prismaClient.project.create({
+      data: {
+        name: validated.data.name,
+        description: validated.data.description,
+        skillsreq: validated.data.skillsreq,
+        refrenceLink: validated.data.refrenceLink,
+        mainFeature: validated.data.mainFeature,
+        bounty: bountyInPaise,
         owner: {
           connect: { userId: userId }
         }
       }
     });
 
+    order = await razorpay.orders.create({
+      amount: bountyInPaise,
+      currency: "INR",
+      receipt: `receipt_project_${project.id}`
+    })
+    console.log("order "+order)
+    console.log("order "+JSON.stringify(order))
+
+    await prismaClient.payments.create({
+      data: {
+        projectId: project.id,
+        ownerId: userId,
+        paymentType: "Deposit",
+        razorpayOrderId: order.id,
+        status: "Processing"
+      }
+    })
+    } else {
+      return res.status(400).json({ message: "Invalid Compensation" });
+    }
+
     const inputforAi = `Name is ${validated.data.name} and Description is ${validated.data.description} and Main Features is ${validated.data.mainFeature} ${validated.data.refrenceLink && `and Refrence Link is ${validated.data.refrenceLink}`} ${validated.data.skillsreq && `and the skills required are ${validated.data.skillsreq}`}`
-    console.log(inputforAi)
 
     await embeddingQueue.add('generate-embeddings', {
       projectId: project.id,
@@ -42,7 +88,7 @@ export const createProject = async (req: Request, res: Response) => {
       backoff: { type: 'exponential', delay: 5000 }
     })
 
-    return res.status(201).json({ message: "Done", project });
+    return res.status(201).json({ message: "Done", type: validated.data.compensationType, orderId: validated.data.compensationType == "bounty" ? order.id : undefined, project: project, amount: amount });
 
   } catch (err: any) {
     if (err.code === 'P2002') {

@@ -1,5 +1,5 @@
 
-import { z } from 'zod'
+import { email, z } from 'zod'
 
 export const SignupSchema = z.object({
     email: z.string().regex(/@/, "Invalid Email"),
@@ -18,8 +18,31 @@ export const ProjectSchema = z.object({
     description: z.string().min(40, "Description must be 40-100 characters"),
     skillsreq: z.string().optional(),
     refrenceLink: z.string().optional(),
-    mainFeature: z.string().min(3, "Give a Vaild Main Feature for the Project")
-})
+    mainFeature: z.string().min(3, "Give a Vaild Main Feature for the Project"),
+    compensationType: z.enum(["bounty", "equity"]),
+    bounty: z.coerce.number().optional(),
+    equity: z.coerce.number().optional()
+}).superRefine((data, ctx) => {
+    if(data.compensationType == "bounty"){
+        if(!data.bounty || data.bounty <= 0){
+            ctx.addIssue({
+                code: "custom",
+                message: "Enter a valid bounty amount",
+                path: ["bounty"]
+            })
+        }
+    }
+    if(data.compensationType == "equity"){
+        if(!data.equity || data.equity <= 0 || data.equity > 100){
+            ctx.addIssue({
+                code: "custom",
+                message: "Enter a valid percentage of Equity (1 - 100)",
+                path: ["equity"]
+            })
+        }
+    }
+}
+)
 
 export const updateProjectSchema = z.object({
     name: z.optional(z.string().min(3, "Give a Proper Name to the Project")),
@@ -27,6 +50,14 @@ export const updateProjectSchema = z.object({
     skillsreq: z.string().optional(),
     refrenceLink: z.string().optional(),
     mainFeature: z.optional(z.string().min(3, "Give a Vaild Main Feature for the Project"))
+})
+
+export const onboardDevSchema = z.object({
+    contact_name: z.string(),
+    email: z.email(),
+    phone: z.number(),
+    legal_business_name: z.string(),
+    accountNumber: z.number()
 })
 
 export const updateUserSchema = z.object({

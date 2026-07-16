@@ -42,6 +42,12 @@ enum ProjectPaymentStatus {
   Completed   
 }
 
+enum PaymentStatus {
+  Processing
+  Success
+  Failed
+}
+
 model User {
   id              Int         @id @default(autoincrement())
   email           String      @unique
@@ -80,9 +86,6 @@ model Dev{
   user          User      @relation(fields: [userId], references: [id])
   contributions SubmissionContributor[]
   razorpayAccountId String?      @unique
-  iifscCode      String?
-  upiId          String?
-  // i think i need upi id, account no., ifsc code
 }
 
 model Project{
@@ -180,6 +183,9 @@ model Payments {
   ownerId        Int
   owner          Owner     @relation(fields: [ownerId], references: [id])
   paymentType    PaymentType
+  razorpayOrderId   String      @unique
+  razorpayPaymentId String?
+  status          PaymentStatus   @default(Processing)
   createdAt      DateTime     @default(now())
 }
 
