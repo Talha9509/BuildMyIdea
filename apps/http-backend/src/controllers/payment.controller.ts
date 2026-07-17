@@ -2,6 +2,7 @@ import { prismaClient } from '@repo/db/client'
 import { Request, Response } from 'express'
 import { razorpay } from '../config/razorpay.js'
 import { onboardDevSchema } from '@repo/common/types'
+import { payoutQueue } from "@repo/redis/client";
 
 export const onboardDev = async (req: Request, res: Response) => {
   const userId = req.userId;

@@ -27,6 +27,11 @@ export const embeddingQueue = new Queue('project-embeddings', {
     connection: bullMQConnection 
 });
 
+// Export the Queue so your Express Backend can add jobs to it
+export const payoutQueue = new Queue('payout', { 
+    connection: bullMQConnection 
+});
+
 
 
 
