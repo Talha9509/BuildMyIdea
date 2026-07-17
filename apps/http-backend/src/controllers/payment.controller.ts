@@ -58,8 +58,8 @@ export const Payout = async (req: Request, res: Response) => {
 
   try {
     const [ownersProject, submitExists] = await Promise.all([
-      prismaClient.project.findUnique({ where: { id: projectId, ownerId: ownerId }, select: { paymentStatus: true } }),
-      await prismaClient.submit.findUnique({ 
+      prismaClient.project.findUnique({ where: { id: projectId, ownerId: ownerId }, select: { paymentStatus: true, bounty: true } }),
+      prismaClient.submit.findUnique({ 
         where: { id: submitId, projectId: projectId }, 
         include: { 
           contributors: { 
@@ -82,12 +82,13 @@ export const Payout = async (req: Request, res: Response) => {
       if(!devRazorpay) return res.status(400).json({ message: `Dev ${contributor.dev.user.name} has no bank account` })
     })
 
+  // here in update project, paymentstatus shouldnt be completed, only lock the winnerSubmitId 
     const updateProject = await prismaClient.project.update({
       where: { id: projectId },
-      data: { paymentStatus: "Completed", winnerSubmitId: submitId }
+      data: { winnerSubmitId: submitId }
     })
 
-    // update project paymentstatus, winnersubmitId
+    // update project table paymentstatus, winnersubmitId
     // make payments to each dev
     // create payment table row of payout 
 

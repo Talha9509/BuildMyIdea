@@ -86,6 +86,7 @@ model Dev{
   user          User      @relation(fields: [userId], references: [id])
   contributions SubmissionContributor[]
   razorpayAccountId String?      @unique
+  paymentsReceived   Payments[]
 }
 
 model Project{
@@ -182,10 +183,13 @@ model Payments {
   project        Project   @relation(fields: [projectId], references: [id])
   ownerId        Int
   owner          Owner     @relation(fields: [ownerId], references: [id])
+  devId          Int?
+  dev            Dev?       @relation(fields: [devId], references: [id])
   paymentType    PaymentType
-  razorpayOrderId   String      @unique
+  razorpayOrderId     String?      @unique
+  razorpayTransferId  String?      @unique
   razorpayPaymentId String?
-  status          PaymentStatus   @default(Processing)
+  status          PaymentStatus   
   createdAt      DateTime     @default(now())
 }
 
