@@ -90,11 +90,21 @@ export const Payout = async (req: Request, res: Response) => {
       data: { winnerSubmitId: submitId }
     })
 
-    // update project table paymentstatus, winnersubmitId
-    // make payments to each dev
-    // create payment table row of payout 
-
     // Make the payment queue
+    await payoutQueue.add("payouts", {
+      projectId: projectId,
+      winnerSubmitId: submitId,
+      bounty: ownersProject.bounty,
+      ownerId: ownerId,
+      contributors: submitExists.contributors.map((contributor) => ({
+        devId: contributor.devId,
+        contributionPercent: contributor.contributionPercent,
+        razorpayAccountId: contributor.dev.razorpayAccountId
+      }))
+    }, {
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5 * 60 * 100 }
+    })
 
     res.json({ message: "The bounty to each contributor will be paid within 24 hours" });
   } catch (error) {

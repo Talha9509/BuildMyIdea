@@ -18,6 +18,7 @@
     "@repo/typescript-config": "workspace:*"
   },
   "dependencies": {
-    "bullmq": "^5.77.6"
+    "bullmq": "^5.77.6",
+    "razorpay": "^2.9.8"
   }
 }
