@@ -53,11 +53,11 @@ export const updateProjectSchema = z.object({
 })
 
 export const onboardDevSchema = z.object({
-    contact_name: z.string(),
+    contact_name: z.string().min(3, "Name is required"),
     email: z.email(),
-    phone: z.number(),
-    legal_business_name: z.string(),
-    accountNumber: z.number()
+    phone: z.number({ error: "Phone number is required" }),
+    legal_business_name: z.string().min(3, "Business Name is Required"),
+    accountNumber: z.number({ error: "Account Number is required" })
 })
 
 export const updateUserSchema = z.object({
