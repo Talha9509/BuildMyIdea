@@ -280,7 +280,11 @@ export const getSubmitbyId = async (req: Request, res: Response) => {
       select: {
         liveLink: true, repoLink: true, NoofContributors: true, id: true,
         project: {
-          select: { name: true, id: true }
+          select: { name: true, id: true, bounty: true,
+            owner: { 
+              select: { userId: true }
+            }
+          }
         },
         _count: {
           select: { stars: true }

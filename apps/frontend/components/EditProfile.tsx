@@ -13,7 +13,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export const EditProfile = (props: any) => {
   const queryClient = useQueryClient();
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateUserSchema), defaultValues: { name: "", username: "", job: "", role: "OWNER", phone: "", email: "" } })
-  // const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(updateUserSchema), defaultValues: { name: "", job: "", role: undefined, phone: "", email: "" } })
   const [onblur, setOnblur] = useState(false)
   const role = watch("role")
 

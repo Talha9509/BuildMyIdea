@@ -49,17 +49,17 @@ export const onboardDev = async (req: Request, res: Response) => {
 };
 
 export const Payout = async (req: Request, res: Response) => {
-  const ownerId = req.userId;
+  const userId = Number(req.userId);
   const submitId = parseInt(req.params.submitId as string)
   const projectId = parseInt(req.params.projectId as string)
 
-  if (typeof ownerId !== 'number') {
+  if (typeof userId !== 'number') {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     const [ownersProject, submitExists] = await Promise.all([
-      prismaClient.project.findUnique({ where: { id: projectId, ownerId: ownerId }, select: { paymentStatus: true, bounty: true } }),
+      prismaClient.project.findUnique({ where: { id: projectId, owner: { userId: userId } }, select: { paymentStatus: true, bounty: true, ownerId: true } }),
       prismaClient.submit.findUnique({ 
         where: { id: submitId, projectId: projectId }, 
         include: { 
@@ -95,7 +95,7 @@ export const Payout = async (req: Request, res: Response) => {
       projectId: projectId,
       winnerSubmitId: submitId,
       bounty: ownersProject.bounty,
-      ownerId: ownerId,
+      ownerId: ownersProject.ownerId,
       contributors: submitExists.contributors.map((contributor) => ({
         devId: contributor.devId,
         contributionPercent: contributor.contributionPercent,

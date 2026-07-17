@@ -27,9 +27,11 @@ export default async function page({ params }: { params: { id: number } }) {
     // const dev=data.project.dev.user
     const submit = data.submit
     console.log(submit)
-    const isMember = submit.contributors.some((t: any) => t.dev.id === data.userId)
-
-    return { submit, isMember }
+    const isMember = submit.contributors.some((t: any) => t.dev.user.id === data.userId)
+    const isOwner = submit.project.owner.userId == data.userId
+    const hasBounty = submit.project.bounty > 0
+    
+    return { submit, isMember, isOwner, hasBounty }
   }
 
   const res = await queryClient.prefetchQuery({

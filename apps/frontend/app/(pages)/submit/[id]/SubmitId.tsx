@@ -1,9 +1,9 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
-// import { EditSubmit } from '@/components/edit'
 import { EditSubmit } from '@/components/EditSubmit'
 import { DeleteSubmit } from '@/components/DeleteSubmit'
 import Link from 'next/link'
+import { PaySubmission } from '@/components/PaySubmission'
 
 export const SubmitId = (props: any) => {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/submit/${props.id}`
@@ -21,9 +21,12 @@ export const SubmitId = (props: any) => {
 
     const data = await response.json()
     const submit = data.submit
-    const isMember = submit.contributors.some((t: any) => t.dev.id === data.userId)
+    console.log(data.userId)
+    const isMember = submit.contributors.some((t: any) => t.dev.user.id == data.userId)
+    const isOwner = submit.project.owner.userId == data.userId
+    const hasBounty = submit.project.bounty > 0
 
-    return { submit, isMember }
+    return { submit, isMember, isOwner, hasBounty }
   }
 
   const { data, isLoading } = useQuery({
@@ -36,6 +39,8 @@ export const SubmitId = (props: any) => {
 
   const submit = data?.submit
   const member = data?.isMember ?? false
+  const owner = data?.isOwner ?? false
+  const bounty = data?.hasBounty ?? false
 
   if (isLoading || !submit) {
     return <div className='text-white text-3xl h-[70vh] flex justify-center items-center p-4'>Loading...</div>
@@ -50,10 +55,14 @@ export const SubmitId = (props: any) => {
           <Link href={`/project/${submit.project.id}`} className='lg:text-4xl text-2xl font-semibold text-center'>{submit.project.name}</Link>
         </div>
 
-        {member && <div className="flex justify-end gap-3 mb-4 mx-2">
+        {member && bounty && <div className="flex justify-end gap-3 mb-4 mx-2">
           <div><EditSubmit EditSubmit={submit} id={submit.id} /></div>
           <div><DeleteSubmit id={submit.id} /></div>
         </div>}
+
+        {owner && <div className="flex justify-end gap-3 mb-4 mx-2">
+          <PaySubmission submitId={props.id} projectId={submit.project.id} />
+          </div>}
 
         <div className="border border-gray-700 mx-2 lg:px-6 px-4 rounded-2xl bg-gray-900 shadow-lg">
           <div className='flex flex-col gap-6 lg:py-8 py-5'>
@@ -129,30 +138,3 @@ export const SubmitId = (props: any) => {
 
 
 
-
-// {
-//     "submit": {
-//         "liveLink": "https://github.com/Talha9509",
-//         "repoLink": "https://github.com/Talha9509",
-//         "NoofContributors": 1,
-//         "project": {
-//             "name": "Decentralized Exchange",
-//             "id": 73
-//         },
-//         "_count": {
-//             "stars": 1
-//         },
-//         "contributors": [
-//             {
-//                 "contributionPercent": 100,
-//                 "contributionRole": "Leader",
-//                 "dev": {
-//                     "id": 18,
-//                     "user": {
-//                         "name": "Mohd Talha"
-//                     }
-//                 }
-//             }
-//         ]
-//     }
-// }
