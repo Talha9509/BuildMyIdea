@@ -58,7 +58,7 @@ export const Payout = async (req: Request, res: Response) => {
 
   try {
     const [ownersProject, submitExists] = await Promise.all([
-      prismaClient.project.findUnique({ where: { id: projectId, ownerId: ownerId } }),
+      prismaClient.project.findUnique({ where: { id: projectId, ownerId: ownerId }, select: { paymentStatus: true } }),
       await prismaClient.submit.findUnique({ 
         where: { id: submitId, projectId: projectId }, 
         include: { 
@@ -74,6 +74,7 @@ export const Payout = async (req: Request, res: Response) => {
     ])
 
     if (!ownersProject) return res.status(400).json({ message: "You are not the Owner of the Project" })
+    if (ownersProject.paymentStatus != "Paid") return res.status(400).json({ message: "You did not chose bounty for this project" })
     if (!submitExists) return res.status(404).json({ message: "Submission not found" })
 
     submitExists.contributors.forEach((contributor) => {
