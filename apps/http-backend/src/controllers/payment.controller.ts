@@ -77,10 +77,11 @@ export const Payout = async (req: Request, res: Response) => {
     if (ownersProject.paymentStatus != "Paid") return res.status(400).json({ message: "You did not chose bounty for this project" })
     if (!submitExists) return res.status(404).json({ message: "Submission not found" })
 
-    submitExists.contributors.forEach((contributor) => {
-      const devRazorpay = contributor.dev.razorpayAccountId
-      if(!devRazorpay) return res.status(400).json({ message: `Dev ${contributor.dev.user.name} has no bank account` })
-    })
+    const missingAccountId = submitExists.contributors.find((contributor) => !contributor.dev.razorpayAccountId)
+    if(missingAccountId) return res.status(400).json({ message: `Cannot payout. Dev ${missingAccountId.dev.user.name} has not linked their bank account` })
+
+    const totalPercentage = submitExists.contributors.reduce((sum, contribution) => sum + contribution.contributionPercent, 0)
+    if(totalPercentage != 100) return res.status(400).json({ message: "Team contribution percentages not equal to 100%" })
 
   // here in update project, paymentstatus shouldnt be completed, only lock the winnerSubmitId 
     const updateProject = await prismaClient.project.update({
