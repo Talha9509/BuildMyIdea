@@ -119,6 +119,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
         },
         dev: {
           select: {
+            razorpayAccountId: true,
             contributions: {
               select: { contributionPercent: true, contributionRole: true,
                 submission: {

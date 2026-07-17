@@ -63,10 +63,10 @@ services:
       redis_service:
         condition: service_healthy
     
-  worker:
+  worker-embeddings:
     build: 
       context: .
-      dockerfile: docker/Dockerfile.worker
+      dockerfile: docker/Dockerfile.worker-embeddings
 
     environment:
       - REDIS_URL=${REDIS_URL}

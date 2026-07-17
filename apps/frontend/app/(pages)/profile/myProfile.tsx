@@ -32,17 +32,21 @@ export const MyProfile = () => {
     staleTime: 1 * 60 * 1000,
     gcTime: 2 * 60 * 1000
   })
+
+  const isDev = user?.role === 'DEV'
+  const razorpayAccountId = user?.dev?.razorpayAccountId ?? null
+
   return (
     <div>
       {user && <div className='px-4'>
         <div className='flex justify-center items-center gap-6'>
           <div className='text-center lg:text-4xl text-xl p-4 px-10 font-semibold'>Profile</div>
           <div><EditProfile title={"Edit"} to={"profile"} method={'PATCH'} user={user} /></div>
-          {user.role == "DEV" && <div><AddAccountIdForm accountId={user.dev.razorpayAccountId} to={"profile"} method={'PATCH'} user={user} /></div>}
+          {isDev && <div><AddAccountIdForm accountId={razorpayAccountId} to={"profile"} method={'PATCH'} user={user} /></div>}
         </div>
 
         <div className='flex items-center justify-center pb-4 font-semibold'>
-        {user.dev.razorpayAccountId == null && <div><span className='underline'>Note</span>: Link Bank Account to Razorpay in order to receive payments</div>}
+        {isDev && razorpayAccountId == null && <div><span className='underline'>Note</span>: Link Bank Account to Razorpay in order to receive payments</div>}
         </div>
 
         <div className='flex flex-col items-center'>

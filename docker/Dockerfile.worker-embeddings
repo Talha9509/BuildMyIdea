@@ -12,10 +12,10 @@ COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY ./turbo.json ./turbo.json
 
 COPY ./packages ./packages
-COPY ./apps/worker ./apps/worker
+COPY ./apps/worker-embeddings ./apps/worker-embeddings
 
-RUN pnpm install --filter worker...
+RUN pnpm install --filter worker-embeddings...
 RUN pnpm run db:generate
-RUN pnpm run build --filter worker...
+RUN pnpm run build --filter worker-embeddings...
 
-CMD [ "pnpm","run","start:worker" ]
+CMD [ "pnpm","run","start:worker-embeddings" ]
