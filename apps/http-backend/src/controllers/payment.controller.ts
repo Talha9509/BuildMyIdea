@@ -90,6 +90,8 @@ export const Payout = async (req: Request, res: Response) => {
       data: { winnerSubmitId: submitId }
     })
 
+    console.log(updateProject)
+
     // Make the payment queue
     await payoutQueue.add("payouts", {
       projectId: projectId,
@@ -106,8 +108,9 @@ export const Payout = async (req: Request, res: Response) => {
       backoff: { type: 'exponential', delay: 5 * 60 * 100 }
     })
 
-    res.json({ message: "The bounty to each contributor will be paid within 24 hours" });
+    return res.json({ message: "The bounty to each contributor will be paid within 24 hours" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to link bank account" });
+    console.log(error)
+    return res.status(500).json({ error: "Failed to link bank account" });
   }
 };

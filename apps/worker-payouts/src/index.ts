@@ -22,6 +22,8 @@ type contributorType = {
 const payoutWorker = new Worker("payouts", async (job) => {
   const { projectId, winnerSubmitId, ownerId, contributors, bounty } = job.data
 
+  console.log("paying")
+
   const platformFee = bounty * 0.05
   const distributableBounty = bounty - platformFee
 
@@ -29,7 +31,6 @@ const payoutWorker = new Worker("payouts", async (job) => {
   // create payment table row of payout 
 
   const payout = contributors.map(async (contributor: contributorType) => {
-
     let alreadyPaid = await prismaClient.payments.findFirst({
       where: {
         projectId: projectId,
@@ -39,12 +40,15 @@ const payoutWorker = new Worker("payouts", async (job) => {
       }
     });
 
+    console.log(alreadyPaid)
+
     if (alreadyPaid) {
       console.log(`Dev ${contributor.devId} was already paid, Skipping`);
       return `Already Paid Dev ${contributor.devId}`;
     }
 
     let devCut = Math.floor(distributableBounty * (contributor.contributionPercent / 100))
+    console.log(devCut)
 
     const transfer = await razorpay.transfers.create({
       account: contributor.razorpayAccountId,
@@ -52,6 +56,8 @@ const payoutWorker = new Worker("payouts", async (job) => {
       amount: devCut,
       notes: { projectId: projectId.toString() }
     })
+
+    console.log(transfer)
 
     await prismaClient.payments.create({
       data: {

@@ -38,7 +38,7 @@ export const PaySubmission = (props: any) => {
     if (response) {
       setOnblur(false)
       router.refresh()
-      toast.success("Project Deleted", { duration: 5000 });
+      toast.success("Paid", { duration: 5000 });
     }
 
   }
