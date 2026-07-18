@@ -2,7 +2,7 @@
 import { email, z } from 'zod'
 
 export const SignupSchema = z.object({
-    email: z.string().regex(/@/, "Invalid Email"),
+    email: z.email("Invalid Email"),
     password: z.string().min(6, "Password must be atleast 6 characters"),
     username: z.string().min(3, "Username Required")
 })

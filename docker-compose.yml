@@ -29,6 +29,9 @@ services:
       - TWITTER_CLIENT_SECRET=${TWITTER_CLIENT_SECRET}
       - REDIS_URL=${REDIS_URL}
       - OPEN_API_KEY=${OPEN_API_KEY}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET}
 
     depends_on:
       redis_service:
@@ -45,6 +48,7 @@ services:
     environment:
       - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
       - BACKEND_URL=${BACKEND_URL} 
+      - NEXT_PUBLIC_RAZORPAY_KEY=${NEXT_PUBLIC_RAZORPAY_KEY}
 
   ws:
     build: 
@@ -71,6 +75,21 @@ services:
     environment:
       - REDIS_URL=${REDIS_URL}
       - OPEN_API_KEY=${OPEN_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+
+    depends_on:
+      redis_service:
+        condition: service_healthy
+
+  worker-payouts:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile.worker-payouts
+
+    environment:
+      - REDIS_URL=${REDIS_URL}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
       - DATABASE_URL=${DATABASE_URL}
 
     depends_on:
