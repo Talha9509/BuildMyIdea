@@ -41,39 +41,40 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     else if (validated.data.compensationType == "bounty") {
-      const bountyInPaise = validated.data.bounty! * 100
-      amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
-      project = await prismaClient.project.create({
-        data: {
-          name: validated.data.name,
-          description: validated.data.description,
-          skillsreq: validated.data.skillsreq,
-          refrenceLink: validated.data.refrenceLink,
-          mainFeature: validated.data.mainFeature,
-          bounty: bountyInPaise,
-          owner: {
-            connect: { userId: userId }
-          }
-        }
-      });
+      return res.status(501).json({ message: "This feature is not added yet and is currently in progress, you can chose Equity" })
+      // const bountyInPaise = validated.data.bounty! * 100
+      // amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
+      // project = await prismaClient.project.create({
+      //   data: {
+      //     name: validated.data.name,
+      //     description: validated.data.description,
+      //     skillsreq: validated.data.skillsreq,
+      //     refrenceLink: validated.data.refrenceLink,
+      //     mainFeature: validated.data.mainFeature,
+      //     bounty: bountyInPaise,
+      //     owner: {
+      //       connect: { userId: userId }
+      //     }
+      //   }
+      // });
 
-      order = await razorpay.orders.create({
-        amount: bountyInPaise,
-        currency: "INR",
-        receipt: `receipt_project_${project.id}`
-      })
-      console.log("order " + order)
-      console.log("order " + JSON.stringify(order))
+      // order = await razorpay.orders.create({
+      //   amount: bountyInPaise,
+      //   currency: "INR",
+      //   receipt: `receipt_project_${project.id}`
+      // })
+      // console.log("order " + order)
+      // console.log("order " + JSON.stringify(order))
 
-      await prismaClient.payments.create({
-        data: {
-          projectId: project.id,
-          ownerId: userId,
-          paymentType: "Deposit",
-          razorpayOrderId: order.id,
-          status: "Processing"
-        }
-      })
+      // await prismaClient.payments.create({
+      //   data: {
+      //     projectId: project.id,
+      //     ownerId: userId,
+      //     paymentType: "Deposit",
+      //     razorpayOrderId: order.id,
+      //     status: "Processing"
+      //   }
+      // })
     } else {
       return res.status(400).json({ message: "Invalid Compensation" });
     }
@@ -88,7 +89,9 @@ export const createProject = async (req: Request, res: Response) => {
       backoff: { type: 'exponential', delay: 5000 }
     })
 
-    return res.status(201).json({ message: "Done", type: validated.data.compensationType, orderId: validated.data.compensationType == "bounty" ? order.id : undefined, project: project, amount: amount });
+    return res.status(201).json({ message: "Done", type: validated.data.compensationType, 
+      // orderId: validated.data.compensationType == "bounty" ? order.id : undefined, 
+      project: project, amount: amount });
 
   } catch (err: any) {
     if (err.code === 'P2002') {
@@ -105,14 +108,14 @@ export const createProject = async (req: Request, res: Response) => {
 export const getProjects = async (req: Request, res: Response) => {
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
-    where: {
-      OR: [
-        { paymentStatus: "Paid" },
-        { bounty: { not: null } }
-      ]
-    },
+    // where: {
+    //   OR: [
+    //     { paymentStatus: "Paid" },
+    //     { bounty: { not: null } }
+    //   ]
+    // },
     select: {
-      name: true, description: true, id: true, mainFeature: true,
+      name: true, description: true, id: true, mainFeature: true, equity: true, bounty: true,
       owner: {
         select: {
           user: {
@@ -232,11 +235,7 @@ export const deleteProject = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Not Allowed to Delete others Project" })
     }
     const deleted = await prismaClient.project.delete({
-      where: {
-        id: id, submits: {
-          none: {}
-        }
-      }
+      where: { id: id }
     })
     if (!deleted) {
       return res.status(409).json({ message: "Can't Delete a Project with Active Submissions" })

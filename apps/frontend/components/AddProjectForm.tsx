@@ -55,33 +55,33 @@ const AddProjectForm = () => {
     })
 
     setOnLoading(false)
-    // if (response) {
-    //   setOnblur(false)
-    //   // next: use usestate to add a new project
-    //   router.refresh()
-    //   toast.success("Project Added", { duration: 5000 });
+    if (response) {
+      setOnblur(false)
+      // next: use usestate to add a new project
+      router.refresh()
+      toast.success("Project Added", { duration: 5000 });
+    }
+    // if (response.type === "equity") {
+    //   setOnblur(false);
+    //   router.refresh();
+    //   toast.success("Project Added");
     // }
-    if (response.type === "equity") {
-      setOnblur(false);
-      router.refresh();
-      toast.success("Project Added");
-    }
-    else if (response.type === "bounty") {
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: response.amount,
-        order_id: response.orderId,
-        name: "BuildMyIdea",
-        description: "Bounty Escrow",
-        handler: function (razorpayResponse: any) {
-          setOnblur(false);
-          router.refresh();
-          toast.success("Payment successful! Project is now live");
-        }
-      };
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-    }
+    // else if (response.type === "bounty") {
+    //   const options = {
+    //     key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+    //     amount: response.amount,
+    //     order_id: response.orderId,
+    //     name: "BuildMyIdea",
+    //     description: "Bounty Escrow",
+    //     handler: function (razorpayResponse: any) {
+    //       setOnblur(false);
+    //       router.refresh();
+    //       toast.success("Payment successful! Project is now live");
+    //     }
+    //   };
+    //   const rzp = new (window as any).Razorpay(options);
+    //   rzp.open();
+    // }
   }
   return (<div>
     <button onClick={Add} className='flex gap-1 border lg:px-2 px-1 lg:py-1 cursor-pointer lg:rounded-lg rounded-sm lg:font-medium font-normal bg-gray-100 hover:bg-gray-300 text-black items-center lg:text-base text-xs'><div className=' text-black'><Image src={Plus} alt='Plus' className='lg:w-4 w-3'></Image></div>Add Project</button>

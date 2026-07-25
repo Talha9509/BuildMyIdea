@@ -9,6 +9,7 @@ export type Project = {
     name: string
     description: string,
     mainFeature: string,
+    equity: number,
     owner: {
         user: {
             name: string
@@ -54,6 +55,16 @@ export const ProjectColumns: ColumnDef<Project>[] = [
         cell: ({ row }) => (
             <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
                 {row.original.mainFeature}
+            </div>
+        ),
+    },
+    {
+        accessorKey: "equity",
+        header: "Equity",
+        // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
+        cell: ({ row }) => (
+            <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
+                {row.original.equity == null ? `-` : `${row.original.equity}%`} 
             </div>
         ),
     },
