@@ -79,7 +79,7 @@ export const Payout = async (req: Request, res: Response) => {
     if (!submitExists) return res.status(404).json({ message: "Submission not found" })
 
     const missingAccountId = submitExists.contributors.find((contributor) => !contributor.dev.razorpayAccountId)
-    if(missingAccountId) return res.status(400).json({ message: `Cannot payout. Dev ${missingAccountId.dev.user.name} has not linked their bank account` })
+    if(missingAccountId) return res.status(400).json({ message: `Cannot payout. ${missingAccountId.dev.user.name} has not linked their bank account` })
 
     const totalPercentage = submitExists.contributors.reduce((sum, contribution) => sum + contribution.contributionPercent, 0)
     if(totalPercentage != 100) return res.status(400).json({ message: "Team contribution percentages not equal to 100%" })

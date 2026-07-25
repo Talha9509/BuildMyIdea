@@ -58,13 +58,7 @@ export const signin = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Create an Account First" })
     }
     if (!user.password) {
-      const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "72h" })
-
-      return res.status(200).cookie('jwt', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: 'strict',
-      }).json({ message: "Signed in" })
+      return res.status(403).json({ message: "You Signed up using external providers like Google/Github" })
     }
     const pass = validatedInput.data.password
     const correct = await bcrypt.compare(pass, user.password)

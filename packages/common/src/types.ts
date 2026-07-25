@@ -8,7 +8,7 @@ export const SignupSchema = z.object({
 })
 
 export const SigninSchema = z.object({
-    email: z.string().regex(/@/, "Invalid Email"),
+    email: z.email( "Invalid Email"),
     password: z.string().min(6, "Password must be atleast 6 characters"),
     username: z.string().optional()
 })
@@ -57,7 +57,7 @@ export const onboardDevSchema = z.object({
     email: z.email(),
     phone: z.number({ error: "Phone number is required" }),
     legal_business_name: z.string().min(3, "Business Name is Required"),
-    accountNumber: z.number({ error: "Account Number is required" })
+    // accountNumber: z.number({ error: "Account Number is required" })
 })
 
 export const updateUserSchema = z.object({

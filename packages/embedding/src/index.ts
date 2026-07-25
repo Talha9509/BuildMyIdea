@@ -1,3 +1,7 @@
-import OpenAI from "openai";
 
-export const openai = new OpenAI();
+import 'dotenv/config'
+
+import { GoogleGenAI } from "@google/genai";
+
+export const googleAi = new GoogleGenAI({});
+

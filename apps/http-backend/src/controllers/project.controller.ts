@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { prismaClient } from "@repo/db/client";
 import { ProjectSchema, updateProjectSchema, searchQuerySchema } from '@repo/common/types'
-import { openai } from '@repo/embedding/embedding'
+import { googleAi } from '@repo/embedding/embedding'
 import { embeddingQueue } from "@repo/redis/client";
 import { razorpay } from '../config/razorpay.js'
 
@@ -24,56 +24,56 @@ export const createProject = async (req: Request, res: Response) => {
     let project: any;
     let order: any;
     let amount: number | undefined;
-    if(validated.data.compensationType == "equity"){
+    if (validated.data.compensationType == "equity") {
       project = await prismaClient.project.create({
-      data: {
-        name: validated.data.name,
-        description: validated.data.description,
-        skillsreq: validated.data.skillsreq,
-        refrenceLink: validated.data.refrenceLink,
-        mainFeature: validated.data.mainFeature,
-        equity: validated.data.equity,
-        owner: {
-          connect: { userId: userId }
+        data: {
+          name: validated.data.name,
+          description: validated.data.description,
+          skillsreq: validated.data.skillsreq,
+          refrenceLink: validated.data.refrenceLink,
+          mainFeature: validated.data.mainFeature,
+          equity: validated.data.equity,
+          owner: {
+            connect: { userId: userId }
+          }
         }
-      }
-    });
+      });
     }
 
-    else if(validated.data.compensationType == "bounty"){
+    else if (validated.data.compensationType == "bounty") {
       const bountyInPaise = validated.data.bounty! * 100
       amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
       project = await prismaClient.project.create({
-      data: {
-        name: validated.data.name,
-        description: validated.data.description,
-        skillsreq: validated.data.skillsreq,
-        refrenceLink: validated.data.refrenceLink,
-        mainFeature: validated.data.mainFeature,
-        bounty: bountyInPaise,
-        owner: {
-          connect: { userId: userId }
+        data: {
+          name: validated.data.name,
+          description: validated.data.description,
+          skillsreq: validated.data.skillsreq,
+          refrenceLink: validated.data.refrenceLink,
+          mainFeature: validated.data.mainFeature,
+          bounty: bountyInPaise,
+          owner: {
+            connect: { userId: userId }
+          }
         }
-      }
-    });
+      });
 
-    order = await razorpay.orders.create({
-      amount: bountyInPaise,
-      currency: "INR",
-      receipt: `receipt_project_${project.id}`
-    })
-    console.log("order "+order)
-    console.log("order "+JSON.stringify(order))
+      order = await razorpay.orders.create({
+        amount: bountyInPaise,
+        currency: "INR",
+        receipt: `receipt_project_${project.id}`
+      })
+      console.log("order " + order)
+      console.log("order " + JSON.stringify(order))
 
-    await prismaClient.payments.create({
-      data: {
-        projectId: project.id,
-        ownerId: userId,
-        paymentType: "Deposit",
-        razorpayOrderId: order.id,
-        status: "Processing"
-      }
-    })
+      await prismaClient.payments.create({
+        data: {
+          projectId: project.id,
+          ownerId: userId,
+          paymentType: "Deposit",
+          razorpayOrderId: order.id,
+          status: "Processing"
+        }
+      })
     } else {
       return res.status(400).json({ message: "Invalid Compensation" });
     }
@@ -270,7 +270,7 @@ export const getProjectbyId = async (req: Request, res: Response) => {
             select: { name: true, id: true }
           }
         }
-      }, 
+      },
       submits: {
         select: {
           liveLink: true, repoLink: true, id: true,
@@ -282,7 +282,8 @@ export const getProjectbyId = async (req: Request, res: Response) => {
             where: { userId: userId }
           },
           contributors: {
-            select: { contributionPercent: true, contributionRole: true,
+            select: {
+              contributionPercent: true, contributionRole: true,
               dev: {
                 select: {
                   user: {
@@ -313,16 +314,25 @@ export const getProjectbySearch = async (req: Request, res: Response) => {
   try {
     console.log(query)
     console.log("sending api request")
-    const aiReponse = openai.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: query as string
+    const aiResponse = await googleAi.models.embedContent({
+      model: 'gemini-embedding-2',
+      contents: query as string,
+      config: {
+        outputDimensionality: 1536
+      }
     })
-    const searchVector = `[${(await aiReponse).data[0]?.embedding.join(",")}]`
+    // const aiReponse = openai.embeddings.create({
+    //   model: 'text-embedding-3-small',
+    //   input: query as string
+    // })
+    if(!aiResponse.embeddings || !aiResponse.embeddings[0]?.values) return res.status(400).json({ message: "Enter  Project Names" })
+    console.log(aiResponse.embeddings[0]?.values)
+    const searchVector = `[${aiResponse.embeddings[0]?.values.join(",")}]`
 
     const matchingprojects = await prismaClient.$queryRaw`
       SELECT id, name, description, "mainFeature"
-        FROM "Project" 
-        ORDER BY embedding <-> ${searchVector}::vector 
+        FROM "Project"
+        ORDER BY embedding <-> ${searchVector}::vector
         LIMIT 5;
     `
     console.log(matchingprojects)
