@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const AddAccountIdForm = (props: any) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(onboardDevSchema), defaultValues: { contact_name: "", email: "", phone: undefined, legal_business_name: "", accountNumber: undefined } })
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(onboardDevSchema), defaultValues: { contact_name: "", email: "", phone: undefined, legal_business_name: "",   } })
   const [onblur, setOnblur] = useState(false)
   //   const role = watch("role")
 
@@ -34,7 +34,6 @@ export const AddAccountIdForm = (props: any) => {
       email: undefined,
       phone: undefined,
       legal_business_name: "",
-      accountNumber: undefined,
     })
   }
 
@@ -95,11 +94,6 @@ export const AddAccountIdForm = (props: any) => {
               <div>
                 <div>Business Name: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("legal_business_name")} /></div>
                 {errors.legal_business_name && <div className='text-sm px-2'>{errors.legal_business_name?.message}</div>}
-              </div>
-
-              <div>
-                <div>Account Number: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("accountNumber")} /></div>
-                {errors.accountNumber && <div className='text-sm px-2'>{errors.accountNumber?.message}</div>}
               </div>
               <div>Note: You can't Edit these details again</div>
             </div>

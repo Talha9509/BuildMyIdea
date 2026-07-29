@@ -57,7 +57,12 @@ export const onboardDevSchema = z.object({
     email: z.email(),
     phone: z.number({ error: "Phone number is required" }),
     legal_business_name: z.string().min(3, "Business Name is Required"),
-    // accountNumber: z.number({ error: "Account Number is required" })
+    customer_facing_business_name: z.string().min(3, "Customer Facing Name is required"),
+    street1: z.string().min(4, "Enter correct address"),
+    street2: z.string().min(4, "Enter correct address"),
+    city: z.string().min(3, "Enter correct city"),
+    state: z.string().min(3, "Enter correct state"),
+    postal_code: z.string().min(6, "Enter correct postal code")
 })
 
 export const updateUserSchema = z.object({

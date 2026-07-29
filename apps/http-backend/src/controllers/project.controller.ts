@@ -41,40 +41,40 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     else if (validated.data.compensationType == "bounty") {
-      return res.status(501).json({ message: "This feature is not added yet and is currently in progress, you can chose Equity" })
-      // const bountyInPaise = validated.data.bounty! * 100
-      // amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
-      // project = await prismaClient.project.create({
-      //   data: {
-      //     name: validated.data.name,
-      //     description: validated.data.description,
-      //     skillsreq: validated.data.skillsreq,
-      //     refrenceLink: validated.data.refrenceLink,
-      //     mainFeature: validated.data.mainFeature,
-      //     bounty: bountyInPaise,
-      //     owner: {
-      //       connect: { userId: userId }
-      //     }
-      //   }
-      // });
+      // return res.status(501).json({ message: "This feature is not added yet and is currently in progress, you can chose Equity" })
+      const bountyInPaise = validated.data.bounty! * 100
+      amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
+      project = await prismaClient.project.create({
+        data: {
+          name: validated.data.name,
+          description: validated.data.description,
+          skillsreq: validated.data.skillsreq,
+          refrenceLink: validated.data.refrenceLink,
+          mainFeature: validated.data.mainFeature,
+          bounty: bountyInPaise,
+          owner: {
+            connect: { userId: userId }
+          }
+        }
+      });
 
-      // order = await razorpay.orders.create({
-      //   amount: bountyInPaise,
-      //   currency: "INR",
-      //   receipt: `receipt_project_${project.id}`
-      // })
-      // console.log("order " + order)
-      // console.log("order " + JSON.stringify(order))
+      order = await razorpay.orders.create({
+        amount: bountyInPaise,
+        currency: "INR",
+        receipt: `receipt_project_${project.id}`
+      })
+      console.log("order " + order)
+      console.log("order " + JSON.stringify(order))
 
-      // await prismaClient.payments.create({
-      //   data: {
-      //     projectId: project.id,
-      //     ownerId: userId,
-      //     paymentType: "Deposit",
-      //     razorpayOrderId: order.id,
-      //     status: "Processing"
-      //   }
-      // })
+      await prismaClient.payments.create({
+        data: {
+          projectId: project.id,
+          ownerId: userId,
+          paymentType: "Deposit",
+          razorpayOrderId: order.id,
+          status: "Processing"
+        }
+      })
     } else {
       return res.status(400).json({ message: "Invalid Compensation" });
     }
