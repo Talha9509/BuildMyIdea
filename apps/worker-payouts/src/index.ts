@@ -30,74 +30,72 @@ const payoutWorker = new Worker("payouts", async (job) => {
   // make payments to each dev
   // create payment table row of payout 
 
-  const payout = contributors.map(async (contributor: contributorType) => {
-    let alreadyPaid = await prismaClient.payments.findFirst({
-      where: {
-        projectId: projectId,
-        devId: contributor.devId,
-        paymentType: "Payout",
-        status: "Success"
-      }
-    });
+  // get paymentid from payments table 
+  const payment = await prismaClient.payments.findFirst({
+    where: { paymentType: 'Deposit', projectId: projectId, status: 'Success' },
+    select: { razorpayPaymentId: true }
+  })
 
-    console.log(alreadyPaid)
-
-    if (alreadyPaid) {
-      console.log(`Dev ${contributor.devId} was already paid, Skipping`);
-      return `Already Paid Dev ${contributor.devId}`;
+  const alreadyPaid = await prismaClient.payments.findMany({
+    where: {
+      projectId: projectId,
+      status: 'Success',
+      paymentType: 'Payout',
+      devId: { in: contributors.map((contributor: contributorType) => contributor.devId) }
     }
+  })
 
+  const paidDevIds = new Set(alreadyPaid.map((p: any) => p.devId));
+  const unpaidContributors = contributors.filter((c: contributorType) => !paidDevIds.has(c.devId));
+
+  if (unpaidContributors.length === 0) {
+    console.log("[Payouts] All contributors have already been paid. Skipping.");
+    return "All contributors had already been paid";
+  }
+
+  const transferPayloads = unpaidContributors.map((contributor: contributorType) => {
     let devCut = Math.floor(distributableBounty * (contributor.contributionPercent / 100))
     console.log(devCut)
 
-    // const transfer = await razorpay.transfers.create({
-    //   account: contributor.razorpayAccountId,
-    //   currency: "INR",
-    //   amount: devCut,
-    //   notes: { projectId: projectId.toString() }
-    // })
-
-    const transfer = await razorpay.payments.transfer('paymentId', {
-    transfers: [
-      {
-        account: contributor.razorpayAccountId, 
-        amount: devCut,
-        currency: 'INR',
-        notes: { projectId: projectId.toString() }
+    return {
+      account: contributor.razorpayAccountId,
+      amount: devCut,
+      currency: 'INR',
+      notes: {
+        projectId: projectId.toString(),
+        devId: contributor.devId 
       }
-    ]
+    };
+  });
+  console.log("FINAL PAYLOAD:", JSON.stringify({ transfers: transferPayloads }, null, 2));
+
+  let transferResponse;
+  try {
+    transferResponse = await razorpay.payments.transfer(payment?.razorpayPaymentId!, {
+      transfers: transferPayloads
+    });
+  } catch (error) {
+    console.error("[Payouts] Razorpay bulk transfer failed at Gateway!", error);
+    throw new Error(JSON.stringify(error)); 
+  }
+
+  const paymentRecords = transferResponse.items.map((transferObj: any) => {
+    return {
+      projectId: projectId,
+      ownerId: ownerId,
+      devId: transferObj.notes.devId, 
+      paymentType: 'Payout' as const,
+      razorpayTransferId: transferObj.id,
+      status: "Success" as const
+    };
   });
 
-    console.log(transfer)
-
-    await prismaClient.payments.create({
-      data: {
-        projectId: projectId,
-        ownerId: ownerId,
-        devId: contributor.devId,
-        paymentType: "Payout",
-        razorpayTransferId: transfer.items[0] && transfer?.items[0].id,
-        status: "Success"
-      }
-    })
-    return `Paid Dev ${contributor.devId}`
-  })
-
-  const results = await Promise.allSettled(payout)
-
-  const failures = results.filter(res => res.status == "rejected")
-  if (failures.length > 0) {
-    console.error(`[Payouts] ${failures.length} transfers failed!`, failures);
-    console.error(failures[0]?.reason.error);
-    const a = failures[0]?.reason.error
-    console.error(JSON.stringify(a));
-    throw new Error("Some transfers failed. Check logs.");
-  }
+  await prismaClient.payments.createMany({ data: paymentRecords });
 
   await prismaClient.project.update({
     where: { id: projectId, winnerSubmitId: winnerSubmitId },
     data: { paymentStatus: "Completed" }
-  })
+  });
   return "All Payouts completed successfully";
 }, {
   connection: bullMQConnection

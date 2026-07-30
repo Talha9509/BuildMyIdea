@@ -41,7 +41,6 @@ export const createProject = async (req: Request, res: Response) => {
     }
 
     else if (validated.data.compensationType == "bounty") {
-      // return res.status(501).json({ message: "This feature is not added yet and is currently in progress, you can chose Equity" })
       const bountyInPaise = validated.data.bounty! * 100
       amount = validated.data.compensationType == "bounty" ? bountyInPaise : undefined
       project = await prismaClient.project.create({

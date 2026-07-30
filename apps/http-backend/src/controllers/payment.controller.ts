@@ -62,7 +62,6 @@ export const onboardDev = async (req: Request, res: Response) => {
 };
 
 export const Payout = async (req: Request, res: Response) => {
-  // return res.status(501).json({ message: "This feature is not added yet and is currently in progress" })
   const userId = Number(req.userId);
   const submitId = parseInt(req.params.submitId as string)
   const projectId = parseInt(req.params.projectId as string)
@@ -89,7 +88,7 @@ export const Payout = async (req: Request, res: Response) => {
     ])
 
     if (!ownersProject) return res.status(400).json({ message: "You are not the Owner of the Project" })
-    if (ownersProject.paymentStatus != "Paid") return res.status(400).json({ message: "You did not chose bounty for this project" })
+    if (ownersProject.paymentStatus != "Paid") return res.status(400).json({ message: ownersProject.paymentStatus == "Completed" ? "You already made the payout to contributors" : "You did not chose bounty for this project" })
     if (!submitExists) return res.status(404).json({ message: "Submission not found" })
 
     const missingAccountId = submitExists.contributors.find((contributor) => !contributor.dev.razorpayAccountId)
@@ -107,8 +106,6 @@ export const Payout = async (req: Request, res: Response) => {
     console.log(updateProject)
 
     // Make the payment queue
-    // also check if deposit is sucess?
-    // take paymentid from payments table and send to worker
     await payoutQueue.add("payouts", {
       projectId: projectId,
       winnerSubmitId: submitId,
