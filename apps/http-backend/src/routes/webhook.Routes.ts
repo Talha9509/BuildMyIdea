@@ -4,6 +4,6 @@ import { ownerProjectPayment } from '../controllers/webhook.controller.js'
 
 const router:Router = Router();
 
-router.post("/razorpay", authMiddleware, ownerProjectPayment);
+router.post("/razorpay", ownerProjectPayment);
 
 export default router;

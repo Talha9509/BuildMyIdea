@@ -90,7 +90,7 @@ export const createProject = async (req: Request, res: Response) => {
     })
 
     return res.status(201).json({ message: "Done", type: validated.data.compensationType, 
-      // orderId: validated.data.compensationType == "bounty" ? order.id : undefined, 
+      orderId: validated.data.compensationType == "bounty" ? order.id : undefined, 
       project: project, amount: amount });
 
   } catch (err: any) {

@@ -22,7 +22,7 @@ export const ownerProjectPayment = async (req: Request, res: Response) => {
   const event = req.body.event
 
   try {
-    if (event == "order.paid") {
+    if (event == "order.paid" || "payment.captured") {
       const payment = req.body.payload.payment.entity;
       const orderId = payment.order_id;
 

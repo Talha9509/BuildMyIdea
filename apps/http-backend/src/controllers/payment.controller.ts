@@ -107,6 +107,8 @@ export const Payout = async (req: Request, res: Response) => {
     console.log(updateProject)
 
     // Make the payment queue
+    // also check if deposit is sucess?
+    // take paymentid from payments table and send to worker
     await payoutQueue.add("payouts", {
       projectId: projectId,
       winnerSubmitId: submitId,

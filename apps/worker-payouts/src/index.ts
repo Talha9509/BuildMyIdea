@@ -50,12 +50,23 @@ const payoutWorker = new Worker("payouts", async (job) => {
     let devCut = Math.floor(distributableBounty * (contributor.contributionPercent / 100))
     console.log(devCut)
 
-    const transfer = await razorpay.transfers.create({
-      account: contributor.razorpayAccountId,
-      currency: "INR",
-      amount: devCut,
-      notes: { projectId: projectId.toString() }
-    })
+    // const transfer = await razorpay.transfers.create({
+    //   account: contributor.razorpayAccountId,
+    //   currency: "INR",
+    //   amount: devCut,
+    //   notes: { projectId: projectId.toString() }
+    // })
+
+    const transfer = await razorpay.payments.transfer('paymentId', {
+    transfers: [
+      {
+        account: contributor.razorpayAccountId, 
+        amount: devCut,
+        currency: 'INR',
+        notes: { projectId: projectId.toString() }
+      }
+    ]
+  });
 
     console.log(transfer)
 
@@ -65,7 +76,7 @@ const payoutWorker = new Worker("payouts", async (job) => {
         ownerId: ownerId,
         devId: contributor.devId,
         paymentType: "Payout",
-        razorpayTransferId: transfer.id,
+        razorpayTransferId: transfer.items[0] && transfer?.items[0].id,
         status: "Success"
       }
     })
@@ -77,6 +88,9 @@ const payoutWorker = new Worker("payouts", async (job) => {
   const failures = results.filter(res => res.status == "rejected")
   if (failures.length > 0) {
     console.error(`[Payouts] ${failures.length} transfers failed!`, failures);
+    console.error(failures[0]?.reason.error);
+    const a = failures[0]?.reason.error
+    console.error(JSON.stringify(a));
     throw new Error("Some transfers failed. Check logs.");
   }
 
