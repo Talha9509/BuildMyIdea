@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const AddAccountIdForm = (props: any) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(onboardDevSchema), defaultValues: { contact_name: "", email: "", phone: undefined, legal_business_name: "",   } })
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({ resolver: zodResolver(onboardDevSchema), defaultValues: { contact_name: "", email: "", phone: "", legal_business_name: "", customer_facing_business_name: "", street1: "", street2: "", city: "", state: "", postal_code: ""  } })
   const [onblur, setOnblur] = useState(false)
   //   const role = watch("role")
 
@@ -31,9 +31,15 @@ export const AddAccountIdForm = (props: any) => {
     setOnblur(true)
     reset({
       contact_name: "",
-      email: undefined,
-      phone: undefined,
+      email: "",
+      phone: "",
       legal_business_name: "",
+      customer_facing_business_name: "",
+      street1: "", 
+      street2: "", 
+      city: "", 
+      state: "", 
+      postal_code: ""
     })
   }
 
@@ -87,15 +93,46 @@ export const AddAccountIdForm = (props: any) => {
               </div>
 
               <div>
-                <div>Phone: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[12vw]' {...register("phone")} /></div>
+                <div>Phone: <input type='tel' inputMode='numeric' pattern='[0-9]*' className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[12vw]' {...register("phone")} /></div>
                 {errors.phone && <div className='text-sm px-2'>{errors.phone?.message}</div>}
               </div>
 
               <div>
-                <div>Business Name: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("legal_business_name")} /></div>
+                <div>Legal Business Name: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("legal_business_name")} /></div>
                 {errors.legal_business_name && <div className='text-sm px-2'>{errors.legal_business_name?.message}</div>}
               </div>
-              <div>Note: You can't Edit these details again</div>
+
+              <div>
+                <div>Customer-Facing Business Name: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]' {...register("customer_facing_business_name")} /></div>
+                {errors.customer_facing_business_name && <div className='text-sm px-2'>{errors.customer_facing_business_name?.message}</div>}
+              </div>
+              
+              <div>
+                <div>Address: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw] w-3/4' {...register("street1")} /></div>
+                {errors.street1 && <div className='text-sm px-2'>{errors.street1?.message}</div>}
+              </div>
+              
+              <div>
+                <div>Street: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw] w-3/4' {...register("street2")} /></div>
+                {errors.street2 && <div className='text-sm px-2'>{errors.street2?.message}</div>}
+              </div>
+              
+              <div>
+                <div>City: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw]  w-3/4' {...register("city")} /></div>
+                {errors.city && <div className='text-sm px-2'>{errors.city?.message}</div>}
+              </div>
+              
+              <div>
+                <div>State: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw] w-3/4' {...register("state")} /></div>
+                {errors.state && <div className='text-sm px-2'>{errors.state?.message}</div>}
+              </div>
+              
+              <div>
+                <div>Postal Code: <input className='border-black border-2 rounded-xl px-2 focus:outline-none min-w-[10vw] w-3/4' {...register("postal_code")} /></div>
+                {errors.postal_code && <div className='text-sm px-2'>{errors.postal_code?.message}</div>}
+              </div>
+
+              <div className='text-center'>Note: You can't Edit these details again</div>
             </div>
 
             <button type="submit" disabled={updateProfileMutation.isPending} className={`disabled:bg-blue-400 border-black border-2 rounded-4xl px-2  min-w-[5vw] cursor-pointer bg-blue-900 hover:bg-blue-950 text-white text-lg transition duration-300 ease-in-out`} >{updateProfileMutation.isPending ? "Updating..." : "Submit"}</button>

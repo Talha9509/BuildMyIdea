@@ -42,7 +42,7 @@ export const MyProfile = () => {
         <div className='flex justify-center items-center gap-6'>
           <div className='text-center lg:text-4xl text-xl p-4 px-10 font-semibold'>Profile</div>
           <div><EditProfile title={"Edit"} to={"profile"} method={'PATCH'} user={user} /></div>
-          {isDev && <div><AddAccountIdForm accountId={razorpayAccountId} to={"profile"} method={'PATCH'} user={user} /></div>}
+          {isDev && <div><AddAccountIdForm accountId={razorpayAccountId} to={"profile"} method={'POST'} user={user} /></div>}
         </div>
 
         <div className='flex items-center justify-center pb-4 font-semibold'>

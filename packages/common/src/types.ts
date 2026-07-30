@@ -55,7 +55,7 @@ export const updateProjectSchema = z.object({
 export const onboardDevSchema = z.object({
     contact_name: z.string().min(3, "Name is required"),
     email: z.email(),
-    phone: z.number({ error: "Phone number is required" }),
+    phone: z.string().regex(/^\d{10}$/, "Phone number should be 10 digits"),
     legal_business_name: z.string().min(3, "Business Name is Required"),
     customer_facing_business_name: z.string().min(3, "Customer Facing Name is required"),
     street1: z.string().min(4, "Enter correct address"),
