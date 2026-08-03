@@ -24,8 +24,10 @@ const payoutWorker = new Worker("payouts", async (job) => {
 
   console.log("paying")
 
-  const platformFee = bounty * 0.05
-  const distributableBounty = bounty - platformFee
+  const gatewayFee = bounty * 0.0236; 
+  const netReceived = bounty - gatewayFee;
+  const platformFee = netReceived * 0.05
+  const distributableBounty = netReceived - platformFee
 
   // make payments to each dev
   // create payment table row of payout 
