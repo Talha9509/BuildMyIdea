@@ -1,6 +1,6 @@
 
 # BuildMyIdea
-BuildMyIdea is a platform where users can post any AI, Software, App ideas and developers can browse, submit solutions, and collaborate to build them.
+BuildMyIdea is a modern, high-performance marketplace platform that connects early stage startup founders with developers. It provides a secure environment to post tech projects, collaborate, and manage multi-developer bounty payouts via an integrated escrow system, or negotiate equity splits.
 
 ---
 
@@ -8,24 +8,39 @@ BuildMyIdea is a platform where users can post any AI, Software, App ideas and d
 
 ![Alt text](assets/architecture.png)
 
+## Key Features
+
+* **Secure Bounty Escrow (Razorpay Route):** Creators fund projects upfront. Funds are securely held in escrow until a winning submission is selected.
+* **Team Submissions & Split Payouts:** Developers can submit work solo or as a team (up to 4 members). The backend automatically calculates contribution percentages and distributes funds to multiple bank accounts using background workers.
+* **AI Semantic Search:** Powered by OpenAI embeddings and Postgres `pgvector`. Search doesn't just look for keywords; it understands the *meaning* of the project and developer skills to find the perfect match.
+* **Real-Time WebSockets:** Live, persistent connections via Redis Pub/Sub for instant chat messaging and platform notifications.
+* **Asynchronous Background Jobs:** Heavy tasks (like generating AI embeddings or processing multi-account financial transfers) are offloaded to **BullMQ** workers to keep the API lightning fast.
+
 ## Tech Stack
 
-### Frontend
+### Frontend (apps/frontend)
 
 * Next.js
 * ShadCN UI
 * TanStack Table
 * React Hook Form
 * Sonner
+* Razorpay Checkout SDK
 
-### Backend
+### Backend (apps/http-backend & ws & workers)
 
 * Express.js
-* TypeScript
-* Prisma ORM
-* PostgreSQL
-* Passport.js OAuth
-* Redis Pub/Sub
+* Passport.js OAuth & JWT (Cookie-based Authentication)
+* ws (Native WebSockets)
+* BullMQ (Job Queues)
+* Razorpay Node SDK
+* Embedding Model
+
+### Database & Infrastructure (packages/* & docker/*)
+
+* PostgreSQL (hosted on Neon Serverless DB)
+* Prisma ORM (with pgvector extension)
+* Redis / IORedis (Pub/Sub & Queues)
 * Docker
 
 ---
@@ -36,145 +51,94 @@ BuildMyIdea is a platform where users can post any AI, Software, App ideas and d
 BuildMyIdea/
 │
 ├── apps/
-│   ├── frontend/        # Next.js frontend
-│   ├── backend/         # Express backend
-│   └── websockets/      # WebSockets backend
+│   ├── frontend/            # Next.js frontend
+│   ├── backend/             # Express backend
+│   ├── websockets/          # Express backend
+│   ├── worker-payouts/      # Payments Background Worker
+│   └── worker-embeddings/   # Embeddings Background Worker
 │
 ├── packages/
 │   ├── db/              # Prisma schema + Prisma Client
 │   ├── common/          # Shared Zod schemas / Types
-│   └── redis/           # Shared Redis
+│   ├── redis/           # Shared Redis
+│   └── redis/           # Shared Embeddings
+│
+├── docker/*             # dockerfiles
 └── docker-compose.yml
+
 ```
-
----
-
-## Features
-
-### Authentication
-
-* Email / Password Login
-* Google OAuth
-* GitHub OAuth
-
-### User Roles
-
-* Idea Creator
-* Developer
-
-### Projects
-
-* Post New Project Ideas
-* Edit / Delete Projects
-* Browse All Projects
-* View Project Details
-
-### Submissions
-
-* Developers Submit Project Solutions
-* GitHub / Live Demo Links
-* Prevent Duplicate Submissions
-
-### Profile
-
-* Public Profile Pages
-* Role Switching with Validation
-* View Posted Projects / Submitted Projects
 
 ---
 
 ## Setup
 
-### Using Docker
+### 1. Clone Repository & Install
 
 ```bash
-docker-compose --env-file .env up
-```
----
-
-### Manual Setup
-
-### 1. Clone Repository
-
-```bash
-git clone <repo-url>
+git clone https://github.com/Talha9509/BuildMyIdea.git
 cd BuildMyIdea
-```
-
----
-
-### 2. Install Dependencies
-
-```bash
 pnpm install
 ```
 
----
-
-### 3. Setup Environment Variables
+### 2. Setup Environment Variables
 
 Create `.env` files in required apps/packages.
 
 Example:
 
 ```env
-FRONTEND="http://localhost:3000"
+# Frontend
 NEXT_PUBLIC_BACKEND_URL="http://localhost:3001"   
 BACKEND_URL="http://localhost:3001"    (For calling backend in docker, use: http://backend:3001)
-DATABASE_URL=
-JWT_SECRET=
+
+# Database & Redis
+DATABASE_URL="postgresql://user:password@host:port/neondb"
+REDIS_URL="redis://localhost:6379"
+
+# Security
+JWT_SECRET="your_super_secret_string"
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
+FRONTEND="http://localhost:3000"
+
+# External APIs
+OPENAI_API_KEY="sk-..."
+RAZORPAY_KEY_ID="rzp_test_..."
+RAZORPAY_KEY_SECRET="your_razorpay_secret"
+RAZORPAY_WEBHOOK_SECRET="your_webhook_secret"
 ```
 
----
-
-### 4. Run Prisma Migrations
+### 3. Run Prisma Migrations
 
 ```bash
 cd packages/db
 npx prisma migrate dev
 ```
 
----
+### 4. Run using 
 
-### 5. Build Shared Packages
+### i. Docker
 
 ```bash
-pnpm --filter db build
-pnpm --filter common build
+docker-compose --env-file .env up
+```
+
+### ii. without Docker
+
+#### Build Shared Packages
+
+```bash
+pnpm run build
 ```
 
 ---
 
-### 6. Start Development Servers
+#### Start Development Servers
 
 ```bash
 pnpm run dev
-```
-
----
-
-## Environment Variables
-
-### Backend
-
-```env
-DATABASE_URL=
-JWT_SECRET=
-FRONTEND_URL=
-NODE_ENV=production
-```
-
-### OAuth
-
-```env
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
 ```
 
 ---
@@ -183,14 +147,12 @@ GITHUB_CLIENT_SECRET=
 
 * Project Status Tracking
 * Reviews / Ratings
-* Team Collaboration
-* Payment / Escrow Support
 
 ---
 
 ## Author
 
-**Mohd Talha**
+**Mohd Abdul Wasay Talha**
 
 ---
 
