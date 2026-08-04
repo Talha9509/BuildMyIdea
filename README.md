@@ -1,12 +1,12 @@
 
 # BuildMyIdea
-BuildMyIdea is a modern, high-performance marketplace platform that connects early stage startup founders with developers. It provides a secure environment to post tech projects, collaborate, and manage multi-developer bounty payouts via an integrated escrow system, or negotiate equity splits.
+BuildMyIdea is a modern, high-performance marketplace platform that connects early stage startup founders with developers. It provides a secure environment to post tech projects, collaborate, and manage multi-developer bounty payouts via an integrated escrow system, or negotiate equity splits. 
 
 ---
 
 ## System architecture
 
-![Alt text](assets/architecture.png)
+![Alt text](assets/architecture.png) 
 
 ## Key Features
 
