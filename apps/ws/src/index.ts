@@ -45,6 +45,18 @@ wss.on('connection', async (socket: WebSocket, req) => {
 
   console.log(`User ${userId} authenticated and connected via WebSocket.`);
 
+  try {
+    const user = await prismaClient.user.findUnique({
+      where: { id: userId }, select: { role: true }
+    })
+    // Go to your Profile page and choose your role to start exploring.
+    if(user?.role == null){
+      socket.send(JSON.stringify({ type: 'Role_Status', data: 'Please head over to your Profile page to pick your role. This helps us customize your experience accordingly', role: user?.role }))
+    }
+  } catch (error) {
+    console.log("Can't get user's role")
+  }
+
   const notificationListener = (message: string) => {
     const data = JSON.parse(message.toString())
     console.log(`notifying ${userId} with message: ${data.message}`)

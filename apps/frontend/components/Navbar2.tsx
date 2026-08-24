@@ -65,6 +65,25 @@ const Navbar2 = () => {
             ;
         });
       }
+      else if(parsed.type == "Role_Status"){
+        toast.custom((notify) => (
+          <div className="w-full rounded-3xl bg-white p-5 shadow-lg">
+            <div className="text-md font-medium leading-6 text-gray-900">{parsed.data}</div>
+
+            <div className="mt-2 flex justify-end gap-3">
+              <button onClick={() => { 
+                toast.dismiss(notify)
+                console.log("cancelled")
+              }} className="rounded-lg border border-gray-300 px-4 py-1.5 text-md font-semibold text-gray-700 hover:bg-gray-100 cursor-pointer">Cancel</button>
+              <button onClick={() => {
+                  toast.dismiss(notify)
+                  router.push("/profile")
+                }} className="rounded-lg bg-black px-4 py-1.5 text-md font-semibold text-white hover:bg-gray-800 cursor-pointer">Profile</button>
+            </div>
+          </div>
+        ), { duration: Infinity, className: "!rounded-3xl !p-0 !overflow-hidden" })
+        return
+      }
     }
     socket.addEventListener("message", handleMessage);
     return () => socket.removeEventListener("message", handleMessage)
