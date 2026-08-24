@@ -134,6 +134,7 @@ const AddProjectForm = () => {
                   </div>
                 </div>
               </div>
+              <div>Note: {compensationType == 'bounty' ? `Bounty can't be refunded or changed` : `Equity can't be changed`}</div>
 
               <div><div>Refrence Link <span className='text-xs text-gray-500'>(optional)</span><div><input className='border-black border-2 rounded-lg  px-2 py-1 focus:outline-none  w-full' {...register("refrenceLink")} placeholder='Any Refrence for the Project' /></div></div>
               </div>
