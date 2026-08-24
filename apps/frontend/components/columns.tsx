@@ -10,6 +10,7 @@ export type Project = {
     description: string,
     mainFeature: string,
     equity: number,
+    bounty: number,
     owner: {
         user: {
             name: string
@@ -60,14 +61,28 @@ export const ProjectColumns: ColumnDef<Project>[] = [
     },
     {
         accessorKey: "equity",
-        header: "Equity",
+        header: "Equity/Bounty",
         // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
-        cell: ({ row }) => (
-            <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
-                {row.original.equity == null ? `-` : `${row.original.equity}%`} 
-            </div>
-        ),
+        cell: ({ row }) => {
+            const { equity, bounty } = row.original
+
+            return (
+                <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
+                    {equity != null ? `${equity}%` : `Rs ${bounty/100}` }
+                </div>
+            )
+        },
     },
+    // {
+    //     accessorKey: "equity",
+    //     header: "Equity",
+    //     // header: () => <div className="size-10/12 text-center text-white text-2xl">Description</div>,
+    //     cell: ({ row }) => (
+    //         <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
+    //             {row.original.equity == null ? `-` : `${row.original.equity}%`} 
+    //         </div>
+    //     ),
+    // },
     {
         accessorKey: "owner.user.name",
         header: "Owner",

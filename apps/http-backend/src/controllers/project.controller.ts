@@ -107,14 +107,15 @@ export const createProject = async (req: Request, res: Response) => {
 export const getProjects = async (req: Request, res: Response) => {
   const projects = await prismaClient.project.findMany({
     relationLoadStrategy: 'join',
-    // where: {
-    //   OR: [
-    //     { paymentStatus: "Paid" },
-    //     { bounty: { not: null } }
-    //   ]
-    // },
+    where: {
+      OR: [
+        { paymentStatus: "Paid" },
+        { bounty: { not: null } },
+        { equity: { not: null } },
+      ]
+    },
     select: {
-      name: true, description: true, id: true, mainFeature: true, equity: true, bounty: true,
+      name: true, description: true, id: true, mainFeature: true, bounty: true, equity: true,
       owner: {
         select: {
           user: {
