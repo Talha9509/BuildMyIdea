@@ -2,7 +2,7 @@ FROM node:24-alpine
 
 WORKDIR /app
 
-RUN npm i -g pnpm
+RUN npm i -g pnpm@10.33.0
 
 # ARG DATABASE_URL
 COPY ./package.json ./package.json
