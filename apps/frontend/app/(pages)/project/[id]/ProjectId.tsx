@@ -1,6 +1,6 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
-import Navbar from '../../../../components/Navbar2'
+import Navbar from '../../../../components/Navbar'
 import { Card } from '../../../../components/Card'
 import AddSubmit from '@/components/AddSubmitForm'
 import Link from 'next/link'

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from 'next/link'
-import Logout from '../components/Logout'
+import Logout from './Logout'
 import { apiFetch } from "@/utils/Apifetch";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -11,29 +11,21 @@ import { format } from 'date-fns';
 import { useRouter } from 'next/navigation'
 
 const Navbar2 = () => {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
   const hiddenRoutes = ['/signin', '/signup', '/'];
-  if (hiddenRoutes.includes(pathname) || pathname.startsWith("/chat")) return null;
+  const shouldHide = hiddenRoutes.includes(pathname) || pathname.startsWith("/chat");
+
   const { socket, isConnected } = useGlobalWebSocket();
-  const queryClient = useQueryClient()
-  const [notificationOpen, setNotificationOpen] = useState(false)
-  const router = useRouter()
-  // const [notifications, setNotifications] = useState([])
-  const url = process.env.NEXT_PUBLIC_BACKEND_URL
+  const queryClient = useQueryClient();
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const router = useRouter();
+  
+  const url = process.env.NEXT_PUBLIC_BACKEND_URL;
   async function getPrevNotifications() {
     const response = await apiFetch(`${url}/api/v1/notifications`, {
       method: 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }
-    })
-
-    // if (response) {
-    //   const notify = response.notifications
-    //   console.log(notify)
-    //   // setNotifications(notify)
-    // }
-    // return {notifications: response.notifications}
-    const notificationss = response.notifications
-    // console.log("notifications " + JSON.stringify(notificationss))
-    return notificationss
+    });
+    return response.notifications;
   }
 
   const { data: notifications } = useQuery({
@@ -43,8 +35,9 @@ const Navbar2 = () => {
     staleTime: 15 * 60 * 1000,
     refetchInterval: false,
     refetchOnReconnect: false,
-    refetchOnWindowFocus: false
-  })
+    refetchOnWindowFocus: false,
+    enabled: !shouldHide 
+  });
 
   useEffect(() => {
     if (!socket) return
@@ -88,6 +81,8 @@ const Navbar2 = () => {
     socket.addEventListener("message", handleMessage);
     return () => socket.removeEventListener("message", handleMessage)
   }, [socket, queryClient])
+
+  if (shouldHide) return null;
 
   return (
     <div>

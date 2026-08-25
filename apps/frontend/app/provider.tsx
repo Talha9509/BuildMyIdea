@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { WebSocketProvider } from "@/hooks/useGlobalWebSocket";
-import Navbar2 from '../components/Navbar2'
+import Navbar2 from '../components/Navbar'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const router = useRouter()
