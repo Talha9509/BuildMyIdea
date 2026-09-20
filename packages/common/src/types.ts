@@ -52,10 +52,12 @@ export const updateProjectSchema = z.object({
     mainFeature: z.optional(z.string().min(3, "Give a Vaild Main Feature for the Project"))
 })
 
+const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 export const onboardDevSchema = z.object({
     contact_name: z.string().min(3, "Name is required"),
     email: z.email(),
     phone: z.string().regex(/^\d{10}$/, "Phone number should be 10 digits"),
+    pan: z.string().trim().toUpperCase().min(1, "PAN number is required").regex(panRegex, "Invalid PAN card format (e.g., ABCDE1234F)"),
     legal_business_name: z.string().min(3, "Business Name is Required"),
     customer_facing_business_name: z.string().min(3, "Customer Facing Name is required"),
     street1: z.string().min(4, "Enter correct address"),
@@ -63,6 +65,13 @@ export const onboardDevSchema = z.object({
     city: z.string().min(3, "Enter correct city"),
     state: z.string().min(3, "Enter correct state"),
     postal_code: z.string().min(6, "Enter correct postal code")
+})
+
+const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+export const updateProductConfigSchema = z.object({
+    account_number: z.string().min(9, "Account number must be at least 9 digits").max(18, "Account number cannot exceed 18 digits").regex(/^\d+$/, "Account number must contain only numbers"),
+    ifsc_code: z.string().min(1, "IFSC code is required").regex(ifscRegex, "Invalid IFSC code format"),
+    beneficiary_name: z.string().min(3, "Beneficiary Name is required")
 })
 
 export const updateUserSchema = z.object({

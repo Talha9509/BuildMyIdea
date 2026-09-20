@@ -1,7 +1,7 @@
 import { prismaClient } from '@repo/db/client'
 import { Request, Response } from 'express'
 import { razorpay } from '../config/razorpay.js'
-import { onboardDevSchema } from '@repo/common/types'
+import { onboardDevSchema, updateProductConfigSchema } from '@repo/common/types'
 import { payoutQueue } from "@repo/redis/client";
 
 export const onboardDev = async (req: Request, res: Response) => {
@@ -49,17 +49,74 @@ export const onboardDev = async (req: Request, res: Response) => {
     console.log(account)
     console.log(JSON.stringify(account))
 
+    const stakeHolderAcc = await razorpay.stakeholders.create(account.id, {
+      percentage_ownership: 100,
+      phone: { primary: '' },
+      name: validated.data.contact_name,
+      email: validated.data.email,
+      addresses: {
+        residential: {
+          street: `${validated.data.street1}, ${validated.data.street2}`,
+          city: validated.data.city,
+          state: validated.data.state,
+          postal_code: validated.data.postal_code,
+          country: "IN"
+        }
+      },
+      kyc: { pan: validated.data.pan }
+    });
+    console.log(stakeHolderAcc)
+    console.log(JSON.stringify(stakeHolderAcc))
+    
+    const productConfig = await razorpay.products.requestProductConfiguration(account.id, {
+      "product_name": "route",
+      "tnc_accepted": true
+    });
+    console.log(productConfig)
+    console.log(JSON.stringify(productConfig))
+
     await prismaClient.dev.update({
       where: { userId: userId },
       data: { razorpayAccountId: account.id },
     });
 
-    res.json({ success: true, accountId: account.id });
+    res.json({ success: true, accountId: account.id, productId: productConfig.id });
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: "Failed to link bank account" });
   }
 };
+
+export const updateProductConfig = async (req: Request, res: Response) => {
+  const userId = req.userId
+  const body = req.body;
+  const accountId = req.params.accountId as string
+  const productId = req.params.productId as string
+
+  if (typeof userId !== 'number') {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const validated = updateProductConfigSchema.safeParse(body);
+  if (!validated.success) {
+    return res.status(422).json({ message: "Invalid Inputs" });
+  }
+
+  try {
+    const updatedProductConfig = await razorpay.products.edit(accountId, productId, {
+      settlements: {
+        account_number: validated.data.account_number,
+        ifsc_code: validated.data.ifsc_code,
+        beneficiary_name: validated.data.beneficiary_name
+      }
+    })
+    return res.json({ updatedProductConfig })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Failed to update the details" });
+  }
+
+}
 
 export const Payout = async (req: Request, res: Response) => {
   const userId = Number(req.userId);
