@@ -128,6 +128,7 @@ export const updateProductConfig = async (req: Request, res: Response) => {
         beneficiary_name: validated.data.beneficiary_name
       }
     })
+    console.log(updatedProductConfig)
     return res.json({ updatedProductConfig })
   } catch (error) {
     console.log(error)

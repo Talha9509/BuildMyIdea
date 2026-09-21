@@ -33,6 +33,7 @@ export const AddAccountIdForm = (props: any) => {
       contact_name: "",
       email: "",
       phone: "",
+      pan: "",
       legal_business_name: "",
       customer_facing_business_name: "",
       street1: "", 
@@ -45,7 +46,7 @@ export const AddAccountIdForm = (props: any) => {
 
   async function AddAccount(formData: any) {
     const response = await apiFetch(`${url}/api/v1/payments/onboard-dev`, {
-      method: `${props.method}`, credentials: 'include',
+      method: `POST`, credentials: 'include',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData)
     })
     if (response == null) {
@@ -69,7 +70,7 @@ export const AddAccountIdForm = (props: any) => {
     updateProfileMutation.mutate(data)
   }
   return (<div>
-    <button onClick={Edit} disabled={props.accountId != null} className='flex gap-1 border lg:px-2 px-1 cursor-pointer lg:rounded-lg rounded-sm   bg-gray-100 disabled:bg-gray-400 hover:bg-gray-300 text-black items-center lg:font-medium font-normal lg:text-base text-xs'>Link Account</button>
+    <button onClick={Edit} disabled={props.accountId != null} className='flex gap-1 border lg:px-2 px-1 cursor-pointer lg:rounded-lg rounded-sm   bg-gray-100 disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-gray-300 text-black items-center lg:font-medium font-normal lg:text-base text-xs'>Link Account</button>
 
     {onblur &&
       <form onSubmit={handleSubmit(onsubmit)}>
@@ -95,6 +96,11 @@ export const AddAccountIdForm = (props: any) => {
               <div>
                 <div>Phone: <input type='tel' inputMode='numeric' pattern='[0-9]*' className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[12vw]' {...register("phone")} /></div>
                 {errors.phone && <div className='text-sm px-2'>{errors.phone?.message}</div>}
+              </div>
+
+              <div>
+                <div>PAN Number: <input className='border-black border-2 rounded-lg px-2 focus:outline-none min-w-[12vw]' {...register("pan")} /></div>
+                {errors.pan && <div className='text-sm px-2'>{errors.pan?.message}</div>}
               </div>
 
               <div>

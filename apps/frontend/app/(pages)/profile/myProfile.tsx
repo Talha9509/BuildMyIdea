@@ -1,6 +1,7 @@
 "use client"
 import { EditProfile } from '@/components/EditProfile'
 import { AddAccountIdForm } from '@/components/AddAccountIdForm'
+import { UpdateProductConfigForm } from '@/components/UpdateProductConfig'
 import { Tab } from '@/components/Tab'
 import { Card } from '@/components/Card'
 import { useQuery } from '@tanstack/react-query'
@@ -35,6 +36,7 @@ export const MyProfile = () => {
 
   const isDev = user?.role === 'DEV'
   const razorpayAccountId = user?.dev?.razorpayAccountId ?? null
+  const razorpayProductId = user?.dev?.razorpayProductId ?? null
 
   return (
     <div>
@@ -42,11 +44,16 @@ export const MyProfile = () => {
         <div className='flex justify-center items-center gap-6'>
           <div className='text-center lg:text-4xl text-xl p-4 px-10 font-semibold'>Profile</div>
           <div><EditProfile title={"Edit"} to={"profile"} method={'PATCH'} user={user} /></div>
-          {isDev && <div><AddAccountIdForm accountId={razorpayAccountId} to={"profile"} method={'POST'} user={user} /></div>}
+          {isDev &&
+            <div className='flex gap-1.5'>
+              <AddAccountIdForm accountId={razorpayAccountId} />
+              <UpdateProductConfigForm accountId={razorpayAccountId} productId={razorpayProductId} />
+            </div>
+          }
         </div>
 
         <div className='flex items-center justify-center pb-4 font-semibold'>
-        {isDev && razorpayAccountId == null && <div><span className='underline'>Note</span>: Link Bank Account to Razorpay in order to receive payments</div>}
+          {isDev && razorpayAccountId == null && <div><span className='underline'>Note</span>: Link Bank Account to Razorpay in order to receive payments</div>}
         </div>
 
         <div className='flex flex-col items-center'>
