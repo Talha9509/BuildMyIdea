@@ -67,8 +67,12 @@ export const createProject = async (req: Request, res: Response) => {
 
       await prismaClient.payments.create({
         data: {
-          projectId: project.id,
-          ownerId: userId,
+          project: {
+            connect: { id: project.id }
+          },
+          owner: {
+            connect: { userId: userId }
+          },
           paymentType: "Deposit",
           razorpayOrderId: order.id,
           status: "Processing"

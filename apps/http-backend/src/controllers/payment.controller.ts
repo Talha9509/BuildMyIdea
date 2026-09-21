@@ -81,7 +81,13 @@ export const onboardDev = async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, accountId: account.id, productId: productConfig.id });
-  } catch (error) {
+  } catch (error: any) {
+    if(error.statusCode == 400){
+      console.log(error)
+      if(error.field == 'email'){
+        return res.status(400).json({ message: 'The Email is already linked to an account' })
+      }
+    }
     console.log(error)
     res.status(500).json({ error: "Failed to link bank account" });
   }

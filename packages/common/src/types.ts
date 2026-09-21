@@ -52,7 +52,7 @@ export const updateProjectSchema = z.object({
     mainFeature: z.optional(z.string().min(3, "Give a Vaild Main Feature for the Project"))
 })
 
-const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+const panRegex = /^[A-Z]{3}P[A-Z][0-9]{4}[A-Z]{1}$/;
 export const onboardDevSchema = z.object({
     contact_name: z.string().min(3, "Name is required"),
     email: z.email(),

@@ -68,7 +68,7 @@ export const ProjectColumns: ColumnDef<Project>[] = [
 
             return (
                 <div className="hidden lg:inline-flex line-clamp-2 lg:text-base text-[8px] ">
-                    {equity != null ? `${equity}%` : `Rs ${bounty/100}` }
+                    {equity != null ? `${equity}%` : `Rs. ${bounty/100}` }
                 </div>
             )
         },
