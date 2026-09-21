@@ -21,28 +21,28 @@ export const onboardDev = async (req: Request, res: Response) => {
     const isDev = await prismaClient.dev.findUnique({
       where: { userId: userId }
     })
-    if(!isDev) return res.status(400).json({ message: "You are not a Developer" })
-      
+    if (!isDev) return res.status(400).json({ message: "You are not a Developer" })
+
     const account = await razorpay.accounts.create({
       type: "route",
       email: validated.data.email,
       contact_name: validated.data.contact_name,
       phone: validated.data.phone,
       legal_business_name: validated.data.legal_business_name,
-      customer_facing_business_name: validated.data.customer_facing_business_name ,
+      customer_facing_business_name: validated.data.customer_facing_business_name,
       business_type: 'individual',
       profile: {
         category: 'it_and_software',
         subcategory: 'saas',
         addresses: {
-          registered:{
+          registered: {
             street1: validated.data.street1,
             street2: validated.data.street2,
             city: validated.data.city,
             state: validated.data.state,
             postal_code: validated.data.postal_code,
             country: "IN"
-         }
+          }
         }
       }
     });
@@ -67,7 +67,7 @@ export const onboardDev = async (req: Request, res: Response) => {
     });
     console.log(stakeHolderAcc)
     console.log(JSON.stringify(stakeHolderAcc))
-    
+
     const productConfig = await razorpay.products.requestProductConfiguration(account.id, {
       "product_name": "route",
       "tnc_accepted": true
@@ -75,16 +75,28 @@ export const onboardDev = async (req: Request, res: Response) => {
     console.log(productConfig)
     console.log(JSON.stringify(productConfig))
 
+    type RouteStatus =
+      | "requested"
+      | "needs_clarification"
+      | "under_review"
+      | "activated"
+      | "suspended";
+
     await prismaClient.dev.update({
       where: { userId: userId },
-      data: { razorpayAccountId: account.id },
+      data: {
+        razorpayAccountId: account.id,
+        razorpayStakeholderId: stakeHolderAcc.id,
+        razorpayProductId: productConfig.id,
+        razorpayProductStatus: productConfig.activation_status as RouteStatus
+      },
     });
 
     res.json({ success: true, accountId: account.id, productId: productConfig.id });
   } catch (error: any) {
-    if(error.statusCode == 400){
+    if (error.statusCode == 400) {
       console.log(error)
-      if(error.field == 'email'){
+      if (error.field == 'email') {
         return res.status(400).json({ message: 'The Email is already linked to an account' })
       }
     }
@@ -136,18 +148,22 @@ export const Payout = async (req: Request, res: Response) => {
   try {
     const [ownersProject, submitExists] = await Promise.all([
       prismaClient.project.findUnique({ where: { id: projectId, owner: { userId: userId } }, select: { paymentStatus: true, bounty: true, ownerId: true } }),
-      prismaClient.submit.findUnique({ 
-        where: { id: submitId, projectId: projectId }, 
-        include: { 
-          contributors: { 
-            include: { 
+      prismaClient.submit.findUnique({
+        where: { id: submitId, projectId: projectId },
+        include: {
+          contributors: {
+            include: {
               dev: {
-                include: { user: {
-                  select: { name: true }
-                }}
-              }  }
-          }} 
-        })
+                include: {
+                  user: {
+                    select: { name: true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
     ])
 
     if (!ownersProject) return res.status(400).json({ message: "You are not the Owner of the Project" })
@@ -155,12 +171,12 @@ export const Payout = async (req: Request, res: Response) => {
     if (!submitExists) return res.status(404).json({ message: "Submission not found" })
 
     const missingAccountId = submitExists.contributors.find((contributor) => !contributor.dev.razorpayAccountId)
-    if(missingAccountId) return res.status(400).json({ message: `Cannot payout. ${missingAccountId.dev.user.name} has not linked their bank account` })
+    if (missingAccountId) return res.status(400).json({ message: `Cannot payout. ${missingAccountId.dev.user.name} has not linked their bank account` })
 
     const totalPercentage = submitExists.contributors.reduce((sum, contribution) => sum + contribution.contributionPercent, 0)
-    if(totalPercentage != 100) return res.status(400).json({ message: "Team contribution percentages not equal to 100%" })
+    if (totalPercentage != 100) return res.status(400).json({ message: "Team contribution percentages not equal to 100%" })
 
-  // here in update project, paymentstatus shouldnt be completed, only lock the winnerSubmitId 
+    // here in update project, paymentstatus shouldnt be completed, only lock the winnerSubmitId 
     const updateProject = await prismaClient.project.update({
       where: { id: projectId },
       data: { winnerSubmitId: submitId }

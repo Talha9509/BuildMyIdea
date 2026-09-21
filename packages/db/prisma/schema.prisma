@@ -31,6 +31,14 @@ enum RoleContributer {
   Member
 }
 
+enum RouteStatus {
+  requested
+  needs_clarification 
+  under_review 
+  activated 
+  suspended
+}
+
 enum PaymentType {
   Deposit
   Payout
@@ -86,6 +94,9 @@ model Dev{
   user          User      @relation(fields: [userId], references: [id])
   contributions SubmissionContributor[]
   razorpayAccountId String?      @unique
+  razorpayStakeholderId String?      @unique
+  razorpayProductId String?      @unique
+  razorpayProductStatus  RouteStatus?
   paymentsReceived   Payments[]
 }
 
