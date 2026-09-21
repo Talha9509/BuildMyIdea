@@ -61,31 +61,35 @@ const AddProjectForm = () => {
     //   router.refresh()
     //   toast.success("Project Added", { duration: 5000 });
     // }
-    if (response.type === "equity") {
-      setOnblur(false);
-      router.refresh();
-      toast.success("Project Added");
-    }
-    else if (response.type === "bounty") {
-      console.log("orderId: "+response.orderId)
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: response.amount,
-        order_id: response.orderId,
-        name: "BuildMyIdea",
-        description: "Bounty Escrow",
-        handler: function (razorpayResponse: any) {
-          setOnblur(false);
-          router.refresh();
-          toast.success("Payment successful! Project is now live");
-        }
-      };
-      const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', (res: any)  => {
-        console.error("Payment Failed Reason:", res.error.description);
-        toast.error("Payment failed. Please try again.");
-      })
-      rzp.open();
+    if (response.type) {
+      if (response.type === "equity") {
+        setOnblur(false);
+        router.refresh();
+        toast.success("Project Added");
+      }
+      else if (response.type === "bounty") {
+        console.log("orderId: " + response.orderId)
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+          amount: response.amount,
+          order_id: response.orderId,
+          name: "BuildMyIdea",
+          description: "Bounty Escrow",
+          handler: function (razorpayResponse: any) {
+            setOnblur(false);
+            router.refresh();
+            toast.success("Payment successful! Project is now live");
+          }
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', (res: any) => {
+          console.error("Payment Failed Reason:", res.error.description);
+          toast.error("Payment failed. Please try again.");
+        })
+        rzp.open();
+      }
+    } else {
+      toast.error(response.message)
     }
   }
   return (<div>
