@@ -18,17 +18,24 @@ export const editProfile = async (req: Request, res: Response) => {
   try {
     const user = await prismaClient.user.findUnique({
       where: { id: userId },
-      include: { owner: true, dev: true }
+      include: { 
+        owner: {
+         select: { id: true }
+        },
+        dev: {
+          select: { id: true }
+        } 
+      }
     })
     if (!user) {
       return res.status(404).json({ message: "User Not Found" })
     }
 
     let currentRole: "DEV" | "OWNER" | null = null
-    console.log(user.owner, user.dev)
+    console.log(user.owner?.id, user.dev?.id)
     // if you want to keep role in user table, then make use of it
-    if (user.owner) currentRole = "OWNER"
-    if (user.dev) currentRole = "DEV"
+    if (user.owner?.id) currentRole = "OWNER"
+    if (user.dev?.id) currentRole = "DEV"
 
     if (role && role == currentRole) {
       if (Object.keys(otherFields).length > 0) {
@@ -40,7 +47,7 @@ export const editProfile = async (req: Request, res: Response) => {
       }
       return res.json({ message: "Profile Updated", role: currentRole });
     }
-    if (currentRole === "DEV" && user.dev) {
+    if (currentRole === "DEV" && user.dev?.id) {
       // check if he has submits. as submit.count
       const hasSubmits = await prismaClient.submissionContributor.count({
         where: { devId: user.dev?.id }
@@ -49,7 +56,7 @@ export const editProfile = async (req: Request, res: Response) => {
         return res.status(409).json({ message: "Cannot Change Roles with Active Submits" })
       }
     }
-    if (currentRole === "OWNER" && user.owner) {
+    if (currentRole === "OWNER" && user.owner?.id) {
       const hasProjects = await prismaClient.project.count({
         where: { ownerId: user.owner?.id }
       })

@@ -4,6 +4,7 @@ import { ProjectSchema, updateProjectSchema, searchQuerySchema } from '@repo/com
 import { googleAi } from '@repo/embedding/embedding'
 import { embeddingQueue } from "@repo/redis/client";
 import { razorpay } from '../config/razorpay.js'
+import crypto from 'crypto'
 
 export const createProject = async (req: Request, res: Response) => {
   const userId = req.userId;
@@ -60,7 +61,7 @@ export const createProject = async (req: Request, res: Response) => {
         razorpay.orders.create({
           amount: bountyInPaise,
           currency: "INR",
-          receipt: `receipt_project_${project.id}`
+          receipt: `receipt_project_${crypto.randomUUID()}`
         })
       ])
       
@@ -116,7 +117,7 @@ export const getProjects = async (req: Request, res: Response) => {
     where: {
       OR: [
         { paymentStatus: "Paid" },
-        { bounty: { not: null } },
+        // { bounty: { not: null } },
         { equity: { not: null } },
       ]
     },
